@@ -4,62 +4,64 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { TextureLoader } from 'three/src/loaders/TextureLoader'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import * as THREE from 'three'
+import { useLenis } from './LenisProvider'
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const lenis = useLenis()
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end start'],
   })
 
-  // Animation timeline - adjusted for better sizing
+  // Animation timeline - adjusted for Lenis smooth scrolling
   const animations = {
     // Globe scale: starts large, stays large, then shrinks to medium (not too small)
     globeScale: useTransform(scrollYProgress, 
-      [0, 0.15, 0.35], 
-      [2.5, 2.5, 0.8]  // Increased sizes
+      [0, 0.2, 0.4], 
+      [2.5, 2.5, 0.8]  // Slightly adjusted timing for smoother transitions
     ),
     
     // Globe vertical position
     globeY: useTransform(scrollYProgress,
-      [0, 0.3, 0.5],
+      [0, 0.35, 0.55],
       [0, 0, -50]
     ),
     
     // Background: black -> green gradient
     bgGreen: useTransform(scrollYProgress,
-      [0, 0.3, 0.7],
+      [0, 0.35, 0.75],
       ['#000000', '#0a3a28', '#0d5a3d']
     ),
     
     // Silhouette: enters from bottom
     silhouetteY: useTransform(scrollYProgress,
-      [0, 0.3, 0.6],
+      [0, 0.35, 0.65],
       ['100%', '100%', '10%']
     ),
     
     // Main heading
     headingOpacity: useTransform(scrollYProgress,
-      [0, 0.3, 0.5],
+      [0, 0.35, 0.55],
       [0, 0.3, 1]
     ),
     
     // Subtext
     subtextOpacity: useTransform(scrollYProgress,
-      [0, 0.5, 0.7],
+      [0, 0.55, 0.75],
       [0, 0, 1]
     ),
     
     // Glow behind silhouette
     glowOpacity: useTransform(scrollYProgress,
-      [0, 0.7, 0.9],
+      [0, 0.75, 0.95],
       [0, 0, 0.8]
     ),
     
     // Background text behind globe
     bgTextOpacity: useTransform(scrollYProgress,
-      [0, 0.5, 0.7],
+      [0, 0.55, 0.75],
       [0, 0, 0.15]
     )
   }
