@@ -1,4 +1,4 @@
-import MapboxHero from '@/components/MapboxHero'
+import MapboxHeroGSAP from '@/components/MapboxHeroGSAP'
 import Stats from '@/components/Stats'
 import Workflow from '@/components/Workflow'
 import LiveDataFeeds from '@/components/LiveDataFeeds'
@@ -14,7 +14,7 @@ export default function Page() {
   return (
     <>
 
-<MapboxHero />
+<MapboxHeroGSAP />
       {/* Now the next section (white bg) starts below */}
       <Stats />
       <Workflow />

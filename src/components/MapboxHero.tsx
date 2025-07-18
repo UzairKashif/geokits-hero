@@ -1,9 +1,16 @@
 'use client'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useAnimationFrame } from 'framer-motion'
 import { useLenis } from './LenisProvider'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import { Plus_Jakarta_Sans } from "next/font/google"
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 // Set mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
@@ -13,6 +20,8 @@ export default function MapboxHero() {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const [autoRotation, setAutoRotation] = useState(0)
   const lenis = useLenis()
   
   const { scrollYProgress } = useScroll({
@@ -37,6 +46,42 @@ export default function MapboxHero() {
   const finalTextOpacity = useTransform(scrollYProgress, [0.7, 0.85, 1], [0, 1, 1])
   const finalTextScale = useTransform(scrollYProgress, [0.7, 0.85, 1], [0.8, 1, 1.02])
   const finalTextY = useTransform(scrollYProgress, [0.7, 0.85, 1], [40, 0, -10])
+
+  // Auto-spinning animation when not scrolling
+  useAnimationFrame((time) => {
+    if (!isScrolling && mapRef.current && mapLoaded) {
+      // Only spin when scroll progress is near 0 (at the beginning)
+      const scrollProgress = scrollYProgress.get()
+      if (scrollProgress < 0.1) {
+        // Slow, continuous rotation
+        const rotation = (time * 0.01) % 360 // Adjust speed by changing the multiplier
+        setAutoRotation(rotation)
+        mapRef.current.setBearing(rotation)
+      }
+    }
+  })
+
+  // Track scrolling state
+  useEffect(() => {
+    let scrollTimer: NodeJS.Timeout
+
+    const handleScroll = () => {
+      setIsScrolling(true)
+      clearTimeout(scrollTimer)
+      
+      // Consider user has stopped scrolling after 1 second
+      scrollTimer = setTimeout(() => {
+        setIsScrolling(false)
+      }, 1000)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(scrollTimer)
+    }
+  }, [])
 
   // Initialize map
   useEffect(() => {
@@ -85,7 +130,10 @@ export default function MapboxHero() {
     })
 
     const unsubscribeRotation = rotationValue.on('change', (rotation) => {
-      mapRef.current?.setBearing(rotation)
+      // Only apply scroll-based rotation when scrolling
+      if (isScrolling || scrollYProgress.get() > 0.1) {
+        mapRef.current?.setBearing(rotation)
+      }
     })
 
     const unsubscribePitch = pitchValue.on('change', (pitch) => {
@@ -97,7 +145,7 @@ export default function MapboxHero() {
       unsubscribeRotation()
       unsubscribePitch()
     }
-  }, [mapLoaded, zoomValue, rotationValue, pitchValue])
+  }, [mapLoaded, zoomValue, rotationValue, pitchValue, isScrolling, scrollYProgress])
 
   // Handle center point changes as we zoom in
   useEffect(() => {
@@ -107,23 +155,26 @@ export default function MapboxHero() {
       const map = mapRef.current
       if (!map) return
 
-      // Smoothly transition from global view to a specific location
-      // You can change these coordinates to focus on any location
-      const startLng = 0
-      const startLat = 0 // Start from equator for better globe view
-      const endLng = -74.006 // Example: New York
-      const endLat = 40.7128
+      // Only change center when scrolling or when scroll progress is significant
+      if (isScrolling || progress > 0.1) {
+        // Smoothly transition from global view to a specific location
+        // You can change these coordinates to focus on any location
+        const startLng = 0
+        const startLat = 0 // Start from equator for better globe view
+        const endLng = -74.006 // Example: New York
+        const endLat = 40.7128
 
-      const currentLng = startLng + (endLng - startLng) * progress
-      const currentLat = startLat + (endLat - startLat) * progress
+        const currentLng = startLng + (endLng - startLng) * progress
+        const currentLat = startLat + (endLat - startLat) * progress
 
-      map.setCenter([currentLng, currentLat])
+        map.setCenter([currentLng, currentLat])
+      }
     })
 
     return () => {
       unsubscribeScroll()
     }
-  }, [mapLoaded, scrollYProgress])
+  }, [mapLoaded, scrollYProgress, isScrolling])
 
   return (
     <div ref={containerRef} className="relative h-[300vh] bg-black">
@@ -148,12 +199,12 @@ export default function MapboxHero() {
           }}
         >
           <motion.h1 
-            className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 drop-shadow-2xl"
+            className={`${plusJakartaSans.className} text-4xl md:text-4xl lg:text-5xl font-bold text-white mb-8 drop-shadow-2xl`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
           >
-            Your go‑to for all GIS Solutions
+            Need a go-to solution for all <div className={`inline ${plusJakartaSans.className} text-[#32de84]`}>GISI</div> problems?
           </motion.h1>
           <motion.p 
             className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto drop-shadow-lg"
