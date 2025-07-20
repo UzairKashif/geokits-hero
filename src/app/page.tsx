@@ -13,12 +13,9 @@ import Footer from '@/components/Footer'
 export default function Page() {
   return (
     <>
-
-<MapboxHeroGSAP />
-      {/* Now the next section (white bg) starts below */}
+      <MapboxHeroGSAP />
       <Stats />
       <Workflow />
-      
       <LiveDataFeeds />
       <SolutionsShowcase />
       <ClientsTestimonials />
