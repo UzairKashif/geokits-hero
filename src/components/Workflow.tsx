@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Search, DownloadCloud, Cpu, CloudCog } from 'lucide-react'
-
+import Fonts from './Fonts'
 const steps = [
   {
     icon: Search,
@@ -33,6 +33,8 @@ const steps = [
 
 export default function Workflow() {
   return (
+    <>
+      <Fonts />
     <section id="workflow" className="w-full py-16 px-4">
       <h2 className="text-3xl font-bold text-white text-center mb-8">
         Our Workflow
@@ -58,5 +60,6 @@ export default function Workflow() {
         ))}
       </div>
     </section>
+    </>
   )
 }

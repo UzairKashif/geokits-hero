@@ -7,7 +7,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       {/* Use arbitrary values for your dark background and white text */}
-      <body className="bg-[#9ca3a2] text-white antialiased">
+      <body className="bg-[#343434] text-white antialiased">
         <AnimatedIntro />
         <LenisProvider>
           {children}
