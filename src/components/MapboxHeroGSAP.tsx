@@ -6,6 +6,9 @@
   import { useLenis } from "./LenisProvider"
   import "mapbox-gl/dist/mapbox-gl.css"
   import { Plus_Jakarta_Sans } from 'next/font/google'
+
+
+  import CompanyDescriptionSection from "./misc"
   import type { GSAPTween } from "gsap" // Declare GSAPTween variable
   // Register ScrollTrigger plugin
   gsap.registerPlugin(ScrollTrigger)
@@ -27,6 +30,7 @@
     const [mapError, setMapError] = useState<string | null>(null)
     const [isScrolling, setIsScrolling] = useState(false)
     const autoRotationRef = useRef<GSAPTween | null>(null)
+    const [isStart, setIsStart] = useState(true)
     const lenis = useLenis()
 
     // Text element refs for GSAP animations - single container approach
@@ -123,7 +127,7 @@
         )
       }
 
-      if (!isScrolling) {
+      if (!isScrolling && isStart) {
         startAutoRotation()
       }
 
@@ -132,7 +136,7 @@
           autoRotationRef.current.kill()
         }
       }
-    }, [mapLoaded, isScrolling])
+    }, [mapLoaded, isScrolling, isStart])
 
     // GSAP ScrollTrigger animations
     useEffect(() => {
@@ -152,6 +156,7 @@
             // Only set scrolling state when actually scrolling, not just on scroll events
             const velocity = Math.abs(self.getVelocity())
             setIsScrolling(velocity > 0.1)
+            setIsStart(false) // Set isStart to false as soon as ScrollTrigger detects any scroll
           },
         },
       })
@@ -363,6 +368,7 @@
 
       const handleScroll = () => {
         setIsScrolling(true)
+        setIsStart(false) // Set isStart to false as soon as scrolling begins
         clearTimeout(scrollTimer)
 
         scrollTimer = setTimeout(() => {
@@ -440,10 +446,10 @@
               </div>
             </div>
 
-            {/* Scroll indicator */}
+            {/* Scroll indicator - Hidden */}
             <div
               ref={scrollIndicatorRef}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 pointer-events-none"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 pointer-events-none hidden"
             >
               <div className="flex flex-col items-center">
                 <span className="text-sm mb-2">Scroll to explore</span>
@@ -485,119 +491,7 @@
           </div>
         </div>
 
-        {/* <CompanyDescriptionSection /> */}
+        <CompanyDescriptionSection />
       </>
     )
   }
-  // function CompanyDescriptionSection() {
-  //   const [inView, setInView] = useState(false);
-  //   const [scroll, setScroll] = useState(true);  // Controls scroll
-  //   const [word, setWord] = useState("");
-  //   const [scrolled, setScrolled] = useState(0);
-  //   const divRef = useRef(null);
-  //   const wheelListenerRef = useRef<((e: WheelEvent) => void) | null>(null);
-
-  //   const functions = ["learn", "understand", "deliver", "repeat"];
-
-  //   const handleWordChange = useCallback((e) => {
-  //     e.preventDefault();  // Prevent the default scroll behavior when animation is running
-      
-  //     if (e.deltaY > 0 && e.deltaY >= 50) { // Scrolled down with enough force
-  //       const nextIndex = scrolled + 1;
-        
-  //       if (nextIndex < functions.length) {
-  //         setWord(functions[nextIndex]);
-  //         setScrolled(nextIndex);
-  //         console.log(`Word changed to: ${functions[nextIndex]} (${nextIndex + 1}/${functions.length})`);
-  //       }
-        
-  //       // Complete animation when we've gone through all words
-  //       if (nextIndex >= functions.length - 1) {
-  //         console.log("Animation complete, re-enabling scroll");
-  //         setScroll(true); // Re-enable scroll
-  //       }
-  //     }
-  //   }, [scrolled, functions]);
-
-  //   const startAnimation = useCallback(() => {
-  //     if (!scroll) return; // Already running
-      
-  //     console.log("Starting word animation");
-  //     setScroll(false); // Disable scrolling while animation is running
-  //     setScrolled(0); // Reset scrolled to start from the first word
-  //     setWord(functions[0]); // Start with first word
-      
-  //     // Remove existing listener if any
-  //     if (wheelListenerRef.current) {
-  //       window.removeEventListener('wheel', wheelListenerRef.current);
-  //     }
-      
-  //     // Add new listener to handle scrolling during animation
-  //     wheelListenerRef.current = handleWordChange;
-  //     window.addEventListener('wheel', handleWordChange, { passive: false });
-  //   }, [scroll, handleWordChange, functions]);
-
-  //   useEffect(() => {
-  //     const observer = new IntersectionObserver(
-  //       (entries) => {
-  //         const entry = entries[0];
-  //         const rect = entry.boundingClientRect;
-  //         const viewPortHeight = window.innerHeight;
-  //         const isFullyVisible = rect.top >= -10 && rect.bottom <= viewPortHeight + 10;
-          
-  //         setInView(isFullyVisible);
-          
-  //         if (isFullyVisible && scroll) { // Only start if not already running
-  //           startAnimation();
-  //         }
-  //       },
-  //       {
-  //         root: null,
-  //         rootMargin: '0px',
-  //         threshold: [0, 0.1, 0.5, 1.0]
-  //       }
-  //     );
-
-  //     if (divRef.current) {
-  //       observer.observe(divRef.current);
-  //       console.log("observe start");
-  //     }
-
-  //     return () => {
-  //       if (divRef.current) {
-  //         observer.unobserve(divRef.current);
-  //       }
-  //     };
-  //   }, [startAnimation, scroll]);
-
-  //   // Clean up wheel listener when scroll is re-enabled
-  //   useEffect(() => {
-  //     if (scroll && wheelListenerRef.current) {
-  //       window.removeEventListener('wheel', wheelListenerRef.current);
-  //       wheelListenerRef.current = null;
-  //       console.log("Word animation listener removed");
-  //     }
-  //   }, [scroll]);
-
-  //   // Cleanup on unmount
-  //   useEffect(() => {
-  //     return () => {
-  //       if (wheelListenerRef.current) {
-  //         window.removeEventListener('wheel', wheelListenerRef.current);
-  //       }
-  //     };
-  //   }, []);
-
-  //   return (
-  //     <div ref={divRef} className="bg-orange h-screen w-screen flex items-center justify-center">
-  //       <div className="text-4xl font-bold text-white">
-  //         At Geokits, we {word}
-  //         {inView && !scroll && (
-  //           <div className="text-sm mt-4 opacity-70">
-  //             Progress: {scrolled + 1}/{functions.length} - Scroll down to continue
-  //           </div>
-  //         )}
-  //       </div>
-  //     </div>
-  //   );
-  // }

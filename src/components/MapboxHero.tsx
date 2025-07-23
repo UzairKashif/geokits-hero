@@ -278,9 +278,9 @@ export default function MapboxHero() {
           </motion.p>
         </motion.div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator - Hidden */}
         <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 pointer-events-none"
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 pointer-events-none hidden"
           style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
         >
           <div className="flex flex-col items-center">
@@ -308,3 +308,4 @@ export default function MapboxHero() {
     </div>
   )
 }
+
