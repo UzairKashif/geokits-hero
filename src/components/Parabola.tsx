@@ -143,29 +143,59 @@ export default function ParabolaScrollPage() {
     const points = []
     const numPoints = 100 // More points for smoother curve
 
-    // Generate points for a sine wave from 270° to 630° (one complete wave)
+    // Generate points for a sine wave from 270° to 630° to create upright parabola
+    // x=0 maps to 270°, x=width/2 maps to 90° (360°), x=width maps to 630°
     for (let i = 0; i <= numPoints; i++) {
       const x = (i / numPoints) * width // x goes from 0 to width
       
       // Map x position to angle range: 270° to 630° (in radians)
+      // This creates: x=0→270°(sin=-1), x=center→90°/450°(sin=1), x=width→630°(sin=-1)
       const startAngle = (270 * Math.PI) / 180 // 270° in radians
-      const endAngle = (630 * Math.PI) / 180   // 630° in radians
+      const endAngle = (630 * Math.PI) / 180   // 630° in radians  
       const angle = startAngle + (i / numPoints) * (endAngle - startAngle)
       
-      // Calculate sine wave value and invert it (negative because SVG y increases downward)
-      // Add 1 to make it start from 0 at the edges, then scale by height
-      const sineValue = Math.sin(angle)
-      const y = -height * ((sineValue + 1) / 2) // Normalize to 0-1 range, then scale
+      // Calculate sine wave value and invert for upright parabola
+      const sineValue = Math.sin(angle) // This gives us -1 at edges, 1 at center
+      // Invert and normalize: (-1 becomes 0, 1 becomes height) for upright U-shape
+      const y = height * (1 - (sineValue + 1) / 2) // Invert: when sin=-1, y=height; when sin=1, y=0
       
       points.push(`${x},${y}`)
     }
 
-    // Ensure smooth curve from edge to edge (should naturally be at y=0)
-    const firstPoint = `0,0`
-    const lastPoint = `${width},0`
+    // Wave starts and ends at bottom edge (y=height) since it's an upright parabola
+    const firstPoint = `0,${height}`
+    const lastPoint = `${width},${height}`
     
     return `M ${firstPoint} L ${points.slice(1, -1).join(" L ")} L ${lastPoint}`
   }
+
+  // Generate multiple parabolas with different heights and phases
+  const generateMultipleParabolas = () => {
+    const parabolas = []
+    const numParabolas = 5 // Number of layered parabolas
+    
+    for (let i = 0; i < numParabolas; i++) {
+      // Each parabola has different height progression and phase offset
+      const heightMultiplier = 1 - (i * 0.15) // Each layer is 15% shorter
+      const phaseOffset = i * 0.2 // Slight phase offset for variety
+      const currentHeight = parabolaHeight * heightMultiplier * (1 + Math.sin(overallProgress * Math.PI + phaseOffset) * 0.1)
+      
+      if (currentHeight > 0) {
+        const path = generateParabolaPath(windowWidth, currentHeight)
+        parabolas.push({
+          path,
+          height: currentHeight,
+          opacity: 0.8 - (i * 0.15), // Decreasing opacity for depth
+          blur: i * 2, // Increasing blur for depth
+          layer: i
+        })
+      }
+    }
+    
+    return parabolas
+  }
+
+  const multipleParabolas = generateMultipleParabolas()
 
   const parabolaPath = generateParabolaPath(windowWidth, parabolaHeight)
   const phase1Progress = Math.min(parabolaHeight / windowHeight, 1)
@@ -212,15 +242,15 @@ export default function ParabolaScrollPage() {
           </div>
         )}
 
-        {/* Parabola SVG - can grow beyond screen height */}
+        {/* Parabola SVG - positioned to start from top of lower section */}
         {parabolaHeight > 0 && (
           <svg
-            className="absolute bottom-0 left-0 w-full pointer-events-none z-20"
+            className="absolute top-full left-0 w-full pointer-events-none z-20"
             style={{
               height: `${Math.min(parabolaHeight + windowHeight * 0.3, windowHeight * 4)}px`, // Extended height for blending
-              transform: `translateY(${Math.max(0, windowHeight - parabolaHeight)}px)`,
+              transform: `translateY(-${parabolaHeight}px)`, // Move up by wave height so wave peaks into first section
             }}
-            viewBox={`0 ${-parabolaHeight - windowHeight * 0.3} ${windowWidth} ${parabolaHeight + windowHeight * 0.3}`}
+            viewBox={`0 0 ${windowWidth} ${parabolaHeight + windowHeight * 0.3}`}
             preserveAspectRatio="none"
           >
             <defs>
@@ -253,13 +283,13 @@ export default function ParabolaScrollPage() {
                 </feMerge>
               </filter>
             </defs>
-            {/* Main wave fill */}
-            <path d={`${parabolaPath} L ${windowWidth},0 L 0,0 Z`} fill="url(#parabolaRadialGradient)" />
+            {/* Main wave fill - fill below the wave curve */}
+            <path d={`${parabolaPath} L ${windowWidth},${parabolaHeight + windowHeight * 0.3} L 0,${parabolaHeight + windowHeight * 0.3} Z`} fill="url(#parabolaRadialGradient)" />
             
             {/* Blending gradient rectangle extending below the wave */}
             <rect 
               x="0" 
-              y="0" 
+              y={parabolaHeight} 
               width={windowWidth} 
               height={windowHeight * 0.3} 
               fill="url(#blendingGradient)" 
