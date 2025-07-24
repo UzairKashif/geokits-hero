@@ -68,20 +68,25 @@ export default function ParabolaScrollPage() {
     const handleWheel = (e: WheelEvent) => {
       if (!containerRef.current) return
 
-      // Only handle wheel events if we're intersecting OR in an active parabola phase
-      const shouldHandle = isIntersecting || parabolaHeight > 0 || scrollPosition > 0
+      const scrollSensitivity = 1.5 // Reduced sensitivity for smoother animation
+      const deltaY = e.deltaY * scrollSensitivity
+
+      // Handle wheel events if:
+      // 1. We're intersecting (in view)
+      // 2. We have active parabola state (height > 0 or scroll > 0)
+      // 3. We're scrolling up and have completed phases (need to reverse)
+      const shouldHandle = isIntersecting || parabolaHeight > 0 || scrollPosition > 0 || 
+                          (deltaY < 0 && (phase1Complete || phase2Complete))
       
       if (!shouldHandle) {
         return // Let normal scroll behavior handle it
       }
 
-      const scrollSensitivity = 2
-      const deltaY = e.deltaY * scrollSensitivity
-
       // Only prevent default if we're actively in a parabola phase or starting one
-      if (parabolaHeight > 0 || scrollPosition > 0 || (isIntersecting && deltaY > 0)) {
-        // But don't prevent default if both phases are complete - let normal scroll take over
-        if (phase1Complete && phase2Complete) {
+      if (parabolaHeight > 0 || scrollPosition > 0 || (isIntersecting && deltaY > 0) || 
+          (deltaY < 0 && (phase1Complete || phase2Complete))) {
+        // But don't prevent default if both phases are complete and we're scrolling down
+        if (phase1Complete && phase2Complete && deltaY > 0) {
           return // Let browser handle normal scrolling
         }
         
@@ -106,7 +111,18 @@ export default function ParabolaScrollPage() {
           }
         } else {
           // Scrolling up
-          if (scrollPosition > 0) {
+          if (phase2Complete) {
+            // If we completed phase 2, we need to reverse both scroll and parabola growth
+            setScrollPosition((prev) => {
+              const newScrollPos = Math.max(prev + deltaY, 0)
+              window.scrollTo(0, newScrollPos)
+              return newScrollPos
+            })
+            if (parabolaHeight > windowHeight) {
+              setParabolaHeight((prev) => Math.max(prev + deltaY, windowHeight))
+            }
+          } else if (scrollPosition > 0) {
+            // Phase 2 active - decrease both scroll and parabola
             setScrollPosition((prev) => {
               const newScrollPos = Math.max(prev + deltaY, 0)
               window.scrollTo(0, newScrollPos)
@@ -116,6 +132,7 @@ export default function ParabolaScrollPage() {
               setParabolaHeight((prev) => Math.max(prev + deltaY, windowHeight))
             }
           } else {
+            // Phase 1 - only decrease parabola height
             setParabolaHeight((prev) => Math.max(prev + deltaY, 0))
           }
         }
@@ -182,15 +199,14 @@ export default function ParabolaScrollPage() {
   // Generate multiple parabolas with different peak heights but same endpoints
   const generateMultipleParabolas = () => {
     const parabolas = []
-    const numParabolas = 5 // Number of layered parabolas
+    const numParabolas = 4 // Reduced for better performance
     
     // All parabolas should end at the same height - endpoints at the top of the second section
     const sharedEndpointHeight = parabolaHeight // Endpoints align with top of second section
     
     for (let i = 0; i < numParabolas; i++) {
       // Different height growth rates for each parabola
-      // Reversed order: shortest (slowest) first, tallest (fastest) last
-      const heightMultipliers = [0.4, 0.55, 0.7, 0.85, 1.0] // Ascending order
+      const heightMultipliers = [0.5, 0.7, 0.85, 1.0] // Fewer layers for performance
       const heightMultiplier = heightMultipliers[i] || 1.0
       const currentHeight = parabolaHeight * heightMultiplier
       
@@ -199,8 +215,8 @@ export default function ParabolaScrollPage() {
         parabolas.push({
           path,
           height: currentHeight,
-          opacity: 0.5 + (i * 0.1), // Increasing opacity (shortest has lowest opacity)
-          blur: (numParabolas - 1 - i) * 2, // Decreasing blur (shortest has most blur)
+          opacity: 0.3 + (i * 0.2), // Simplified opacity
+          blur: (numParabolas - 1 - i) * 1.5, // Reduced blur for performance
           layer: i
         })
       }
@@ -263,86 +279,61 @@ export default function ParabolaScrollPage() {
             preserveAspectRatio="none"
           >
             <defs>
-              <linearGradient id="parabolaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity="0.9" />
-                <stop offset="25%" stopColor="#16a34a" stopOpacity="0.8" />
-                <stop offset="50%" stopColor="#15803d" stopOpacity="0.7" />
-                <stop offset="75%" stopColor="#166534" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="#14532d" stopOpacity="0.5" />
-              </linearGradient>
-              
-              {/* Multiple radial gradients for different layers */}
+              {/* Extended thermal gradients that blend into the section below */}
               {multipleParabolas.map((parabola, index) => (
-                <radialGradient key={`gradient-${index}`} id={`parabolaRadialGradient${index}`} cx="50%" cy="0%" r="120%">
-                  <stop offset="0%" stopColor="#4ade80" stopOpacity={0.9 * parabola.opacity} />
-                  <stop offset="20%" stopColor="#22c55e" stopOpacity={0.8 * parabola.opacity} />
-                  <stop offset="40%" stopColor="#16a34a" stopOpacity={0.7 * parabola.opacity} />
-                  <stop offset="60%" stopColor="#15803d" stopOpacity={0.6 * parabola.opacity} />
-                  <stop offset="80%" stopColor="#166534" stopOpacity={0.4 * parabola.opacity} />
-                  <stop offset="100%" stopColor="#14532d" stopOpacity={0.2 * parabola.opacity} />
+                <radialGradient key={`gradient-${index}`} id={`parabolaRadialGradient${index}`} cx="50%" cy="0%" r="140%">
+                  <stop offset="0%" stopColor="#065f46" stopOpacity={0.8 * parabola.opacity} />
+                  <stop offset="20%" stopColor="#047857" stopOpacity={0.6 * parabola.opacity} />
+                  <stop offset="40%" stopColor="#134e4a" stopOpacity={0.4 * parabola.opacity} />
+                  <stop offset="65%" stopColor="#1f2937" stopOpacity={0.3 * parabola.opacity} />
+                  <stop offset="80%" stopColor="#111827" stopOpacity={0.2 * parabola.opacity} />
+                  <stop offset="100%" stopColor="#000000" stopOpacity={0.05 * parabola.opacity} />
                 </radialGradient>
               ))}
               
+              {/* Extended blending gradient that reaches into the second section */}
               <linearGradient id="blendingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#14532d" stopOpacity="0.3" />
-                <stop offset="30%" stopColor="#166534" stopOpacity="0.2" />
-                <stop offset="60%" stopColor="#1f2937" stopOpacity="0.1" />
-                <stop offset="100%" stopColor="#111827" stopOpacity="0" />
+                <stop offset="0%" stopColor="#065f46" stopOpacity="0.4" />
+                <stop offset="20%" stopColor="#047857" stopOpacity="0.3" />
+                <stop offset="40%" stopColor="#134e4a" stopOpacity="0.25" />
+                <stop offset="60%" stopColor="#1f2937" stopOpacity="0.15" />
+                <stop offset="80%" stopColor="#111827" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#000000" stopOpacity="0" />
               </linearGradient>
               
-              {/* Multiple blur filters for different layers */}
+              {/* Simplified blur filters for performance */}
               {multipleParabolas.map((parabola, index) => (
-                <filter key={`glow-${index}`} id={`glow${index}`}>
-                  <feGaussianBlur stdDeviation={4 + parabola.blur} result="coloredBlur" />
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
+                <filter key={`blur-${index}`} id={`simpleBlur${index}`}>
+                  <feGaussianBlur stdDeviation={2 + parabola.blur} />
                 </filter>
               ))}
             </defs>
             
-            {/* Render multiple parabolas from back to front (tallest to shortest) */}
+            {/* Parabola rendering with extended blending into second section */}
             {multipleParabolas.map((parabola, index) => (
               <g key={`parabola-${index}`}>
-                {/* Main wave fill - fill below the wave curve */}
+                {/* Extended parabola fill that blends seamlessly into the section below */}
                 <path 
                   d={`${parabola.path} L ${windowWidth},${parabolaHeight + windowHeight * 0.3} L 0,${parabolaHeight + windowHeight * 0.3} Z`} 
                   fill={`url(#parabolaRadialGradient${parabola.layer})`}
-                  style={{ filter: `blur(${parabola.blur}px)` }}
-                />
-                
-                {/* Wave stroke effects */}
-                <path
-                  d={parabola.path}
-                  stroke={`rgba(34, 197, 94, ${0.9 * parabola.opacity})`}
-                  strokeWidth="3"
-                  fill="none"
-                  filter={`url(#glow${parabola.layer})`}
-                  className="drop-shadow-lg"
-                />
-                
-                {/* Additional glow effect */}
-                <path
-                  d={parabola.path}
-                  stroke={`rgba(74, 222, 128, ${0.6 * parabola.opacity})`}
-                  strokeWidth="6"
-                  fill="none"
                   style={{ 
-                    opacity: 0.5 * parabola.opacity,
-                    filter: `blur(${parabola.blur * 0.5}px)`
+                    filter: `url(#simpleBlur${parabola.layer})`,
+                    opacity: parabola.opacity
                   }}
                 />
               </g>
             ))}
             
-            {/* Blending gradient rectangle extending below the wave */}
+            {/* Full-height blending overlay that extends from parabola to bottom of second section */}
             <rect 
               x="0" 
-              y={parabolaHeight} 
+              y="0" 
               width={windowWidth} 
-              height={windowHeight * 0.3} 
+              height={parabolaHeight + windowHeight * 0.3} 
               fill="url(#blendingGradient)" 
+              style={{
+                opacity: 0.6
+              }}
             />
           </svg>
         )}
