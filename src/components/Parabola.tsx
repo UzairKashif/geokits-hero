@@ -80,6 +80,11 @@ export default function ParabolaScrollPage() {
 
       // Only prevent default if we're actively in a parabola phase or starting one
       if (parabolaHeight > 0 || scrollPosition > 0 || (isIntersecting && deltaY > 0)) {
+        // But don't prevent default if both phases are complete - let normal scroll take over
+        if (phase1Complete && phase2Complete) {
+          return // Let browser handle normal scrolling
+        }
+        
         e.preventDefault()
 
         if (deltaY > 0) {
@@ -96,7 +101,7 @@ export default function ParabolaScrollPage() {
               return newScrollPos
             })
           } else {
-            // Phase 3: Let normal scrolling take over
+            // Phase 3: Let normal scrolling take over - don't interfere
             return
           }
         } else {
@@ -136,8 +141,8 @@ export default function ParabolaScrollPage() {
     maxScrollPosition,
   ])
 
-  // Generate parabola path with proper curve
-  const generateParabolaPath = (width: number, height: number) => {
+  // Generate parabola path with proper curve - endpoints at a fixed height
+  const generateParabolaPath = (width: number, height: number, endpointHeight: number) => {
     if (height <= 0) return `M 0,0 L ${width},0`
 
     const points = []
@@ -157,36 +162,45 @@ export default function ParabolaScrollPage() {
       // Calculate sine wave value and invert for upright parabola
       const sineValue = Math.sin(angle) // This gives us -1 at edges, 1 at center
       // Invert and normalize: (-1 becomes 0, 1 becomes height) for upright U-shape
-      const y = height * (1 - (sineValue + 1) / 2) // Invert: when sin=-1, y=height; when sin=1, y=0
+      const y = endpointHeight - (height * (sineValue + 1) / 2) // Start from endpointHeight and go up
       
       points.push(`${x},${y}`)
     }
 
-    // Wave starts and ends at bottom edge (y=height) since it's an upright parabola
-    const firstPoint = `0,${height}`
-    const lastPoint = `${width},${height}`
+    // All waves start and end at the SAME height (endpointHeight)
+    const firstPoint = `0,${endpointHeight}`
+    const lastPoint = `${width},${endpointHeight}`
     
     return `M ${firstPoint} L ${points.slice(1, -1).join(" L ")} L ${lastPoint}`
   }
 
-  // Generate multiple parabolas with different heights and phases
+  // Calculate progress values first
+  const phase1Progress = Math.min(parabolaHeight / windowHeight, 1)
+  const phase2Progress = Math.min(scrollPosition / maxScrollPosition, 1)
+  const overallProgress = (phase1Progress + phase2Progress) / 2
+
+  // Generate multiple parabolas with different peak heights but same endpoints
   const generateMultipleParabolas = () => {
     const parabolas = []
     const numParabolas = 5 // Number of layered parabolas
     
+    // All parabolas should end at the same height - endpoints at the top of the second section
+    const sharedEndpointHeight = parabolaHeight // Endpoints align with top of second section
+    
     for (let i = 0; i < numParabolas; i++) {
-      // Each parabola has different height progression and phase offset
-      const heightMultiplier = 1 - (i * 0.15) // Each layer is 15% shorter
-      const phaseOffset = i * 0.2 // Slight phase offset for variety
-      const currentHeight = parabolaHeight * heightMultiplier * (1 + Math.sin(overallProgress * Math.PI + phaseOffset) * 0.1)
+      // Different height growth rates for each parabola
+      // Reversed order: shortest (slowest) first, tallest (fastest) last
+      const heightMultipliers = [0.4, 0.55, 0.7, 0.85, 1.0] // Ascending order
+      const heightMultiplier = heightMultipliers[i] || 1.0
+      const currentHeight = parabolaHeight * heightMultiplier
       
       if (currentHeight > 0) {
-        const path = generateParabolaPath(windowWidth, currentHeight)
+        const path = generateParabolaPath(windowWidth, currentHeight, sharedEndpointHeight)
         parabolas.push({
           path,
           height: currentHeight,
-          opacity: 0.8 - (i * 0.15), // Decreasing opacity for depth
-          blur: i * 2, // Increasing blur for depth
+          opacity: 0.5 + (i * 0.1), // Increasing opacity (shortest has lowest opacity)
+          blur: (numParabolas - 1 - i) * 2, // Decreasing blur (shortest has most blur)
           layer: i
         })
       }
@@ -196,11 +210,6 @@ export default function ParabolaScrollPage() {
   }
 
   const multipleParabolas = generateMultipleParabolas()
-
-  const parabolaPath = generateParabolaPath(windowWidth, parabolaHeight)
-  const phase1Progress = Math.min(parabolaHeight / windowHeight, 1)
-  const phase2Progress = Math.min(scrollPosition / maxScrollPosition, 1)
-  const overallProgress = (phase1Progress + phase2Progress) / 2
 
   // Generate deterministic particles to avoid hydration mismatch
   const particles = Array.from({ length: 15 }, (_, i) => {
@@ -242,7 +251,7 @@ export default function ParabolaScrollPage() {
           </div>
         )}
 
-        {/* Parabola SVG - positioned to start from top of lower section */}
+        {/* Multiple Parabolas SVG - positioned to start from top of lower section */}
         {parabolaHeight > 0 && (
           <svg
             className="absolute top-full left-0 w-full pointer-events-none z-20"
@@ -261,30 +270,71 @@ export default function ParabolaScrollPage() {
                 <stop offset="75%" stopColor="#166534" stopOpacity="0.6" />
                 <stop offset="100%" stopColor="#14532d" stopOpacity="0.5" />
               </linearGradient>
-              <radialGradient id="parabolaRadialGradient" cx="50%" cy="0%" r="120%">
-                <stop offset="0%" stopColor="#4ade80" stopOpacity="0.9" />
-                <stop offset="20%" stopColor="#22c55e" stopOpacity="0.8" />
-                <stop offset="40%" stopColor="#16a34a" stopOpacity="0.7" />
-                <stop offset="60%" stopColor="#15803d" stopOpacity="0.6" />
-                <stop offset="80%" stopColor="#166534" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#14532d" stopOpacity="0.2" />
-              </radialGradient>
+              
+              {/* Multiple radial gradients for different layers */}
+              {multipleParabolas.map((parabola, index) => (
+                <radialGradient key={`gradient-${index}`} id={`parabolaRadialGradient${index}`} cx="50%" cy="0%" r="120%">
+                  <stop offset="0%" stopColor="#4ade80" stopOpacity={0.9 * parabola.opacity} />
+                  <stop offset="20%" stopColor="#22c55e" stopOpacity={0.8 * parabola.opacity} />
+                  <stop offset="40%" stopColor="#16a34a" stopOpacity={0.7 * parabola.opacity} />
+                  <stop offset="60%" stopColor="#15803d" stopOpacity={0.6 * parabola.opacity} />
+                  <stop offset="80%" stopColor="#166534" stopOpacity={0.4 * parabola.opacity} />
+                  <stop offset="100%" stopColor="#14532d" stopOpacity={0.2 * parabola.opacity} />
+                </radialGradient>
+              ))}
+              
               <linearGradient id="blendingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#14532d" stopOpacity="0.3" />
                 <stop offset="30%" stopColor="#166534" stopOpacity="0.2" />
                 <stop offset="60%" stopColor="#1f2937" stopOpacity="0.1" />
                 <stop offset="100%" stopColor="#111827" stopOpacity="0" />
               </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
+              
+              {/* Multiple blur filters for different layers */}
+              {multipleParabolas.map((parabola, index) => (
+                <filter key={`glow-${index}`} id={`glow${index}`}>
+                  <feGaussianBlur stdDeviation={4 + parabola.blur} result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              ))}
             </defs>
-            {/* Main wave fill - fill below the wave curve */}
-            <path d={`${parabolaPath} L ${windowWidth},${parabolaHeight + windowHeight * 0.3} L 0,${parabolaHeight + windowHeight * 0.3} Z`} fill="url(#parabolaRadialGradient)" />
+            
+            {/* Render multiple parabolas from back to front (tallest to shortest) */}
+            {multipleParabolas.map((parabola, index) => (
+              <g key={`parabola-${index}`}>
+                {/* Main wave fill - fill below the wave curve */}
+                <path 
+                  d={`${parabola.path} L ${windowWidth},${parabolaHeight + windowHeight * 0.3} L 0,${parabolaHeight + windowHeight * 0.3} Z`} 
+                  fill={`url(#parabolaRadialGradient${parabola.layer})`}
+                  style={{ filter: `blur(${parabola.blur}px)` }}
+                />
+                
+                {/* Wave stroke effects */}
+                <path
+                  d={parabola.path}
+                  stroke={`rgba(34, 197, 94, ${0.9 * parabola.opacity})`}
+                  strokeWidth="3"
+                  fill="none"
+                  filter={`url(#glow${parabola.layer})`}
+                  className="drop-shadow-lg"
+                />
+                
+                {/* Additional glow effect */}
+                <path
+                  d={parabola.path}
+                  stroke={`rgba(74, 222, 128, ${0.6 * parabola.opacity})`}
+                  strokeWidth="6"
+                  fill="none"
+                  style={{ 
+                    opacity: 0.5 * parabola.opacity,
+                    filter: `blur(${parabola.blur * 0.5}px)`
+                  }}
+                />
+              </g>
+            ))}
             
             {/* Blending gradient rectangle extending below the wave */}
             <rect 
@@ -293,24 +343,6 @@ export default function ParabolaScrollPage() {
               width={windowWidth} 
               height={windowHeight * 0.3} 
               fill="url(#blendingGradient)" 
-            />
-            
-            {/* Wave stroke effects */}
-            <path
-              d={parabolaPath}
-              stroke="rgba(34, 197, 94, 0.9)"
-              strokeWidth="3"
-              fill="none"
-              filter="url(#glow)"
-              className="drop-shadow-lg"
-            />
-            {/* Additional glow effect */}
-            <path
-              d={parabolaPath}
-              stroke="rgba(74, 222, 128, 0.6)"
-              strokeWidth="6"
-              fill="none"
-              className="opacity-50"
             />
           </svg>
         )}
