@@ -1,22 +1,23 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLenis } from "./LenisProvider"
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 export default function ParabolaScrollPage() {
   const [parabolaHeight, setParabolaHeight] = useState(0)
   const [windowHeight, setWindowHeight] = useState(800)
   const [windowWidth, setWindowWidth] = useState(1200)
-  const [scrollPosition, setScrollPosition] = useState(0)
   const [isClient, setIsClient] = useState(false)
-  const [isIntersecting, setIsIntersecting] = useState(false)
+  
   const containerRef = useRef<HTMLDivElement>(null)
-
-  // Calculate phases
-  const maxParabolaHeight = windowHeight * 2 // Parabola can grow to 2x screen height
-  const maxScrollPosition = windowHeight // Scroll one full screen height to reveal second section
-
-  const phase1Complete = parabolaHeight >= windowHeight // First phase: parabola reaches screen height
-  const phase2Complete = scrollPosition >= maxScrollPosition && parabolaHeight >= maxParabolaHeight // Second phase: fully scrolled and parabola at max
+  const heroSectionRef = useRef<HTMLDivElement>(null)
+  const lenis = useLenis()
 
   useEffect(() => {
     // Set client-side flag and initial window dimensions
@@ -28,6 +29,7 @@ export default function ParabolaScrollPage() {
       const handleResize = () => {
         setWindowHeight(window.innerHeight)
         setWindowWidth(window.innerWidth)
+        ScrollTrigger.refresh()
       }
 
       window.addEventListener("resize", handleResize)
@@ -35,128 +37,29 @@ export default function ParabolaScrollPage() {
     }
   }, [])
 
-  // Use Intersection Observer for better detection of when component is active
   useEffect(() => {
-    if (!containerRef.current) return
+    if (!isClient || !containerRef.current || !heroSectionRef.current) return
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsIntersecting(entry.isIntersecting)
+    const animation = gsap.to({ height: 0 }, {
+      height: windowHeight,
+      ease: "none",
+      onUpdate: function () {
+        setParabolaHeight(this.targets()[0].height)
       },
-      { 
-        threshold: 0.1, // Trigger when 10% visible
-        rootMargin: '0px 0px -50% 0px' // Only trigger when in upper half of viewport
-      }
-    )
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: `+=${windowHeight}`,
+        scrub: true,
+        pin: heroSectionRef.current,
+        pinSpacing: true,
+      },
+    })
 
-    observer.observe(containerRef.current)
-
-    return () => observer.disconnect()
-  }, [])
-
-  // Reset parabola state when component is no longer intersecting and no active phases
-  useEffect(() => {
-    if (!isIntersecting && parabolaHeight === 0 && scrollPosition === 0) {
-      // Component is not visible and not in active state - ensure clean state
-      setParabolaHeight(0)
-      setScrollPosition(0)
+    return () => {
+      animation.kill()
     }
-  }, [isIntersecting, parabolaHeight, scrollPosition])
-
-  useEffect(() => {
-    // Only add wheel listener when component is in view and needs custom behavior
-    const handleWheel = (e: WheelEvent) => {
-      if (!containerRef.current) return
-
-      const scrollSensitivity = 1.5 // Reduced sensitivity for smoother animation
-      const deltaY = e.deltaY * scrollSensitivity
-
-      // Handle wheel events if:
-      // 1. We're intersecting (in view)
-      // 2. We have active parabola state (height > 0 or scroll > 0)
-      // 3. We're scrolling up and have completed phases (need to reverse)
-      const shouldHandle = isIntersecting || parabolaHeight > 0 || scrollPosition > 0 || 
-                          (deltaY < 0 && (phase1Complete || phase2Complete))
-      
-      if (!shouldHandle) {
-        return // Let normal scroll behavior handle it
-      }
-
-      // Only prevent default if we're actively in a parabola phase or starting one
-      if (parabolaHeight > 0 || scrollPosition > 0 || (isIntersecting && deltaY > 0) || 
-          (deltaY < 0 && (phase1Complete || phase2Complete))) {
-        // But don't prevent default if both phases are complete and we're scrolling down
-        if (phase1Complete && phase2Complete && deltaY > 0) {
-          return // Let browser handle normal scrolling
-        }
-        
-        e.preventDefault()
-
-        if (deltaY > 0) {
-          // Scrolling down
-          if (!phase1Complete) {
-            // Phase 1: Only grow parabola
-            setParabolaHeight((prev) => Math.min(prev + deltaY, windowHeight))
-          } else if (!phase2Complete) {
-            // Phase 2: Grow parabola AND scroll page
-            setParabolaHeight((prev) => Math.min(prev + deltaY, maxParabolaHeight))
-            setScrollPosition((prev) => {
-              const newScrollPos = Math.min(prev + deltaY, maxScrollPosition)
-              window.scrollTo(0, newScrollPos)
-              return newScrollPos
-            })
-          } else {
-            // Phase 3: Let normal scrolling take over - don't interfere
-            return
-          }
-        } else {
-          // Scrolling up
-          if (phase2Complete) {
-            // If we completed phase 2, we need to reverse both scroll and parabola growth
-            setScrollPosition((prev) => {
-              const newScrollPos = Math.max(prev + deltaY, 0)
-              window.scrollTo(0, newScrollPos)
-              return newScrollPos
-            })
-            if (parabolaHeight > windowHeight) {
-              setParabolaHeight((prev) => Math.max(prev + deltaY, windowHeight))
-            }
-          } else if (scrollPosition > 0) {
-            // Phase 2 active - decrease both scroll and parabola
-            setScrollPosition((prev) => {
-              const newScrollPos = Math.max(prev + deltaY, 0)
-              window.scrollTo(0, newScrollPos)
-              return newScrollPos
-            })
-            if (parabolaHeight > windowHeight) {
-              setParabolaHeight((prev) => Math.max(prev + deltaY, windowHeight))
-            }
-          } else {
-            // Phase 1 - only decrease parabola height
-            setParabolaHeight((prev) => Math.max(prev + deltaY, 0))
-          }
-        }
-      }
-    }
-
-    // Only add listener when component is mounted
-    if (typeof window !== "undefined" && containerRef.current) {
-      window.addEventListener("wheel", handleWheel, { passive: false })
-      
-      return () => {
-        window.removeEventListener("wheel", handleWheel)
-      }
-    }
-  }, [
-    isIntersecting,
-    parabolaHeight,
-    scrollPosition,
-    phase1Complete,
-    phase2Complete,
-    windowHeight,
-    maxParabolaHeight,
-    maxScrollPosition,
-  ])
+  }, [isClient, windowHeight, lenis])
 
   // Generate parabola path with proper curve - endpoints at a fixed height
   const generateParabolaPath = (width: number, height: number, endpointHeight: number) => {
@@ -193,35 +96,36 @@ export default function ParabolaScrollPage() {
 
   // Calculate progress values first
   const phase1Progress = Math.min(parabolaHeight / windowHeight, 1)
-  const phase2Progress = Math.min(scrollPosition / maxScrollPosition, 1)
-  const overallProgress = (phase1Progress + phase2Progress) / 2
+  const overallProgress = phase1Progress
 
   // Generate multiple parabolas with different peak heights but same endpoints
   const generateMultipleParabolas = () => {
+    // Each parabola is a single color: green, #F97A00, black
+    const colors = [
+      { name: "green", color: "#00C853" }, // vivid green
+      { name: "orange", color: "#F97A00" },
+      { name: "black", color: "#000000" },
+    ]
     const parabolas = []
-    const numParabolas = 4 // Reduced for better performance
-    
-    // All parabolas should end at the same height - endpoints at the top of the second section
-    const sharedEndpointHeight = parabolaHeight // Endpoints align with top of second section
-    
+    const numParabolas = colors.length
+    const sharedEndpointHeight = parabolaHeight
+    const heightMultipliers = [0.7, 0.85, 1.0] // tallest = black
+    const blurs = [8, 16, 32] // more blur for lower layers
+    const opacities = [0.7, 0.6, 0.5]
     for (let i = 0; i < numParabolas; i++) {
-      // Different height growth rates for each parabola
-      const heightMultipliers = [0.5, 0.7, 0.85, 1.0] // Fewer layers for performance
-      const heightMultiplier = heightMultipliers[i] || 1.0
-      const currentHeight = parabolaHeight * heightMultiplier
-      
+      const currentHeight = parabolaHeight * heightMultipliers[i]
       if (currentHeight > 0) {
         const path = generateParabolaPath(windowWidth, currentHeight, sharedEndpointHeight)
         parabolas.push({
           path,
           height: currentHeight,
-          opacity: 0.3 + (i * 0.2), // Simplified opacity
-          blur: (numParabolas - 1 - i) * 1.5, // Reduced blur for performance
+          color: colors[i].color,
+          opacity: opacities[i],
+          blur: blurs[i],
           layer: i
         })
       }
     }
-    
     return parabolas
   }
 
@@ -246,7 +150,7 @@ export default function ParabolaScrollPage() {
   return (
     <div ref={containerRef} className="relative">
       {/* First Section */}
-      <section className="relative w-full h-screen bg-black flex items-center justify-center overflow-hidden">
+      <section ref={heroSectionRef} className="relative w-full h-screen bg-black flex items-center justify-center overflow-hidden">
  
 
         {/* Floating particles - only render on client to avoid hydration mismatch */}
@@ -272,69 +176,41 @@ export default function ParabolaScrollPage() {
           <svg
             className="absolute top-full left-0 w-full pointer-events-none z-20"
             style={{
-              height: `${Math.min(parabolaHeight + windowHeight * 0.3, windowHeight * 4)}px`, // Extended height for blending
-              transform: `translateY(-${parabolaHeight}px)`, // Move up by wave height so wave peaks into first section
+              height: `${Math.min(parabolaHeight + windowHeight * 0.3, windowHeight * 4)}px`,
+              transform: `translateY(-${parabolaHeight}px)`,
             }}
             viewBox={`0 0 ${windowWidth} ${parabolaHeight + windowHeight * 0.3}`}
             preserveAspectRatio="none"
           >
             <defs>
-              {/* Extended thermal gradients that blend into the section below */}
+              {/* Each parabola gets a solid color gradient for blending */}
               {multipleParabolas.map((parabola, index) => (
-                <radialGradient key={`gradient-${index}`} id={`parabolaRadialGradient${index}`} cx="50%" cy="0%" r="140%">
-                  <stop offset="0%" stopColor="#065f46" stopOpacity={0.8 * parabola.opacity} />
-                  <stop offset="20%" stopColor="#047857" stopOpacity={0.6 * parabola.opacity} />
-                  <stop offset="40%" stopColor="#134e4a" stopOpacity={0.4 * parabola.opacity} />
-                  <stop offset="65%" stopColor="#1f2937" stopOpacity={0.3 * parabola.opacity} />
-                  <stop offset="80%" stopColor="#111827" stopOpacity={0.2 * parabola.opacity} />
-                  <stop offset="100%" stopColor="#000000" stopOpacity={0.05 * parabola.opacity} />
-                </radialGradient>
+                <linearGradient key={`gradient-${index}`} id={`parabolaSolidGradient${parabola.layer}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={parabola.color} stopOpacity={parabola.opacity} />
+                  <stop offset="100%" stopColor={parabola.color} stopOpacity="0.1" />
+                </linearGradient>
               ))}
-              
-              {/* Extended blending gradient that reaches into the second section */}
-              <linearGradient id="blendingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#065f46" stopOpacity="0.4" />
-                <stop offset="20%" stopColor="#047857" stopOpacity="0.3" />
-                <stop offset="40%" stopColor="#134e4a" stopOpacity="0.25" />
-                <stop offset="60%" stopColor="#1f2937" stopOpacity="0.15" />
-                <stop offset="80%" stopColor="#111827" stopOpacity="0.08" />
-                <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-              </linearGradient>
-              
-              {/* Simplified blur filters for performance */}
+              {/* Blur filters for each parabola */}
               {multipleParabolas.map((parabola, index) => (
-                <filter key={`blur-${index}`} id={`simpleBlur${index}`}>
-                  <feGaussianBlur stdDeviation={2 + parabola.blur} />
+                <filter key={`blur-${index}`} id={`simpleBlur${parabola.layer}`}> 
+                  <feGaussianBlur stdDeviation={parabola.blur} />
                 </filter>
               ))}
             </defs>
-            
-            {/* Parabola rendering with extended blending into second section */}
+            {/* Parabola rendering with blending and blur */}
             {multipleParabolas.map((parabola, index) => (
               <g key={`parabola-${index}`}>
-                {/* Extended parabola fill that blends seamlessly into the section below */}
-                <path 
-                  d={`${parabola.path} L ${windowWidth},${parabolaHeight + windowHeight * 0.3} L 0,${parabolaHeight + windowHeight * 0.3} Z`} 
-                  fill={`url(#parabolaRadialGradient${parabola.layer})`}
-                  style={{ 
+                <path
+                  d={`${parabola.path} L ${windowWidth},${parabolaHeight + windowHeight * 0.3} L 0,${parabolaHeight + windowHeight * 0.3} Z`}
+                  fill={`url(#parabolaSolidGradient${parabola.layer})`}
+                  style={{
                     filter: `url(#simpleBlur${parabola.layer})`,
-                    opacity: parabola.opacity
+                    opacity: parabola.opacity,
+                    mixBlendMode: "lighten"
                   }}
                 />
               </g>
             ))}
-            
-            {/* Full-height blending overlay that extends from parabola to bottom of second section */}
-            <rect 
-              x="0" 
-              y="0" 
-              width={windowWidth} 
-              height={parabolaHeight + windowHeight * 0.3} 
-              fill="url(#blendingGradient)" 
-              style={{
-                opacity: 0.6
-              }}
-            />
           </svg>
         )}
 
@@ -343,11 +219,9 @@ export default function ParabolaScrollPage() {
           <div className="text-center">
             <div className="text-sm mb-2">
               Phase:{" "}
-              {!phase1Complete
+              {phase1Progress < 1
                 ? "1 - Growing Parabola"
-                : !phase2Complete
-                  ? "2 - Growing + Scrolling"
-                  : "3 - Normal Scroll"}
+                : "2 - Normal Scroll"}
             </div>
             <div className="w-48 bg-white/20 rounded-full h-1 mb-2">
               <div
@@ -355,37 +229,23 @@ export default function ParabolaScrollPage() {
                 style={{ width: `${phase1Progress * 100}%` }}
               />
             </div>
-            {phase1Complete && (
-              <div className="w-48 bg-white/20 rounded-full h-1">
-                <div
-                  className="bg-gradient-to-r from-emerald-500 to-green-600 h-1 rounded-full transition-all duration-300"
-                  style={{ width: `${phase2Progress * 100}%` }}
-                />
-              </div>
-            )}
           </div>
         </div>
 
         {/* Debug info */}
         <div className="absolute top-20 left-8 text-white opacity-40 text-xs z-30">
           <div>
-            Parabola: {Math.round(parabolaHeight)}px / {maxParabolaHeight}px
+            Parabola: {Math.round(parabolaHeight)}px / {windowHeight}px
           </div>
-          <div>
-            Scroll: {Math.round(scrollPosition)}px / {maxScrollPosition}px
-          </div>
-          <div>Phase 1: {phase1Complete ? "✓" : Math.round(phase1Progress * 100) + "%"}</div>
-          <div>Phase 2: {phase2Complete ? "✓" : Math.round(phase2Progress * 100) + "%"}</div>
+          <div>Phase 1: {phase1Progress < 1 ? Math.round(phase1Progress * 100) + "%" : "✓"}</div>
         </div>
 
         {/* Instructions */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white opacity-60 z-30">
           <div className="text-sm mb-2 text-center">
-            {!phase1Complete
+            {phase1Progress < 1
               ? "Scroll down to grow the parabola"
-              : !phase2Complete
-                ? "Keep scrolling - parabola grows while page scrolls"
-                : "Parabola complete - normal scrolling active"}
+              : "Parabola complete - normal scrolling active"}
           </div>
           <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
             <div
@@ -447,11 +307,9 @@ export default function ParabolaScrollPage() {
           <div className="text-center mb-16">
             <div className="text-green-300 mb-4">
               Current Phase:{" "}
-              {!phase1Complete
+              {phase1Progress < 1
                 ? "Growing Parabola"
-                : !phase2Complete
-                  ? "Simultaneous Growth & Scroll"
-                  : "Complete - Normal Scrolling"}
+                : "Complete - Normal Scrolling"}
             </div>
           </div>
 
@@ -460,18 +318,15 @@ export default function ParabolaScrollPage() {
             <div className="text-center">
               <h4 className="text-2xl md:text-3xl font-bold mb-8 text-green-300">Multi-Phase Interaction</h4>
               <p className="text-base md:text-lg opacity-75 max-w-3xl mx-auto leading-relaxed">
-                Experience a unique three-phase scroll interaction: first the parabola grows, then it continues growing
-                while the page scrolls, finally normal scrolling takes over.
+                Experience a unique scroll interaction: the parabola grows, then normal scrolling takes over.
               </p>
             </div>
 
             <div className="h-64 md:h-96 bg-gradient-to-r from-green-900/20 to-emerald-900/20 rounded-3xl flex items-center justify-center">
               <p className="text-xl md:text-2xl font-light opacity-60 text-center px-4">
-                {!phase1Complete
+                {phase1Progress < 1
                   ? "Phase 1: Parabola is growing to screen height"
-                  : !phase2Complete
-                    ? "Phase 2: Parabola growing while page scrolls"
-                    : "Phase 3: All animations complete!"}
+                  : "Phase 2: All animations complete!"}
               </p>
             </div>
 
