@@ -70,58 +70,51 @@ export default function ParabolaScrollPage() {
     }
   }, [isClientReady, screenHeight, lenisInstance])
 
-  // Generate parabola path with proper curve - endpoints at a fixed height
+  // Generate parabola path with wider curve - endpoints at a fixed height
   const generateCurvePath = (width: number, height: number, endpointHeight: number) => {
     if (height <= 0) return `M 0,0 L ${width},0`
 
     const curvePoints = []
-    const totalPoints = 100 // More points for smoother curve
+    const totalPoints = 150 // More points for ultra-smooth curve
+    
+    // Make the parabola wider by extending beyond screen bounds
+    const curveWidth = width * 1.3 // 30% wider
+    const offsetX = -width * 0.15 // Center the wider curve
 
-    // Generate points for a sine wave from 270° to 630° to create upright parabola
-    // x=0 maps to 270°, x=width/2 maps to 90° (360°), x=width maps to 630°
+    // Generate points for a smoother parabolic curve
     for (let i = 0; i <= totalPoints; i++) {
-      const x = (i / totalPoints) * width // x goes from 0 to width
+      const t = i / totalPoints // Parameter from 0 to 1
+      const x = offsetX + t * curveWidth // x goes from negative offset to width + offset
       
-      // Map x position to angle range: 270° to 630° (in radians)
-      // This creates: x=0→270°(sin=-1), x=center→90°/450°(sin=1), x=width→630°(sin=-1)
-      const startAngle = (270 * Math.PI) / 180 // 270° in radians
-      const endAngle = (630 * Math.PI) / 180   // 630° in radians  
-      const angle = startAngle + (i / totalPoints) * (endAngle - startAngle)
+      // Pure parabolic equation: y = a(x - h)² + k
+      // Where h is the center, k is the vertex height, a controls width
+      const centerX = width / 2
+      const a = height / Math.pow(centerX * 0.8, 2) // Positive a for upward opening parabola
+      const y = endpointHeight - a * Math.pow(x - centerX, 2) // Subtract to create upward curve
       
-      // Calculate sine wave value and invert for upright parabola
-      const sineValue = Math.sin(angle) // This gives us -1 at edges, 1 at center
-      // Invert and normalize: (-1 becomes 0, 1 becomes height) for upright U-shape
-      const y = endpointHeight - (height * (sineValue + 1) / 2) // Start from endpointHeight and go up
-      
-      curvePoints.push(`${x},${y}`)
+      curvePoints.push(`${Math.max(0, Math.min(width, x))},${y}`)
     }
 
-    // All waves start and end at the SAME height (endpointHeight)
-    const firstPoint = `0,${endpointHeight}`
-    const lastPoint = `${width},${endpointHeight}`
-    
-    return `M ${firstPoint} L ${curvePoints.slice(1, -1).join(" L ")} L ${lastPoint}`
+    return `M ${curvePoints.join(" L ")}`
   }
 
   // Calculate progress values first
-  const maxCurveHeight = screenHeight * 2
+  const maxCurveHeight = screenHeight * 4
   const sectionProgress = Math.min(curveHeight / maxCurveHeight, 1)
   const totalProgress = sectionProgress
 
-  // Generate multiple parabolas with different peak heights but same endpoints
+  // Generate multiple parabolas with gradient consistency
   const generateMultipleCurves = () => {
-    // Each parabola is a single color: green, #F97A00, black
     const colorSchemes = [
-      { name: "orange", color: "#F97A00" },
-      { name: "green", color: "#00C853" }, // vivid green
-      { name: "black", color: "#000000" },
+      { name: "orange", color: "#F97A00", innerColor: "#FFD700" }, // Yellow to orange
+      { name: "green", color: "#00C853", innerColor: "#90EE90" }, // Light green to vivid green
+      { name: "black", color: "#000000", innerColor: "#404040" }, // Dark gray to black
     ]
     const curveArray = []
     const totalCurves = colorSchemes.length
     const sharedEndHeight = curveHeight
-    const heightRatios = [0.7, 0.85, 1.0] // tallest = black
-    const blurLevels = [8, 16, 32] // more blur for lower layers
-    const alphaValues = [0.7, 0.6, 0.5]
+    const heightRatios = [0.75, 0.9, 1.0] // More layered approach
+    
     for (let i = 0; i < totalCurves; i++) {
       const currentHeight = curveHeight * heightRatios[i]
       if (currentHeight > 0) {
@@ -130,8 +123,7 @@ export default function ParabolaScrollPage() {
           path: curvePath,
           height: currentHeight,
           color: colorSchemes[i].color,
-          opacity: alphaValues[i],
-          blur: blurLevels[i],
+          innerColor: colorSchemes[i].innerColor,
           layer: i
         })
       }
@@ -193,30 +185,41 @@ export default function ParabolaScrollPage() {
             preserveAspectRatio="none"
           >
             <defs>
-              {/* Each parabola gets a solid color gradient for blending */}
+              {/* Radial gradients for each parabola to match the reference image */}
               {multipleCurves.map((curve, index) => (
-                <linearGradient key={`gradient-${index}`} id={`curveSolidGradient${curve.layer}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={curve.color} stopOpacity={curve.opacity} />
+                <radialGradient 
+                  key={`radial-gradient-${index}`} 
+                  id={`curveRadialGradient${curve.layer}`} 
+                  cx="50%" 
+                  cy="0%" 
+                  r="100%"
+                  gradientUnits="objectBoundingBox"
+                >
+                  <stop offset="0%" stopColor={curve.innerColor} stopOpacity="1" />
+                  <stop offset="30%" stopColor={curve.color} stopOpacity="0.9" />
+                  <stop offset="70%" stopColor={curve.color} stopOpacity="0.6" />
                   <stop offset="100%" stopColor={curve.color} stopOpacity="0.1" />
-                </linearGradient>
+                </radialGradient>
               ))}
-              {/* Blur filters for each parabola */}
+              
+              {/* Subtle blur filters for smoothness */}
               {multipleCurves.map((curve, index) => (
-                <filter key={`blur-${index}`} id={`simpleBlur${curve.layer}`}> 
-                  <feGaussianBlur stdDeviation={curve.blur} />
+                <filter key={`blur-${index}`} id={`smoothBlur${curve.layer}`}> 
+                  <feGaussianBlur stdDeviation={2 + curve.layer * 2} />
                 </filter>
               ))}
             </defs>
-            {/* Parabola rendering with blending and blur */}
+            
+            {/* Parabola rendering with smooth gradients */}
             {multipleCurves.map((curve, index) => (
               <g key={`curve-${index}`}>
                 <path
                   d={`${curve.path} L ${screenWidth},${curveHeight + screenHeight * 0.5} L 0,${curveHeight + screenHeight * 0.5} Z`}
-                  fill={`url(#curveSolidGradient${curve.layer})`}
+                  fill={`url(#curveRadialGradient${curve.layer})`}
                   style={{
-                    filter: `url(#simpleBlur${curve.layer})`,
-                    opacity: curve.opacity,
-                    mixBlendMode: "lighten"
+                    filter: `url(#smoothBlur${curve.layer})`,
+                    opacity: 0.8 - (curve.layer * 0.1),
+                    mixBlendMode: curve.layer === 2 ? "multiply" : "screen"
                   }}
                 />
               </g>

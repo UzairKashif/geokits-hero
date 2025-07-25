@@ -132,37 +132,7 @@ export default function DataFlowVisual() {
         </div>
 
         {/* Data Flow Visualization */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-16 p-6 bg-gray-900/30 rounded-xl border border-gray-800"
-        >
-          <h3 className="text-lg font-semibold text-white mb-4 text-center">
-            Real-time Data Processing
-          </h3>
-          <div className="relative h-16 overflow-hidden rounded-lg bg-gray-800/50">
-            <div className="absolute inset-0 flex items-center justify-between px-6 text-sm text-gray-400">
-              <span>Input</span>
-              <span>Processing</span>
-              <span>Output</span>
-            </div>
-            
-            {/* Flowing data streams */}
-            <motion.div
-              className="absolute top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-[#00FF9E] to-transparent"
-              style={{ width: '120%' }}
-              animate={{ x: ['-20%', '100%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-            />
-            <motion.div
-              className="absolute top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-[#00FF9E]/60 to-transparent"
-              style={{ width: '120%' }}
-              animate={{ x: ['-20%', '100%'] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'linear', delay: 1 }}
-            />
-          </div>
-        </motion.div>
+
       </div>
     </section>
   )

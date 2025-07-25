@@ -20,11 +20,11 @@ export default function Page() {
       <SolutionsShowcase />
       <ClientsTestimonials />
       <DataFlowVisual />
+      <ParabolaScrollPage />
       <ProjectTimeline />
       <EngagementModels />
       <Faq />
       <Footer />
-      <ParabolaScrollPage />
     </>
   )
 }
