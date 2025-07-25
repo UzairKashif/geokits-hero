@@ -70,31 +70,32 @@ export default function ParabolaScrollPage() {
     }
   }, [isClientReady, screenHeight, lenisInstance])
 
-  // Generate parabola path with wider curve - endpoints at a fixed height
-  const generateCurvePath = (width: number, height: number, endpointHeight: number) => {
-    if (height <= 0) return `M 0,0 L ${width},0`
+  // Generate parabola path as a HILL that rises UP from the bottom
+  const generateCurvePath = (width: number, height: number) => {
+    if (height <= 0) return `M 0,${height} L ${width},${height}`
 
     const curvePoints = []
-    const totalPoints = 150 // More points for ultra-smooth curve
+    const totalPoints = 150
     
-    // Make the parabola wider by extending beyond screen bounds
-    const curveWidth = width * 1.3 // 30% wider
-    const offsetX = -width * 0.15 // Center the wider curve
+    // Make the parabola wider
+    const curveWidth = width * 1.3
+    const offsetX = -width * 0.15
 
-    // Generate points for a smoother parabolic curve
+    // Generate hill points - start at bottom (height), curve UP to peak (0)
+    const centerX = width / 2
+    const a = height / Math.pow(centerX * 0.6, 2)
+    
+    // Create upward hill: baseline at 'height', peak at 0
     for (let i = 0; i <= totalPoints; i++) {
-      const t = i / totalPoints // Parameter from 0 to 1
-      const x = offsetX + t * curveWidth // x goes from negative offset to width + offset
-      
-      // Pure parabolic equation: y = a(x - h)² + k
-      // Where h is the center, k is the vertex height, a controls width
-      const centerX = width / 2
-      const a = height / Math.pow(centerX * 0.8, 2) // Positive a for upward opening parabola
-      const y = endpointHeight - a * Math.pow(x - centerX, 2) // Subtract to create upward curve
-      
-      curvePoints.push(`${Math.max(0, Math.min(width, x))},${y}`)
+      const t = i / totalPoints
+      const x = offsetX + t * curveWidth
+      const y = height - a * Math.pow(x - centerX, 2) // Inverted to make hill curve
+
+      const clampedX = Math.max(0, Math.min(width, x))
+      curvePoints.push(`${clampedX},${y}`)
     }
 
+    // Create the hill path
     return `M ${curvePoints.join(" L ")}`
   }
 
@@ -118,7 +119,7 @@ export default function ParabolaScrollPage() {
     for (let i = 0; i < totalCurves; i++) {
       const currentHeight = curveHeight * heightRatios[i]
       if (currentHeight > 0) {
-        const curvePath = generateCurvePath(screenWidth, currentHeight, sharedEndHeight)
+        const curvePath = generateCurvePath(screenWidth, currentHeight)
         curveArray.push({
           path: curvePath,
           height: currentHeight,
