@@ -329,7 +329,7 @@ export default function SolutionsShowcase() {
       </div>
 
       {/* Title Section */}
-      <div className="absolute top-0 left-0 w-full z-20 py-20">
+      <div className="absolute top-0 left-0 w-full z-20">
         <div className="text-center">
           <h2 
             ref={titleRef}
@@ -356,7 +356,7 @@ export default function SolutionsShowcase() {
       </div>
 
       {/* Horizontal Scroll Container */}
-      <div className="absolute inset-0 pt-40 pb-20">
+      <div className="absolute inset-0 pt-[250px] pb-20">
         <div 
           ref={scrollContainerRef}
           className="flex gap-8 px-8 h-full items-center"
