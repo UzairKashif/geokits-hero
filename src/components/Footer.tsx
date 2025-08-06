@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Company Name */}
           <div className="lg:col-span-2">
             <h2 className="text-6xl font-bold text-black mb-4">
-              GEOKITS
+              geokits
             </h2>
           </div>
 
@@ -30,25 +30,16 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <a href="#" className="text-gray-600 hover:text-black flex items-center">
-                  <span className="w-6 h-6 bg-green-800 rounded mr-2 flex items-center justify-center">
-                    <span className="text-white text-xs">🌿</span>
-                  </span>
                   The Fundamentals
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-black flex items-center">
-                  <span className="w-6 h-6 bg-blue-600 rounded mr-2 flex items-center justify-center">
-                    <span className="text-white text-xs">📱</span>
-                  </span>
                   The Creative
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-600 hover:text-black flex items-center">
-                  <span className="w-6 h-6 bg-orange-600 rounded mr-2 flex items-center justify-center">
-                    <span className="text-white text-xs">👥</span>
-                  </span>
                   The Collective
                 </a>
               </li>

@@ -3,6 +3,7 @@ import Stats from '@/components/Stats'
 import Workflow from '@/components/Workflow'
 import LiveDataFeeds from '@/components/LiveDataFeeds'
 import SolutionsShowcase from '@/components/SolutionsShowcase'
+import BlogSection from '@/components/BlogSection'
 import ClientsTestimonials from '@/components/ClientsTestimonials'
 import DataFlowVisual from '@/components/DataFlowVisual'
 import ProjectTimeline from '@/components/ProjectTimeline'
@@ -18,6 +19,7 @@ export default function Page() {
       <Workflow />
       <LiveDataFeeds />
       <SolutionsShowcase />
+      <BlogSection />
       <ClientsTestimonials />
       <DataFlowVisual />
       <ParabolaScrollPage />

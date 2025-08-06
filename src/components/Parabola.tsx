@@ -103,14 +103,14 @@ export default function ParabolaScrollPage() {
   // Generate multiple parabolas with solid colors
   const generateMultipleCurves = () => {
     const colorSchemes = [
-      { name: "orange", color: "#F97A00" }, // Orange
-      { name: "white", color: "#FFFFFF" }, // White
-      { name: "black", color: "#000000" }, // Black
+      { name: "black", color: "#000000" }, // Black (bottom-most, largest)
+      { name: "orange", color: "#F97A00" }, // Orange (middle)
+      { name: "white", color: "#FFFFFF" }, // White (top-most, smallest)
     ]
     const curveArray = []
     const totalCurves = colorSchemes.length
     const sharedEndHeight = curveHeight
-    const heightRatios = [1.0, 0.9, 0.75] // Draw largest first
+    const heightRatios = [1.0, 0.7, 0.5] // Draw largest first
 
     for (let i = 0; i < totalCurves; i++) {
       const amplitude = curveHeight * heightRatios[i]
@@ -179,25 +179,69 @@ export default function ParabolaScrollPage() {
             viewBox={`0 0 ${screenWidth} ${curveHeight + screenHeight * 0.5}`}
             preserveAspectRatio="none"
           >
-            {/* Parabola rendering with solid colors */}
-            {multipleCurves.map((curve, index) => (
-              <g key={`curve-${index}`}>
-                <path
-                  d={`${curve.path} L ${screenWidth},${curveHeight + screenHeight * 0.5} L 0,${curveHeight + screenHeight * 0.5} Z`}
-                  fill={curve.color}
-                />
-              </g>
-            ))}
+            <defs>
+              {/* Gradients for visual effects */}
+              <radialGradient id="blackGradient" cx="50%" cy="0%" r="100%">
+                <stop offset="0%" stopColor="#000000" stopOpacity="1" />
+                <stop offset="50%" stopColor="#000000" stopOpacity="1" />
+                <stop offset="100%" stopColor="#000000" stopOpacity="1" />
+              </radialGradient>
+              
+              <radialGradient id="orangeGradient" cx="50%" cy="0%" r="100%">
+                <stop offset="0%" stopColor="#00FF88" stopOpacity="1" />
+                <stop offset="50%" stopColor="#00CC66" stopOpacity="1" />
+                <stop offset="100%" stopColor="#004D26" stopOpacity="0.8" />
+              </radialGradient>
+              
+              <radialGradient id="whiteGradient" cx="50%" cy="0%" r="100%">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+                <stop offset="70%" stopColor="#F5F5F5" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#E0E0E0" stopOpacity="0.7" />
+              </radialGradient>
+              
+              {/* Artistic blur filters for smooth blending */}
+              <filter id="artisticBlur1">
+                <feGaussianBlur stdDeviation="12" result="blur"/>
+                <feColorMatrix in="blur" type="saturate" values="1"/>
+              </filter>
+              
+              <filter id="artisticBlur2">
+                <feGaussianBlur stdDeviation="8" result="blur"/>
+                <feColorMatrix in="blur" type="saturate" values="1.2"/>
+              </filter>
+              
+              <filter id="artisticBlur3">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feColorMatrix in="blur" type="saturate" values="1.1"/>
+              </filter>
+            </defs>
+
+            {/* Parabola rendering with artistic blur effects */}
+            {multipleCurves.map((curve, index) => {
+              const gradientId = index === 0 ? "orangeGradient" : index === 1 ? "whiteGradient" : "blackGradient"
+              const filterId = `artisticBlur${index + 1}`
+              
+              return (
+                <g key={`curve-${index}`}>
+                  <path
+                    d={`${curve.path} L ${screenWidth},${curveHeight + screenHeight * 0.5} L 0,${curveHeight + screenHeight * 0.5} Z`}
+                    fill={`url(#${gradientId})`}
+                    filter={`url(#${filterId})`}
+                    style={{
+                      mixBlendMode: "normal",
+                      opacity: index === 0 ? 1.0 : index === 1 ? 0.9 : 0.8
+                    }}
+                  />
+                </g>
+              )
+            })}
           </svg>
         )}
       </section>
 
       {/* Space Section */}
-      <section className="relative w-full min-h-screen bg-gradient-to-b from-gray-900/80 via-gray-900 to-black text-white">
-        {/* Add content to simulate space */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 text-white text-xl">
-          Welcome to Space
-        </div>
+      <section className="relative w-full min-h-screen bg-black text-white">
+
       </section>
     </div>
   )

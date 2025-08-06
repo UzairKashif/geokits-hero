@@ -11,6 +11,7 @@ const projects = [
   {
     id: 1,
     title: 'Pix4D & GIS Training Initiative – NSA Oman',
+    file: "Strategic GIS Integration Training Program.pdf",
     img: '/projects/pix4d-oman.png',
     description:
       'GeoKits delivered a GIS and photogrammetry training initiative for the National Survey Authority of Oman, with full knowledge transfer across drone‑based surveying, spatial data processing, and image analysis.',
@@ -20,6 +21,7 @@ const projects = [
   {
     id: 2,
     title: 'Cooling Tower Detection System',
+    file:"Cooling Tower Detection System ( CTT).pdf",
     img: '/projects/cooling-tower.png',
     description:
       'An automated detection system that maps cooling towers using satellite/aerial imagery, CNNs, OpenCV and Python—integrated with GIS and Google Maps for real‑time spatial analysis.',
@@ -29,6 +31,7 @@ const projects = [
   {
     id: 3,
     title: 'Advanced Disaster Early Warning System',
+    file: "Advanced Disaster Early Warning System.pdf",
     img: '/projects/early-warning.png',
     description:
       'A multi‑hazard platform processing satellite + environmental data via AI/ML on cloud‑native infrastructure, generating real‑time alerts across 21 event types.',
@@ -37,7 +40,8 @@ const projects = [
   },
   {
     id: 4,
-    title: 'Property Listing Dashboard',
+    title: 'Intelligent Property Listing',
+    file: 'Intelligent Property Listing .pdf',
     img: '/projects/property-listing-dashboard.png',
     description:
       'GIS‑based MLS dashboard combining satellite imagery and spatial metrics (terrain, vegetation, climate) with interactive analytics.',
@@ -46,12 +50,13 @@ const projects = [
   },
   {
     id: 5,
-    title: 'Property Map Interface',
-    img: '/projects/property-listing-map.png',
+    title: 'Tennis Court Identification System',
+    file: "Tennis Court Identification.pdf",
+    img: '/projects/tennis-court-identification.png',
     description:
-      'Interactive map interface built with Leaflet.js and Mapbox for exploring listings by geographic and environmental context.',
-    category: 'Mapping Solutions',
-    technologies: ['Leaflet.js', 'Mapbox', 'Interactive Maps', 'Geospatial']
+      'AI-powered system for detecting and mapping tennis courts using aerial imagery and machine learning.',
+    category: 'Sports Analytics',
+    technologies: ['AI/ML', 'Aerial Imagery', 'Geospatial Analysis']
   },
 ]
 
@@ -435,16 +440,37 @@ export default function SolutionsShowcase() {
                   </div>
 
                   {/* Hover Content */}
-                  <div className="card-content absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/95 to-transparent opacity-0">
+                  <div
+                    className="card-content absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/95 to-transparent opacity-0 cursor-pointer"
+                    onClick={() => {
+                      const encodedFile = encodeURIComponent(project.file);
+                      window.open('/pdfs/' + encodedFile, '_blank');
+                    }}
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-green-400 text-sm font-medium">View Project Details</span>
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+                      <span className="text-green-400 text-sm font-medium hover:text-green-300 transition-colors">View Project Details</span>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
                     </div>
                   </div>
+
+                  {/* Always Visible CTA Button */}
+                  <div className="absolute bottom-4 right-4 z-10">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const encodedFile = encodeURIComponent(project.file);
+                        window.open('/pdfs/' + encodedFile, '_blank');
+                      }}
+                      className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 hover:border-green-400 text-green-400 hover:text-green-300 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 backdrop-blur-sm"
+                    >
+                      View PDF
+                    </button>
+                  </div>
+
                 </div>
 
                 {/* Glow Effect */}
