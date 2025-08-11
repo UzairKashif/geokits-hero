@@ -86,7 +86,9 @@ export default function SolutionsShowcase() {
   useEffect(() => {
     if (!isClient) return
 
-    const ctx = gsap.context(() => {
+    // Small delay to ensure DOM is fully ready and Lenis is initialized
+    const timer = setTimeout(() => {
+      const ctx = gsap.context(() => {
       // Title entrance animation
       const titleTl = gsap.timeline({
         scrollTrigger: {
@@ -305,9 +307,12 @@ export default function SolutionsShowcase() {
         })
       }
 
-    }, sectionRef)
+      }, sectionRef)
 
-    return () => ctx.revert()
+      return () => ctx.revert()
+    }, 100) // Small delay
+
+    return () => clearTimeout(timer)
   }, [isClient])
 
   const addToRefs = (el: HTMLDivElement) => {

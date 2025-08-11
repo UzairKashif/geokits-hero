@@ -1,6 +1,6 @@
 import { blogPosts } from '@/lib/blogData'
 import BlogCard from '@/components/BlogCard'
-import Link from 'next/link'
+import SafeNavigationLink from '@/components/SafeNavigationLink'
 
 export default function BlogPage() {
   return (
@@ -8,7 +8,7 @@ export default function BlogPage() {
       {/* Header */}
       <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700/50 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <Link
+          <SafeNavigationLink
             href="/"
             className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors"
           >
@@ -16,7 +16,7 @@ export default function BlogPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to home
-          </Link>
+          </SafeNavigationLink>
         </div>
       </header>
 

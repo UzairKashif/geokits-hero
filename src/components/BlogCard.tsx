@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useNavigationCleanup } from '../hooks/useNavigationCleanup'
 import { BlogPost } from '../lib/blogData'
 
 interface BlogCardProps {
@@ -11,8 +11,20 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, index }: BlogCardProps) {
+  const cleanupAndNavigate = useNavigationCleanup()
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Add a small safety delay to ensure any ongoing animations are complete
+    requestAnimationFrame(() => {
+      cleanupAndNavigate(`/blog/${post.slug}`)
+    })
+  }
+
   return (
-    <Link href={`/blog/${post.slug}`}>
+    <div onClick={handleClick}>
       <article className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 h-[500px] cursor-pointer transform-gpu transition-all duration-500 hover:border-green-500/50 hover:shadow-2xl hover:shadow-green-500/10">
         
         {/* Blog Badge */}
@@ -116,6 +128,6 @@ export default function BlogCard({ post, index }: BlogCardProps) {
           <div className="absolute w-1 h-1 bg-green-400 rounded-full opacity-30 animate-pulse" style={{ left: '70%', top: '60%', animationDelay: '0.9s' }} />
         </div>
       </article>
-    </Link>
+    </div>
   )
 }

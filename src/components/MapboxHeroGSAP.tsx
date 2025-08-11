@@ -41,7 +41,7 @@
     const scrollIndicatorRef = useRef<HTMLDivElement>(null)
 
     // Initialize map
-    useEffect(() => {
+  useEffect(() => {
       if (!mapContainerRef.current) return
 
       // Check WebGL support
@@ -95,7 +95,24 @@
         mapRef.current = map
 
         return () => {
-          map.remove()
+          try {
+            // Only attempt removal if the map still has a container in the DOM
+            const m = mapRef.current
+            if (m) {
+              const container = m.getContainer?.()
+              const inDom = container && container.parentNode && document.contains(container)
+              if (inDom) {
+                m.remove()
+              } else {
+                // Fallback: attempt removal but swallow DOM detach errors
+                try { m.remove() } catch { /* noop */ }
+              }
+            }
+          } catch {
+            // Swallow any DOM detach errors during route transitions
+          } finally {
+            mapRef.current = null
+          }
         }
       } catch (error) {
         console.error("Error initializing Mapbox:", error)
@@ -358,7 +375,9 @@
       }
 
       return () => {
-        ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+        try {
+          ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+        } catch {}
       }
     }, [mapLoaded])
 
