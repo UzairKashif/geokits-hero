@@ -7,7 +7,6 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const SCROLL_POSITION_KEY = 'geokits-home-scroll-position'
-const BLOG_SECTION_ID = 'blog'
 
 export function useNavigationCleanup() {
   const router = useRouter()
@@ -28,7 +27,7 @@ export function useNavigationCleanup() {
     
     // 2. Clear all ScrollTriggers
     if (typeof window !== 'undefined') {
-      ScrollTrigger.getAll().forEach((trigger: any) => trigger.kill())
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
     }
     
     // 3. Stop Lenis smooth scrolling

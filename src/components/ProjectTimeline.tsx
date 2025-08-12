@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 
 const milestones = [
   { 
@@ -48,8 +48,8 @@ export default function ProjectTimeline() {
   const mobileVerticalSpacing = 300
   const mobileHorizontalAmplitude = 80
 
-// --- replace the old getPathData with this ---
-const getPathData = () => {
+// --- Optimized path calculation with memoization ---
+const pathData = useMemo(() => {
   // Use isMobile state instead of direct window check to avoid SSR mismatch
   const currentContainerWidth = isMobile ? mobileContainerWidth : containerWidth
   const currentVerticalSpacing = isMobile ? mobileVerticalSpacing : verticalSpacing
@@ -93,18 +93,36 @@ const getPathData = () => {
     containerWidth: currentContainerWidth,
     totalHeight: milestones.length * currentVerticalSpacing + 400
   };
-};
+}, [isMobile]);
 
-  const { path, points, containerWidth: currentContainerWidth, totalHeight: currentTotalHeight } = getPathData()
+  const { path, points, containerWidth: currentContainerWidth, totalHeight: currentTotalHeight } = pathData
 
-  // Generate consistent particles for SSR
-  const particles = Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    left: (i * 67 + 123) % currentContainerWidth, // Deterministic positioning
-    top: (i * 89 + 456) % currentTotalHeight,
-    delay: (i * 0.3) % 4,
-    duration: 3 + (i * 0.2) % 4
-  }))
+  // Memoized particles for better performance
+  const particles = useMemo(() => 
+    Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      left: (i * 67 + 123) % currentContainerWidth, // Deterministic positioning
+      top: (i * 89 + 456) % currentTotalHeight,
+      delay: (i * 0.3) % 4,
+      duration: 3 + (i * 0.2) % 4
+    })), [currentContainerWidth, currentTotalHeight]
+  )
+
+  // Optimized milestone visibility handler
+  const handleMilestoneVisibility = useCallback((index: number) => {
+    setVisibleMilestones(prev => {
+      if (!prev.includes(index)) {
+        const newVisible = [...prev, index].sort((a, b) => a - b)
+        const maxVisible = Math.max(...newVisible)
+        // Use requestAnimationFrame for smoother updates
+        requestAnimationFrame(() => {
+          setLineProgress((maxVisible + 1) / milestones.length)
+        })
+        return newVisible
+      }
+      return prev
+    })
+  }, [])
 
   useEffect(() => {
     setIsClient(true)
@@ -127,18 +145,17 @@ const getPathData = () => {
   }, [])
 
   useEffect(() => {
-    // Header animation observer
+    // Header animation observer with optimized settings
     const headerObserver = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsHeaderVisible(true)
-          }
-        })
+        const entry = entries[0] // Only one element observed
+        if (entry?.isIntersecting) {
+          setIsHeaderVisible(true)
+        }
       },
       {
-        threshold: 0.2,
-        rootMargin: "0px 0px -100px 0px"
+        threshold: 0.1, // Reduced threshold for faster trigger
+        rootMargin: "0px 0px -50px 0px" // Reduced margin for better performance
       }
     )
 
@@ -146,28 +163,19 @@ const getPathData = () => {
       headerObserver.observe(headerRef.current)
     }
 
-    // Milestone animation observer
+    // Optimized milestone animation observer
     const milestoneObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const index = parseInt(entry.target.getAttribute('data-index') || '0')
-            
-            setVisibleMilestones(prev => {
-              if (!prev.includes(index)) {
-                const newVisible = [...prev, index].sort((a, b) => a - b)
-                const maxVisible = Math.max(...newVisible)
-                setLineProgress((maxVisible + 1) / milestones.length)
-                return newVisible
-              }
-              return prev
-            })
+            handleMilestoneVisibility(index)
           }
         })
       },
       {
-        threshold: 0.3,
-        rootMargin: "0px 0px -200px 0px"
+        threshold: 0.2, // Reduced threshold
+        rootMargin: "0px 0px -100px 0px"
       }
     )
 
@@ -180,27 +188,27 @@ const getPathData = () => {
         headerObserver.unobserve(headerRef.current)
       }
     }
-  }, [])
+  }, [handleMilestoneVisibility])
 
   return (
     <div className="w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
       <section id="timeline" className="w-full py-24 px-6">
         <div 
           ref={headerRef}
-          className={`text-center mb-16 transition-all duration-1000 ease-out ${
+          className={`text-center mb-16 transition-all duration-700 ease-out ${
             isHeaderVisible 
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className={`text-4xl md:text-6xl font-light text-white mb-4 md:mb-6 tracking-tight transition-all duration-1200 delay-200 ease-out ${
+          <h2 className={`text-4xl md:text-6xl font-light text-white mb-4 md:mb-6 tracking-tight transition-all duration-800 delay-100 ease-out ${
             isHeaderVisible 
               ? 'opacity-100 translate-y-0 scale-100' 
               : 'opacity-0 translate-y-12 scale-95'
           }`}>
             Project Timeline
           </h2>
-          <p className={`text-lg md:text-xl text-slate-400 font-light max-w-2xl mx-auto leading-relaxed px-4 md:px-0 transition-all duration-1000 delay-500 ease-out ${
+          <p className={`text-lg md:text-xl text-slate-400 font-light max-w-2xl mx-auto leading-relaxed px-4 md:px-0 transition-all duration-700 delay-200 ease-out ${
             isHeaderVisible 
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-6'
@@ -209,7 +217,7 @@ const getPathData = () => {
           </p>
           
           {/* Animated underline */}
-          <div className={`mx-auto mt-8 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent transition-all duration-1500 delay-700 ease-out ${
+          <div className={`mx-auto mt-8 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent transition-all duration-800 delay-300 ease-out ${
             isHeaderVisible 
               ? 'w-32 opacity-60' 
               : 'w-0 opacity-0'
@@ -230,6 +238,7 @@ const getPathData = () => {
             className="absolute inset-0 w-full h-full pointer-events-none"
             viewBox={`0 0 ${currentContainerWidth} ${currentTotalHeight}`}
             preserveAspectRatio="xMidYMid meet"
+            style={{ willChange: 'transform' }}
           >
             <defs>
               {/* Enhanced gradient with green theme colors */}
@@ -249,20 +258,13 @@ const getPathData = () => {
                 <stop offset="100%" stopColor="#047857" stopOpacity="0.3" />
               </linearGradient>
               
-              {/* Enhanced glow effect for rounder appearance */}
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
-                <feGaussianBlur stdDeviation="4" result="innerGlow"/>
+              {/* Optimized glow effect */}
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="glow"/>
                 <feMerge> 
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="innerGlow"/>
+                  <feMergeNode in="glow"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
-              </filter>
-
-              {/* Softer shadow */}
-              <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#000" floodOpacity="0.25"/>
               </filter>
             </defs>
 
@@ -278,7 +280,7 @@ const getPathData = () => {
               opacity="0.5"
             />
             
-            {/* Main animated path with maximum roundedness */}
+            {/* Optimized main animated path */}
             <path
               d={path}
               stroke="url(#pathGradient)"
@@ -290,8 +292,9 @@ const getPathData = () => {
               strokeDashoffset={3000 * (1 - lineProgress)}
               filter="url(#glow)"
               style={{
-                transition: 'stroke-dashoffset 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                paintOrder: 'stroke'
+                transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                paintOrder: 'stroke',
+                willChange: 'stroke-dashoffset'
               }}
             />
           </svg>
@@ -310,14 +313,15 @@ const getPathData = () => {
                 style={{
                   left: `${point.x}px`,
                   top: `${point.y}px`,
-                  transform: 'translate(-50%, -50%)'
+                  transform: 'translate(-50%, -50%)',
+                  willChange: 'transform, opacity'
                 }}
               >
                 {/* Central node */}
                 <div className="relative flex items-center justify-center">
-                  {/* Outer ring with enhanced styling */}
+                  {/* Optimized outer ring */}
                   <div className={`
-                    absolute ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 transition-all duration-1200
+                    absolute ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 transition-all duration-600 ease-out
                     ${isVisible 
                       ? 'border-emerald-400/60 bg-gradient-to-br from-emerald-500/15 to-green-500/15 scale-100' 
                       : 'border-slate-600/40 bg-slate-800/10 scale-90'
@@ -326,33 +330,33 @@ const getPathData = () => {
                   
                   {/* Middle ring for depth */}
                   <div className={`
-                    absolute ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border transition-all duration-1000
+                    absolute ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border transition-all duration-500 ease-out
                     ${isVisible 
                       ? 'border-emerald-300/40 bg-emerald-500/5' 
                       : 'border-slate-700/30 bg-slate-800/5'
                     }
                   `} />
                   
-                  {/* Inner core with enhanced styling */}
+                  {/* Optimized inner core */}
                   <div className={`
-                    relative ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full transition-all duration-1200 z-10
+                    relative ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full transition-all duration-600 ease-out z-10
                     ${isVisible 
                       ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 shadow-xl shadow-emerald-500/40' 
                       : 'bg-gradient-to-br from-slate-600 to-slate-700'
                     }
-                  `}>
-                    {/* Pulsing effect for active nodes */}
+                  `} style={{ willChange: 'background, box-shadow' }}>
+                    {/* Optimized pulsing effects */}
                     {isVisible && (
                       <>
-                        <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-30" />
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/50 to-green-500/50 animate-pulse" />
+                        <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-20" style={{ animationDuration: '2s' }} />
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-green-500/30 animate-pulse" style={{ animationDuration: '3s' }} />
                       </>
                     )}
                   </div>
 
-                  {/* Content card */}
+                  {/* Optimized content card */}
                   <div className={`
-                    absolute transition-all duration-1000 ease-out z-20
+                    absolute transition-all duration-700 ease-out z-20
                     ${isMobile 
                       ? 'left-1/2 -translate-x-1/2 top-12 mt-4' 
                       : isLeft ? 'left-12' : 'right-12'
@@ -363,44 +367,44 @@ const getPathData = () => {
                     }
                   `}>
                     <div className={`
-                      relative  
+                      relative backdrop-blur-sm rounded-xl border
                       ${isVisible 
-                        ? 'border-emerald-500/30 shadow-2xl shadow-emerald-500/10' 
-                        : 'border-slate-700/30 shadow-xl shadow-black/20'
+                        ? 'border-emerald-500/30 shadow-2xl shadow-emerald-500/10 bg-slate-900/60' 
+                        : 'border-slate-700/30 shadow-xl shadow-black/20 bg-slate-900/40'
                       } 
                       ${isMobile ? 'max-w-xs min-w-[280px]' : 'max-w-sm min-w-[320px]'} 
-                      transition-all duration-1000 text-center
+                      transition-all duration-700 ease-out text-center
                       ${!isMobile && (isLeft ? 'text-left' : 'text-right')}
                        p-6 ${isMobile ? 'md:p-8' : 'p-8'} 
-                    `}>
-                      {/* Phase indicator with updated colors */}
+                    `} style={{ willChange: 'transform, opacity' }}>
+                      {/* Optimized phase indicator */}
                       <div className={`
                         inline-flex items-center px-3 md:px-4 py-1 md:py-2 rounded-full text-xs font-medium mb-3 md:mb-4
                         ${isVisible 
                           ? 'bg-gradient-to-r from-emerald-500/20 via-green-500/20 to-green-600/20 text-emerald-300 border border-emerald-500/40' 
                           : 'bg-slate-700/20 text-slate-400 border border-slate-600/30'
                         }
-                        transition-all duration-1000
+                        transition-all duration-600 ease-out
                       `}>
                         {milestone.phase}
                       </div>
                       
-                      {/* Title */}
+                      {/* Optimized title */}
                       <h3 className={`
-                        ${isMobile ? 'text-xl' : 'text-2xl'} font-semibold mb-3 md:mb-4 transition-colors duration-700
+                        ${isMobile ? 'text-xl' : 'text-2xl'} font-semibold mb-3 md:mb-4 transition-colors duration-500 ease-out
                         ${isVisible ? 'text-white' : 'text-slate-300'}
                       `}>
                         {milestone.title}
                       </h3>
                       
                       {/* Description */}
-                      <p className={`text-slate-400 leading-relaxed ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                      <p className={`text-slate-400 leading-relaxed ${isMobile ? 'text-xs' : 'text-sm'} transition-colors duration-500`}>
                         {milestone.description}
                       </p>
 
-                      {/* Subtle accent line with improved styling */}
+                      {/* Optimized accent line */}
                       <div className={`
-                        mt-4 md:mt-6 h-0.5 bg-gradient-to-r transition-all duration-1200
+                        mt-4 md:mt-6 h-0.5 bg-gradient-to-r transition-all duration-800 ease-out
                         ${isMobile 
                           ? 'from-emerald-500 via-green-500 to-emerald-500' 
                           : isLeft 

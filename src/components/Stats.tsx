@@ -1,7 +1,7 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { motion, useInView, useAnimation } from "framer-motion"
-import { useRef } from "react"
+import type { Variants } from "framer-motion"
 import Fonts from "./Fonts"
 
 const stats = [
@@ -13,8 +13,8 @@ const stats = [
 function AnimatedCounter({ value, suffix = "", duration = 2 }: { value: number; suffix?: string; duration?: number }) {
   const [count, setCount] = useState(0)
   const [hasAnimated, setHasAnimated] = useState(false)
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, threshold: 0.3 })
+  const ref = useRef<HTMLSpanElement | null>(null)
+  const isInView = useInView(ref, { once: true, margin: "-30% 0px -70% 0px" })
 
   useEffect(() => {
     if (isInView && !hasAnimated) {
@@ -47,8 +47,8 @@ function AnimatedCounter({ value, suffix = "", duration = 2 }: { value: number; 
 }
 
 export default function Stats() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, threshold: 0.2 })
+  const ref = useRef<HTMLDivElement | null>(null)
+  const isInView = useInView(ref, { once: true, margin: "-20% 0px -80% 0px" })
   const controls = useAnimation()
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function Stats() {
     }
   }, [isInView, controls])
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -68,7 +68,7 @@ export default function Stats() {
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: {
       opacity: 0,
       y: 60,
@@ -84,12 +84,11 @@ export default function Stats() {
         type: "spring",
         stiffness: 100,
         damping: 12,
-        duration: 0.8,
       },
     },
   }
 
-  const glowVariants = {
+  const glowVariants: Variants = {
     hidden: { scale: 0, opacity: 0 },
     visible: {
       scale: [0, 1.2, 1],

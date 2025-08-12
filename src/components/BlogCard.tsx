@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { useNavigationCleanup } from '../hooks/useNavigationCleanup'
 import { BlogPost } from '../lib/blogData'
 

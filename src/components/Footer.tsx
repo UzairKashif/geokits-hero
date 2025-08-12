@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Linkedin, Twitter } from 'lucide-react'
+import { Linkedin } from 'lucide-react'
 
 export default function Footer() {
   return (

@@ -1,79 +1,3 @@
-// 'use client'
-
-// import React, { useState, useEffect } from 'react'
-// import { motion, AnimatePresence } from 'framer-motion'
-// import Image from 'next/image'
-
-// const logos = ['nsa-oman', 'aws', 'xprize']  // place these in /public/logos/*.png
-// const testimonials = [
-//   {
-//     quote:
-//       '“GeoKits’ early warning alerts saved lives during the Cyclone Alpha event—our team couldn’t have responded so quickly without them.”',
-//     author: 'Emergency Response Coordinator, Country X',
-//   },
-//   {
-//     quote:
-//       '“The cooling tower detection system revolutionized our inspection workflow, reducing manual checks by 80%.”',
-//     author: 'Public Health Inspector, Country Y',
-//   },
-//   {
-//     quote:
-//       '“Their training initiative upskilled our surveyors in Pix4D and GIS, enabling us to launch autonomous drone missions.”',
-//     author: 'Lead Surveyor, NSA Oman',
-//   },
-// ]
-
-// export default function ClientsTestimonials() {
-//   const [idx, setIdx] = useState(0)
-
-//   useEffect(() => {
-//     const iv = setInterval(() => {
-//       setIdx((i) => (i + 1) % testimonials.length)
-//     }, 6000)
-//     return () => clearInterval(iv)
-//   }, [])
-
-//   return (
-//     <section id="testimonials" className="w-full py-16 px-4">
-//       <div className="max-w-6xl mx-auto text-center">
-//         <div className="flex items-center justify-center space-x-8 mb-8">
-//           {logos.map((name) => (
-//             <div key={name} className="h-12 w-auto">
-//               <Image
-//                 src={`/logos/${name}.png`}
-//                 alt={name}
-//                 width={100}
-//                 height={48}
-//               />
-//             </div>
-//           ))}
-//         </div>
-//         <div className="relative h-40">
-//           <AnimatePresence initial={false}>
-//             <motion.div
-//               key={idx}
-//               initial={{ opacity: 0, y: 10 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               exit={{ opacity: 0, y: -10 }}
-//               transition={{ duration: 0.5 }}
-//               className="absolute inset-0 px-4"
-//             >
-//               <p className="italic text-lg text-white/80">
-//                 {testimonials[idx].quote}
-//               </p>
-//               <p className="mt-4 font-semibold text-white">
-//                 — {testimonials[idx].author}
-//               </p>
-//             </motion.div>
-//           </AnimatePresence>
-//         </div>
-//       </div>
-//     </section>
-//   )
-// }
-
-
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -83,19 +7,19 @@ import { Transition } from "@headlessui/react";
 // Default testimonials data
 const defaultTestimonials = [
   {
-    img: "/silhouette.png" as any, // Using a placeholder image
+    img: "/silhouette.png", // Using a placeholder image
     quote: "GeoKits' early warning alerts saved lives during the Cyclone Alpha event—our team couldn't have responded so quickly without them.",
     name: "Sarah Johnson",
     role: "Emergency Response Coordinator",
   },
   {
-    img: "/silhouette.png" as any,
+    img: "/silhouette.png",
     quote: "The cooling tower detection system revolutionized our inspection workflow, reducing manual checks by 80%.",
     name: "Dr. Ahmed Hassan",
     role: "Public Health Inspector",
   },
   {
-    img: "/silhouette.png" as any,
+    img: "/silhouette.png",
     quote: "Their training initiative upskilled our surveyors in Pix4D and GIS, enabling us to launch autonomous drone missions.",
     name: "Mark Thompson",
     role: "Lead Surveyor, NSA Oman",
@@ -122,12 +46,10 @@ export default function FancyTestimonialsSlider({
   useEffect(() => {
     if (!autorotate) return;
     const interval = setInterval(() => {
-      setActive(
-        active + 1 === testimonials.length ? 0 : (active) => active + 1,
-      );
+      setActive((prev) => (prev + 1 === testimonials.length ? 0 : prev + 1));
     }, autorotateTiming);
     return () => clearInterval(interval);
-  }, [active, autorotate]);
+  }, [autorotate, testimonials.length]);
 
   const heightFix = () => {
     if (testimonialsRef.current && testimonialsRef.current.parentElement)
@@ -196,7 +118,7 @@ export default function FancyTestimonialsSlider({
                   leaveTo="opacity-0 translate-x-4"
                   beforeEnter={() => heightFix()}
                 >
-                  <div className="text-2xl font-bold text-white before:content-['\201C'] after:content-['\201D']">
+                  <div className="text-2xl font-bold text-white before:content-['\u201C'] after:content-['\u201D']">
                     {testimonial.quote}
                   </div>
                 </Transition>
@@ -215,9 +137,7 @@ export default function FancyTestimonialsSlider({
                 }}
               >
                 <span>{testimonial.name}</span>{" "}
-                <span
-                  className={`${active === index ? "text-indigo-200" : "text-slate-400"}`}
-                >
+                <span className={`${active === index ? "text-indigo-200" : "text-slate-400"}`}>
                   -
                 </span>{" "}
                 <span>{testimonial.role}</span>

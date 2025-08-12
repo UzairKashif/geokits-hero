@@ -9,7 +9,6 @@
 
 
   import CompanyDescriptionSection from "./misc"
-  import type { GSAPTween } from "gsap" // Declare GSAPTween variable
   // Register ScrollTrigger plugin
   gsap.registerPlugin(ScrollTrigger)
 
@@ -29,7 +28,7 @@
     const [mapLoaded, setMapLoaded] = useState(false)
     const [mapError, setMapError] = useState<string | null>(null)
     const [isScrolling, setIsScrolling] = useState(false)
-    const autoRotationRef = useRef<GSAPTween | null>(null)
+    const autoRotationRef = useRef<gsap.core.Tween | null>(null)
     const [isStart, setIsStart] = useState(true)
     const lenis = useLenis()
 
@@ -337,12 +336,7 @@
         })
 
         // Phase 7: Empty space for map focus (75% - 100%)
-        textTimeline.to(
-          {},
-          {
-            duration: 0.25,
-          },
-        )
+        textTimeline.to({}, { duration: 0.25 })
       }
 
       if (scrollIndicatorRef.current) {
@@ -356,22 +350,13 @@
               scrub: 1,
             },
           })
-          .to(scrollIndicatorRef.current, {
-            opacity: 0,
-            duration: 1,
-          })
+          .to(scrollIndicatorRef.current, { opacity: 0, duration: 1 })
       }
 
       // Initial text animation
       if (headingRef.current) {
         gsap.set(headingRef.current, { opacity: 0, y: 30 })
-        gsap.to(headingRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          delay: 0.5,
-          ease: "power2.out",
-        })
+        gsap.to(headingRef.current, { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: "power2.out" })
       }
 
       return () => {

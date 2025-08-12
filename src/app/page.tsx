@@ -12,7 +12,6 @@ import ProjectTimeline from '@/components/ProjectTimeline'
 import EngagementModels from '@/components/EngagementModels'
 import Faq from '@/components/Faq'
 import Footer from '@/components/Footer'
-import ParabolaScrollPage from '@/components/Parabola'
 import { useScrollPositionMemory } from '@/hooks/useScrollPositionMemory'
 
 export default function Page() {
@@ -20,20 +19,22 @@ export default function Page() {
   useScrollPositionMemory()
 
   return (
-    <>
-      <MapboxHeroGSAP />
-      <Stats />
-      <Workflow />
-      <LiveDataFeeds />
-      <SolutionsShowcase />
-      <BlogSection />
-      <FancyTestimonialsSlider />
-      <DataFlowVisual />
-      {/* <ParabolaScrollPage /> */}
-      <ProjectTimeline />
-      <EngagementModels />
-      <Faq />
-      <Footer />
-    </>
+    <main className="relative min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white">
+      <div className="relative">
+        <MapboxHeroGSAP />
+        <Stats />
+        <Workflow />
+        <LiveDataFeeds />
+        <SolutionsShowcase />
+        <BlogSection />
+        <FancyTestimonialsSlider />
+        <DataFlowVisual />
+        {/* <ParabolaScrollPage /> */}
+        <ProjectTimeline />
+        <EngagementModels />
+        <Faq />
+        <Footer />
+      </div>
+    </main>
   )
 }
