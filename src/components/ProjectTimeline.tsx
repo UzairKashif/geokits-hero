@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 
 const milestones = [
   { 
@@ -32,7 +32,7 @@ const milestones = [
 export default function ProjectTimeline() {
   const timelineRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
-  const [visibleMilestones, setVisibleMilestones] = useState<number[]>([])
+  const [visibleMilestones, setVisibleMilestones] = useState<Set<number>>(new Set())
   const [lineProgress, setLineProgress] = useState(0)
   const [isClient, setIsClient] = useState(false)
   const [isHeaderVisible, setIsHeaderVisible] = useState(false)
@@ -46,7 +46,7 @@ export default function ProjectTimeline() {
   // Responsive dimensions
   const mobileContainerWidth = 350
   const mobileVerticalSpacing = 300
-  const mobileHorizontalAmplitude = 80
+  const mobileHorizontalAmplitude = 140
 
 // --- Optimized path calculation with memoization ---
 const pathData = useMemo(() => {
@@ -97,98 +97,89 @@ const pathData = useMemo(() => {
 
   const { path, points, containerWidth: currentContainerWidth, totalHeight: currentTotalHeight } = pathData
 
-  // Memoized particles for better performance
-  const particles = useMemo(() => 
-    Array.from({ length: 12 }, (_, i) => ({
-      id: i,
-      left: (i * 67 + 123) % currentContainerWidth, // Deterministic positioning
-      top: (i * 89 + 456) % currentTotalHeight,
-      delay: (i * 0.3) % 4,
-      duration: 3 + (i * 0.2) % 4
-    })), [currentContainerWidth, currentTotalHeight]
-  )
-
-  // Optimized milestone visibility handler
-  const handleMilestoneVisibility = useCallback((index: number) => {
-    setVisibleMilestones(prev => {
-      if (!prev.includes(index)) {
-        const newVisible = [...prev, index].sort((a, b) => a - b)
-        const maxVisible = Math.max(...newVisible)
-        // Use requestAnimationFrame for smoother updates
-        requestAnimationFrame(() => {
-          setLineProgress((maxVisible + 1) / milestones.length)
-        })
-        return newVisible
-      }
-      return prev
-    })
-  }, [])
-
+  // Balanced approach: smooth scroll-based progress with milestone visibility
   useEffect(() => {
     setIsClient(true)
-    // Check if mobile after hydration
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < 768)
     }
     
-    // Handle window resize for responsive updates
+    let rafId: number
+    
+    const updateProgress = () => {
+      if (!timelineRef.current) return
+      
+      const rect = timelineRef.current.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+      const elementTop = rect.top
+      const elementHeight = rect.height
+      
+      // Faster, more responsive progress calculation
+      const viewportProgress = Math.max(0, Math.min(1, 
+        (windowHeight - elementTop + 100) / (windowHeight + elementHeight * 0.7)
+      ))
+      
+      setLineProgress(viewportProgress)
+      
+      // Update visible milestones with faster threshold
+      const newVisibleMilestones = new Set<number>()
+      const progressThreshold = viewportProgress * milestones.length * 1.2 // Faster reveal
+      
+      for (let i = 0; i <= Math.floor(progressThreshold); i++) {
+        if (i < milestones.length) {
+          newVisibleMilestones.add(i)
+        }
+      }
+      
+      setVisibleMilestones(prev => {
+        if (prev.size !== newVisibleMilestones.size || 
+            ![...prev].every(x => newVisibleMilestones.has(x))) {
+          return newVisibleMilestones
+        }
+        return prev
+      })
+    }
+    
+    const handleScroll = () => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(updateProgress)
+    }
+
     const handleResize = () => {
       if (typeof window !== 'undefined') {
         setIsMobile(window.innerWidth < 768)
       }
     }
-    
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', handleResize)
-      return () => window.removeEventListener('resize', handleResize)
-    }
-  }, [])
 
-  useEffect(() => {
-    // Header animation observer with optimized settings
+    // Header visibility observer
     const headerObserver = new IntersectionObserver(
       (entries) => {
-        const entry = entries[0] // Only one element observed
-        if (entry?.isIntersecting) {
+        if (entries[0]?.isIntersecting) {
           setIsHeaderVisible(true)
         }
       },
-      {
-        threshold: 0.1, // Reduced threshold for faster trigger
-        rootMargin: "0px 0px -50px 0px" // Reduced margin for better performance
-      }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     )
 
     if (headerRef.current) {
       headerObserver.observe(headerRef.current)
     }
 
-    // Optimized milestone animation observer
-    const milestoneObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute('data-index') || '0')
-            handleMilestoneVisibility(index)
-          }
-        })
-      },
-      {
-        threshold: 0.2, // Reduced threshold
-        rootMargin: "0px 0px -100px 0px"
-      }
-    )
-
-    const milestoneElements = document.querySelectorAll('.milestone')
-    milestoneElements.forEach(el => milestoneObserver.observe(el))
-
-    return () => {
-      milestoneElements.forEach(el => milestoneObserver.unobserve(el))
-      if (headerRef.current) {
-        headerObserver.unobserve(headerRef.current)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll, { passive: true })
+      window.addEventListener('resize', handleResize)
+      updateProgress() // Initial calculation
+      
+      return () => {
+        cancelAnimationFrame(rafId)
+        window.removeEventListener('scroll', handleScroll)
+        window.removeEventListener('resize', handleResize)
+        if (headerRef.current) {
+          headerObserver.unobserve(headerRef.current)
+        }
       }
     }
-  }, [handleMilestoneVisibility])
+  }, [])
 
   return (
     <div className="w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
@@ -280,7 +271,7 @@ const pathData = useMemo(() => {
               opacity="0.5"
             />
             
-            {/* Optimized main animated path */}
+            {/* Smooth animated path */}
             <path
               d={path}
               stroke="url(#pathGradient)"
@@ -292,9 +283,8 @@ const pathData = useMemo(() => {
               strokeDashoffset={3000 * (1 - lineProgress)}
               filter="url(#glow)"
               style={{
-                transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
-                paintOrder: 'stroke',
-                willChange: 'stroke-dashoffset'
+                transition: 'none', // No CSS transition, rely on smooth RAF updates
+                paintOrder: 'stroke'
               }}
             />
           </svg>
@@ -302,26 +292,24 @@ const pathData = useMemo(() => {
           {/* Milestone nodes */}
           {milestones.map((milestone, index) => {
             const point = points[index]
-            const isVisible = visibleMilestones.includes(index)
+            const isVisible = visibleMilestones.has(index)
             const isLeft = point.x < currentContainerWidth / 2
             
             return (
               <div
                 key={index}
-                data-index={index}
                 className="milestone absolute"
                 style={{
                   left: `${point.x}px`,
                   top: `${point.y}px`,
-                  transform: 'translate(-50%, -50%)',
-                  willChange: 'transform, opacity'
+                  transform: 'translate(-50%, -50%)'
                 }}
               >
                 {/* Central node */}
                 <div className="relative flex items-center justify-center">
-                  {/* Optimized outer ring */}
+                  {/* Faster milestone animations */}
                   <div className={`
-                    absolute ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 transition-all duration-600 ease-out
+                    absolute ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 transition-all duration-300 ease-out
                     ${isVisible 
                       ? 'border-emerald-400/60 bg-gradient-to-br from-emerald-500/15 to-green-500/15 scale-100' 
                       : 'border-slate-600/40 bg-slate-800/10 scale-90'
@@ -330,22 +318,22 @@ const pathData = useMemo(() => {
                   
                   {/* Middle ring for depth */}
                   <div className={`
-                    absolute ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border transition-all duration-500 ease-out
+                    absolute ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border transition-all duration-250 ease-out
                     ${isVisible 
                       ? 'border-emerald-300/40 bg-emerald-500/5' 
                       : 'border-slate-700/30 bg-slate-800/5'
                     }
                   `} />
                   
-                  {/* Optimized inner core */}
+                  {/* Inner core with faster transitions */}
                   <div className={`
-                    relative ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full transition-all duration-600 ease-out z-10
+                    relative ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full transition-all duration-350 ease-out z-10
                     ${isVisible 
                       ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 shadow-xl shadow-emerald-500/40' 
                       : 'bg-gradient-to-br from-slate-600 to-slate-700'
                     }
-                  `} style={{ willChange: 'background, box-shadow' }}>
-                    {/* Optimized pulsing effects */}
+                  `}>
+                    {/* Smooth pulsing effects */}
                     {isVisible && (
                       <>
                         <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-20" style={{ animationDuration: '2s' }} />
@@ -354,83 +342,62 @@ const pathData = useMemo(() => {
                     )}
                   </div>
 
-                  {/* Optimized content card */}
-                  <div className={`
-                    absolute transition-all duration-700 ease-out z-20
-                    ${isMobile 
-                      ? 'left-1/2 -translate-x-1/2 top-12 mt-4' 
-                      : isLeft ? 'left-12' : 'right-12'
-                    }
-                    ${isVisible 
-                      ? 'opacity-100 translate-y-0 scale-100' 
-                      : 'opacity-0 translate-y-8 scale-95'
-                    }
-                  `}>
-                    <div className={`
-                      relative backdrop-blur-sm rounded-xl border
-                      ${isVisible 
-                        ? 'border-emerald-500/30 shadow-2xl shadow-emerald-500/10 bg-slate-900/60' 
-                        : 'border-slate-700/30 shadow-xl shadow-black/20 bg-slate-900/40'
-                      } 
-                      ${isMobile ? 'max-w-xs min-w-[280px]' : 'max-w-sm min-w-[320px]'} 
-                      transition-all duration-700 ease-out text-center
-                      ${!isMobile && (isLeft ? 'text-left' : 'text-right')}
-                       p-6 ${isMobile ? 'md:p-8' : 'p-8'} 
-                    `} style={{ willChange: 'transform, opacity' }}>
-                      {/* Optimized phase indicator */}
-                      <div className={`
-                        inline-flex items-center px-3 md:px-4 py-1 md:py-2 rounded-full text-xs font-medium mb-3 md:mb-4
+                  {/* Faster text content animations */}
+                  <div
+                    className={`absolute z-20 transition-all duration-400 ease-out
+                      ${isMobile 
+                        ? 'left-1/2 -translate-x-1/2 top-12 mt-4 text-center' 
+                        : isLeft 
+                          ? 'left-10 -translate-x-full pr-6 text-right' 
+                          : 'right-10 translate-x-full pl-6 text-left'}
+                      ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
+                      max-w-[280px] md:max-w-[340px] select-none`}
+                  >
+                    {/* Phase pill */}
+                    <span
+                      className={`inline-block text-[10px] tracking-widest uppercase font-medium mb-3 px-3 py-1 rounded-full border
                         ${isVisible 
-                          ? 'bg-gradient-to-r from-emerald-500/20 via-green-500/20 to-green-600/20 text-emerald-300 border border-emerald-500/40' 
-                          : 'bg-slate-700/20 text-slate-400 border border-slate-600/30'
-                        }
-                        transition-all duration-600 ease-out
-                      `}>
-                        {milestone.phase}
-                      </div>
-                      
-                      {/* Optimized title */}
-                      <h3 className={`
-                        ${isMobile ? 'text-xl' : 'text-2xl'} font-semibold mb-3 md:mb-4 transition-colors duration-500 ease-out
-                        ${isVisible ? 'text-white' : 'text-slate-300'}
-                      `}>
-                        {milestone.title}
-                      </h3>
-                      
-                      {/* Description */}
-                      <p className={`text-slate-400 leading-relaxed ${isMobile ? 'text-xs' : 'text-sm'} transition-colors duration-500`}>
-                        {milestone.description}
-                      </p>
-
-                      {/* Optimized accent line */}
-                      <div className={`
-                        mt-4 md:mt-6 h-0.5 bg-gradient-to-r transition-all duration-800 ease-out
-                        ${isMobile 
-                          ? 'from-emerald-500 via-green-500 to-emerald-500' 
-                          : isLeft 
-                            ? 'from-emerald-500 via-green-500 to-transparent' 
-                            : 'from-transparent via-green-500 to-emerald-500'
-                        }
-                        ${isVisible ? 'opacity-70 scale-x-100' : 'opacity-0 scale-x-0'}
-                        rounded-full
-                      `} />
-                    </div>
+                          ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' 
+                          : 'border-slate-600/40 text-slate-400 bg-slate-700/10'}
+                        transition-colors duration-500`}
+                    >
+                      {milestone.phase}
+                    </span>
+                    {/* Title */}
+                    <h3
+                      className={`font-semibold ${isMobile ? 'text-lg' : 'text-xl md:text-2xl'} leading-snug mb-2
+                        ${isVisible ? 'text-white' : 'text-slate-300'} transition-colors duration-500`}
+                    >
+                      {milestone.title}
+                    </h3>
+                    {/* Description */}
+                    <p
+                      className={`text-slate-400/80 ${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed backdrop-blur-[1px]
+                        ${isVisible ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700 delay-100`}
+                    >
+                      {milestone.description}
+                    </p>
+                    {/* Faster accent underline */}
+                    <span
+                      className={`block mt-4 h-px w-16 origin-left bg-gradient-to-r from-emerald-400 via-green-500 to-transparent
+                        ${isVisible ? 'scale-x-100 opacity-80' : 'scale-x-0 opacity-0'} transition-all duration-400`}
+                    />
                   </div>
                 </div>
               </div>
             )
           })}
 
-          {/* Enhanced floating particles for ambiance */}
-          {isClient && particles.map((particle) => (
+          {/* Simple floating particles */}
+          {isClient && Array.from({ length: 8 }, (_, i) => (
             <div
-              key={particle.id}
+              key={i}
               className="absolute w-1 h-1 bg-emerald-400/40 rounded-full animate-pulse"
               style={{
-                left: `${particle.left}px`,
-                top: `${particle.top}px`,
-                animationDelay: `${particle.delay}s`,
-                animationDuration: `${particle.duration}s`
+                left: `${(i * 67 + 123) % currentContainerWidth}px`,
+                top: `${(i * 89 + 456) % currentTotalHeight}px`,
+                animationDelay: `${(i * 0.3) % 4}s`,
+                animationDuration: `${3 + (i * 0.2) % 4}s`
               }}
             />
           ))}

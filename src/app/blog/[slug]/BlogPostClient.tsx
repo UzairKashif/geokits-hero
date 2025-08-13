@@ -11,8 +11,8 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
   const router = useRouter()
 
   const handleBackToHome = () => {
-    // Navigate back to home page - the scroll position will be restored automatically
-    router.push('/')
+    // Navigate back to home page with a query parameter to indicate direct navigation to blog
+    router.push('/?scrollTo=blog')
   }
 
   return (

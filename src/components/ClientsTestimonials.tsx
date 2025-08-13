@@ -8,22 +8,21 @@ import { Transition } from "@headlessui/react";
 const defaultTestimonials = [
   {
     img: "/silhouette.png", // Using a placeholder image
-    quote:
-      "GeoKits' early warning alerts saved lives during the Cyclone Alpha event—our team couldn't have responded so quickly without them.",
-    name: "Sarah Johnson",
-    role: "Emergency Response Coordinator",
+    quote:"Thank you for the training as the feedback from the attendees was good. It was good opportunity working with you and I hope there will more work together in the future. Best regards,",
+    name: "Dhiyab Alaamri",
+    role: "NSA",
   },
   {
     img: "/silhouette.png",
     quote:
-      "The cooling tower detection system revolutionized our inspection workflow, reducing manual checks by 80%.",
+      "Director Geokits is very professional and pays attention to every detail. He delivered a remarkable GIS application project that exceeded my expectation. I highly recommend him in the sphere of GIS development.",
     name: "Dr. Ahmed Hassan",
     role: "Public Health Inspector",
   },
   {
     img: "/silhouette.png",
     quote:
-      "Their training initiative upskilled our surveyors in Pix4D and GIS, enabling us to launch autonomous drone missions.",
+      "Director GeoKits was a team leader and took ownership/responsibility for executing the project and completing it on time and within budget. After getting a clear understanding of what was needed and reviewing the draft content, he managed the process independently, getting feedback on drafts and adjusting accordingly. We received a professionally designed, concise, and accessible community information flyer. This project also included a mapping component that turned \"static\" data points into a visual story, helping the local community understand the relationship between cases of disease and possible sources of environmental exposure. We had worked with Director GeoKits on a longer-term project and knew he would take full responsibility for the project and would only need broad-level guidance to develop a solution that met our and the community's needs.",
     name: "Mark Thompson",
     role: "Lead Surveyor, NSA Oman",
   },
@@ -64,6 +63,31 @@ export default function FancyTestimonialsSlider({
   }, []);
 
   return (
+    <>
+      <style jsx>{`
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(16, 185, 129, 0.5) rgba(51, 65, 85, 0.3);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 12px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(51, 65, 85, 0.3);
+          border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(16, 185, 129, 0.5);
+          border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(16, 185, 129, 0.7);
+        }
+      `}</style>
     <section id="testimonials" className="w-full py-16 px-4 bg-gradient-to-b from-gray-900 via-slate-800 to-[#131d2f]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
@@ -127,7 +151,7 @@ export default function FancyTestimonialsSlider({
                   leaveTo="opacity-0 translate-x-4"
                   beforeEnter={() => heightFix()}
                 >
-                  <div className="text-2xl font-bold text-white before:content-['\u201C'] after:content-['\u201D']">
+                  <div className="text-2xl font-bold text-white max-h-[7.5rem] overflow-y-auto custom-scrollbar">
                     {testimonial.quote}
                   </div>
                 </Transition>
@@ -158,5 +182,6 @@ export default function FancyTestimonialsSlider({
         </div>
       </div>
     </section>
+    </>
   );
 }

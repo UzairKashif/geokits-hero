@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Linkedin } from 'lucide-react'
+import { Linkedin, Instagram, Mail, Phone } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -20,8 +20,8 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-black mb-4">Home</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-black">Locations</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-black">Criteria</a></li>
+              <li><a href="https://maps.google.com/maps?q=Daftarkhwan,+I-10/2,+Islamabad,+Pakistan" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">Locations</a></li>
+              {/* <li><a href="#" className="text-gray-600 hover:text-black">Criteria</a></li> */}
             </ul>
           </div>
 
@@ -29,17 +29,17 @@ export default function Footer() {
             <h3 className="font-semibold text-black mb-4">Our work</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-black flex items-center">
+                <a href="#systems-in-action" className="text-gray-600 hover:text-black flex items-center">
                   The Fundamentals
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-black flex items-center">
+                <a href="#systems-in-action" className="text-gray-600 hover:text-black flex items-center">
                   The Creative
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-black flex items-center">
+                <a href="#systems-in-action" className="text-gray-600 hover:text-black flex items-center">
                   The Collective
                 </a>
               </li>
@@ -55,17 +55,21 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-black mb-4">Careers</h3>
+            <h3 className="font-semibold text-black mb-4">Contact</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-black">Culture</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-black">Apply</a></li>
+              <li>
+                <a href="mailto:contact@geokits.com" className="text-gray-600 hover:text-black flex items-center">
+                  <Mail className="w-4 h-4 mr-2" />
+                  contact@geokits.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+923037239083" className="text-gray-600 hover:text-black flex items-center">
+                  <Phone className="w-4 h-4 mr-2" />
+                  (+92) 303 7239083
+                </a>
+              </li>
             </ul>
-            <div className="mt-6">
-              <h3 className="font-semibold text-black mb-4">Investor Portal</h3>
-            </div>
-            <div className="mt-6">
-              <h3 className="font-semibold text-black mb-4">Contact</h3>
-            </div>
           </div>
         </div>
 
@@ -75,17 +79,20 @@ export default function Footer() {
             {/* Left side - Links */}
             <div className="flex flex-wrap items-center space-x-6">
               <a href="#" className="text-gray-600 hover:text-black">Privacy Policy</a>
-              <a href="#" className="text-gray-600 hover:text-black flex items-center">
+              <a href="https://www.linkedin.com/company/geokits" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black flex items-center">
                 <Linkedin className="w-4 h-4 mr-1" />
                 LinkedIn
               </a>
+              <a href="https://www.instagram.com/geokits_" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black flex items-center">
+                <Instagram className="w-4 h-4 mr-1" />
+                Instagram
+              </a>
             </div>
 
-            {/* Right side - Addresses and Copyright */}
+            {/* Right side - Address and Copyright */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-2 lg:space-y-0 text-gray-600 text-sm">
-              <span>575 5th Ave, NY 10017</span>
-              <span>1284 Beacon St, Brookline, MA 02446</span>
-              <span>FY © 2024</span>
+              <span>G 9/4, Islamabad, Pakistan</span>
+              <span>© 2025 Geokits</span>
             </div>
           </div>
         </div>

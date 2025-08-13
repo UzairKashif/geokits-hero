@@ -2,6 +2,7 @@
 import "./globals.css"   // <-- this must come first
 import LenisProvider from "@/components/LenisProvider"
 import AnimatedIntro from "@/components/AnimatedIntro"
+import FloatingContactButton from "@/components/FloatingContactButton"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LenisProvider>
           {children}
         </LenisProvider>
+        <FloatingContactButton />
       </body>
     </html>
   )

@@ -405,19 +405,19 @@
             {/* Text Container - Single container to prevent overlapping */}
             <div
               ref={textContainerRef}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-10"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-10 w-full max-w-4xl px-4"
             >
               {/* Main Heading */}
               <div
                 ref={headingRef}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-max"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full"
               >
                 <h1
-                  className={`${plusJakartaSans.className} text-4xl md:text-4xl lg:text-5xl font-bold text-white mb-8 drop-shadow-2xl whitespace-nowrap`}
+                  className={`${plusJakartaSans.className} text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-bold text-white mb-8 drop-shadow-2xl leading-tight`}
                 >
-                   Advanced <div className="text-[#32de84] inline">GIS</div> Made Accessible
+                   Advanced <span className="text-[#32de84]">GIS</span> Made Accessible
                 </h1>
-                <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto drop-shadow-lg">
+                <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
                   Experience the world through geospatial intelligence
                 </p>
               </div>
@@ -425,26 +425,25 @@
               {/* Mid-scroll content */}
               <div
                 ref={subtextRef}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-max"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full"
               >
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-2xl whitespace-nowrap">
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-2xl leading-tight">
                   Explore Our Data
                 </h2>
-                <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto drop-shadow-lg">
-                                   Spatial intelligence meets innovative system design
-
+                <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto drop-shadow-lg leading-relaxed">
+                  Spatial intelligence meets innovative system design
                 </p>
               </div>
 
               {/* Final content */}
               <div
                 ref={finalTextRef}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-max"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full"
               >
-                <h2 className="text-2xl md:text-4xl font-bold text-white mb-4 drop-shadow-2xl whitespace-nowrap">
+                <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-white mb-4 drop-shadow-2xl leading-tight">
                   Ready to Get Started?
                 </h2>
-                <p className="text-lg text-white/90 max-w-2xl mx-auto drop-shadow-lg">
+                <p className="text-base sm:text-lg text-white/90 max-w-2xl mx-auto drop-shadow-lg leading-relaxed">
                 </p>
               </div>
             </div>

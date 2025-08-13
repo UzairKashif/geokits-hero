@@ -9,13 +9,13 @@ export default function BlogPage() {
       <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700/50 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <SafeNavigationLink
-            href="/"
+            href="/?scrollTo=blog"
             className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to home
+            Back to Insights & Innovation
           </SafeNavigationLink>
         </div>
       </header>

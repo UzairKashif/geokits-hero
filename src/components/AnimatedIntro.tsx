@@ -28,7 +28,7 @@ export default function AnimatedIntro() {
             transition: { duration: 1.5 }
           }}
           exit={{ 
-            height: "6vh", 
+            height: "0vh", 
             width: "100%",
             y: 0,
             left: "50%",

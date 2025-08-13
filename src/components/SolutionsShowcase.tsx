@@ -57,7 +57,7 @@ const projects = [
     id: 5,
     title: "Tennis Court Identification System",
     file: "Tennis Court Identification.pdf",
-    img: "/projects/tennis-court-identification.png",
+    img: "/blogs/tennis.png",
     description:
       "AI-powered system for detecting and mapping tennis courts using aerial imagery and machine learning.",
     category: "Sports Analytics",
@@ -147,9 +147,12 @@ export default function SolutionsShowcase() {
             if (!scrollContainer) return;
 
             // Calculate total width needed for horizontal scroll
-            const cardWidth = window.innerWidth * 0.7; // 70vw per card
+            const isMobile = window.innerWidth < 768;
+            const cardWidth = isMobile 
+              ? window.innerWidth - 64 // Full width minus 32px margin on each side for mobile
+              : window.innerWidth * 0.7; // 70vw per card for desktop
             const gap = 32; // 8 * 4 = 32px gap between cards
-            const padding = 64; // 32px padding on each side
+            const padding = isMobile ? 32 : 64; // Smaller padding for mobile
             const totalContentWidth =
               cards.length * cardWidth + (cards.length - 1) * gap + padding;
             const containerWidth = totalContentWidth - window.innerWidth;
@@ -179,11 +182,14 @@ export default function SolutionsShowcase() {
               },
               onRefresh: () => {
                 // Recalculate on window resize
-                const newCardWidth = window.innerWidth * 0.7;
+                const isMobile = window.innerWidth < 768;
+                const newCardWidth = isMobile 
+                  ? window.innerWidth - 64 // Full width minus margins for mobile
+                  : window.innerWidth * 0.7; // 70vw for desktop
                 const newTotalContentWidth =
                   cards.length * newCardWidth +
                   (cards.length - 1) * gap +
-                  padding;
+                  (isMobile ? 32 : 64); // Adjusted padding for mobile
                 const newContainerWidth =
                   newTotalContentWidth - window.innerWidth;
                 gsap.set(scrollContainer, { width: newTotalContentWidth });
@@ -422,13 +428,13 @@ export default function SolutionsShowcase() {
       <div className="absolute inset-0 pt-[250px] pb-20">
         <div
           ref={scrollContainerRef}
-          className="flex gap-8 px-8 h-full items-center"
+          className="flex gap-8 px-4 md:px-8 h-full items-center"
         >
           {projects.map((project, index) => (
             <div
               key={project.id}
               ref={addToRefs}
-              className="flex-shrink-0 w-[70vw] max-w-2xl"
+              className="flex-shrink-0 w-[calc(100vw-64px)] md:w-[70vw] max-w-2xl"
             >
               <div className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 h-[600px] cursor-pointer transform-gpu">
                 {/* Deterministic particles - no hydration mismatch */}

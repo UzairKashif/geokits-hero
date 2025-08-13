@@ -11,7 +11,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default function BlogSection() {
   const [isClient, setIsClient] = useState(false)
-  const [isReturningUser, setIsReturningUser] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLDivElement>(null)
@@ -21,14 +20,6 @@ export default function BlogSection() {
 
   useEffect(() => {
     setIsClient(true)
-    
-    // Check if user is returning from a blog post
-    const hasStoredPosition = sessionStorage.getItem('geokits-home-scroll-position')
-    if (hasStoredPosition) {
-      setIsReturningUser(true)
-      // Clear the flag after a delay
-      setTimeout(() => setIsReturningUser(false), 3000)
-    }
   }, [])
 
   useEffect(() => {
@@ -142,17 +133,6 @@ export default function BlogSection() {
             }
           })
         }
-
-        // Special animation for returning users
-        if (isReturningUser && titleRef.current) {
-          gsap.to(titleRef.current, {
-            scale: 1.05,
-            duration: 0.6,
-            ease: "power2.out",
-            yoyo: true,
-            repeat: 1
-          })
-        }
       }, sectionRef)
 
     }, 100) // Small delay
@@ -175,7 +155,7 @@ export default function BlogSection() {
         ctxRef.current = null
       }
     }
-  }, [isClient, isReturningUser])
+  }, [isClient])
 
   const addToRefs = (el: HTMLDivElement) => {
     if (el && !cardsRef.current.includes(el)) {
@@ -195,9 +175,7 @@ export default function BlogSection() {
     <section 
       ref={sectionRef} 
       id="blog" 
-      className={`w-full min-h-screen bg-gradient-to-b from-black to-gray-900 py-20 relative overflow-hidden transition-all duration-500 ${
-        isReturningUser ? 'ring-2 ring-green-500/20 ring-opacity-50' : ''
-      }`}
+      className="w-full min-h-screen bg-gradient-to-b from-black to-gray-900 py-20 relative overflow-hidden"
     >
       {/* Background Elements */}
       <div className="absolute inset-0">
