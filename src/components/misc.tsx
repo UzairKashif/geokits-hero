@@ -9,7 +9,7 @@ export default function CompanyDescriptionSection() {
   const [progress, setProgress] = useState(0) // 0..1 through the pinned section
   const [textIndex, setTextIndex] = useState(0)
 
-  const texts = ["learn", "understand", "deliver"]
+  const texts = ["analyze", "innovate", "deliver"]
 
   // Tie progress to scroll position within wrapper (sticky pin for 220vh)
   useEffect(() => {

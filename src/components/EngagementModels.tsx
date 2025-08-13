@@ -53,7 +53,7 @@ export default function EngagementModels() {
   }
 
   return (
-    <section ref={ref} id="engagement" className="w-full py-24 px-4 bg-black">
+    <section ref={ref} id="engagement" className="w-full py-24 px-4 bg-gradient-to-b from-slate-950 via-slate-900 to-black">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

@@ -17,7 +17,7 @@ export const blogPosts: BlogPost[] = [
     id: 1,
     title: "Geographic Information Systems",
     slug: "future-gis-technology-smart-cities",
-    img_url: "/blog/smart-cities-gis.jpg",
+    img_url: "/blogs/gis.png",
     excerpt: "Exploring how Geographic Information Systems are revolutionizing urban planning and creating more sustainable, efficient cities worldwide.",
     content: `# Geographic Information Systems (GIS)
 
@@ -120,7 +120,7 @@ GIS technology transforms raw spatial data into strategic business intelligence,
     id: 2,
     title: "Tracking Vegetation Changes in Sheikhupura: Insights from Remote Sensing",
     slug: "tracking-vegetation-changes-sheikhupura",
-    img_url: "/img/blog1.webp",
+    img_url: "/blogs/sheikhupura.png",
     excerpt: "Discover how remote sensing is being used to monitor vegetation changes in Sheikhupura, providing valuable insights for environmental management.",
     content: `
 # A Collaborative Study on Vegetation Dynamics
@@ -170,7 +170,7 @@ If you have any questions or need more information, feel free to reach out to ou
     id: 3,
     title: "Building Resilient Infrastructure with Geospatial Intelligence",
     slug: "resilient-infrastructure-geospatial-intelligence",
-    img_url: "/blog/resilient-infrastructure.jpg",
+    img_url: "/blogs/intel.png",
     excerpt: "Learn how geospatial intelligence is helping organizations build more resilient infrastructure that can withstand natural disasters and climate change impacts.",
     content: `
 # Building Resilient Infrastructure with Geospatial Intelligence

@@ -19,7 +19,7 @@ export default function Page() {
   useScrollPositionMemory()
 
   return (
-    <main className="relative min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white">
+    <main className="relative min-h-screen w-full bg-black text-white">
       <div className="relative">
         <MapboxHeroGSAP />
         <Stats />

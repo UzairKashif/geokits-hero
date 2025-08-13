@@ -415,7 +415,7 @@
                 <h1
                   className={`${plusJakartaSans.className} text-4xl md:text-4xl lg:text-5xl font-bold text-white mb-8 drop-shadow-2xl whitespace-nowrap`}
                 >
-                  Need a go-to solution for all <div className="text-[#32de84] inline">GIS</div> problems?
+                   Advanced <div className="text-[#32de84] inline">GIS</div> Made Accessible
                 </h1>
                 <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto drop-shadow-lg">
                   Experience the world through geospatial intelligence
@@ -431,7 +431,8 @@
                   Explore Our Data
                 </h2>
                 <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto drop-shadow-lg">
-                  From satellite imagery to street-level detail, we provide comprehensive geospatial solutions
+                                   Spatial intelligence meets innovative system design
+
                 </p>
               </div>
 
@@ -444,8 +445,6 @@
                   Ready to Get Started?
                 </h2>
                 <p className="text-lg text-white/90 max-w-2xl mx-auto drop-shadow-lg">
-                  Explore our portfolio of projects that combine spatial intelligence, system design and data
-                  infrastructure
                 </p>
               </div>
             </div>

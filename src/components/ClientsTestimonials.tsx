@@ -8,19 +8,22 @@ import { Transition } from "@headlessui/react";
 const defaultTestimonials = [
   {
     img: "/silhouette.png", // Using a placeholder image
-    quote: "GeoKits' early warning alerts saved lives during the Cyclone Alpha event—our team couldn't have responded so quickly without them.",
+    quote:
+      "GeoKits' early warning alerts saved lives during the Cyclone Alpha event—our team couldn't have responded so quickly without them.",
     name: "Sarah Johnson",
     role: "Emergency Response Coordinator",
   },
   {
     img: "/silhouette.png",
-    quote: "The cooling tower detection system revolutionized our inspection workflow, reducing manual checks by 80%.",
+    quote:
+      "The cooling tower detection system revolutionized our inspection workflow, reducing manual checks by 80%.",
     name: "Dr. Ahmed Hassan",
     role: "Public Health Inspector",
   },
   {
     img: "/silhouette.png",
-    quote: "Their training initiative upskilled our surveyors in Pix4D and GIS, enabling us to launch autonomous drone missions.",
+    quote:
+      "Their training initiative upskilled our surveyors in Pix4D and GIS, enabling us to launch autonomous drone missions.",
     name: "Mark Thompson",
     role: "Lead Surveyor, NSA Oman",
   },
@@ -61,7 +64,7 @@ export default function FancyTestimonialsSlider({
   }, []);
 
   return (
-    <section id="testimonials" className="w-full py-16 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+    <section id="testimonials" className="w-full py-16 px-4 bg-gradient-to-b from-gray-900 via-slate-800 to-[#131d2f]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -71,12 +74,18 @@ export default function FancyTestimonialsSlider({
             Trusted by organizations worldwide for critical geospatial solutions
           </p>
         </div>
-        
+
         <div className="mx-auto w-full max-w-3xl text-center">
           {/* Testimonial image */}
           <div className="relative h-32">
-            <div className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[480px] -translate-x-1/2 before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-gradient-to-b before:from-indigo-500/25 before:via-indigo-500/5 before:via-25% before:to-indigo-500/0 before:to-75%">
-              <div className="h-32" style={{ maskImage: 'linear-gradient(0deg, transparent, white 20%, white)' }}>
+            <div className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[480px] -translate-x-1/2 before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-gradient-to-b before:from-green-400/25 before:via-emerald-500/5 before:via-25% before:to-green-600/0 before:to-75%">
+              <div
+                className="h-32"
+                style={{
+                  maskImage:
+                    "linear-gradient(0deg, transparent, white 20%, white)",
+                }}
+              >
                 {testimonials.map((testimonial, index) => (
                   <Transition
                     as="div"
@@ -130,14 +139,16 @@ export default function FancyTestimonialsSlider({
             {testimonials.map((testimonial, index) => (
               <button
                 key={index}
-                className={`m-1.5 inline-flex justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 dark:focus-visible:ring-slate-600 ${active === index ? "bg-indigo-500 text-white shadow-indigo-950/10" : "bg-slate-700 text-slate-200 hover:bg-indigo-100 hover:text-slate-900"}`}
+                className={`m-1.5 inline-flex justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 dark:focus-visible:ring-slate-600 ${active === index ? "bg-green-400 text-white shadow-indigo-950/10" : "bg-slate-700 text-slate-200 hover:bg-indigo-100 hover:text-slate-900"}`}
                 onClick={() => {
                   setActive(index);
                   setAutorotate(false);
                 }}
               >
                 <span>{testimonial.name}</span>{" "}
-                <span className={`${active === index ? "text-indigo-200" : "text-slate-400"}`}>
+                <span
+                  className={`${active === index ? "text-indigo-200" : "text-slate-400"}`}
+                >
                   -
                 </span>{" "}
                 <span>{testimonial.role}</span>
