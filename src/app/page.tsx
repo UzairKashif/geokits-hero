@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import MapboxHeroGSAP from '@/components/MapboxHeroGSAP'
 import Stats from '@/components/Stats'
 import Workflow from '@/components/Workflow'
@@ -16,13 +17,21 @@ import Link from 'next/link'
 import { ArrowRight, Mail } from 'lucide-react'
 import { useScrollPositionMemory } from '@/hooks/useScrollPositionMemory'
 
-export default function Page() {
-  // Initialize scroll position memory
+function ScrollPositionMemoryBoundary() {
+  // Isolated client component to use search params inside Suspense
   useScrollPositionMemory()
+  return null
+}
+
+export default function Page() {
+  // Initialize scroll position memory within a Suspense boundary
 
   return (
     <main className="relative min-h-screen w-full bg-black text-white">
       <div className="relative">
+        <Suspense fallback={null}>
+          <ScrollPositionMemoryBoundary />
+        </Suspense>
         <MapboxHeroGSAP />
         <Stats />
         <Workflow />
