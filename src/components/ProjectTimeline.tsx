@@ -64,13 +64,13 @@ const pathData = useMemo(() => {
   const points = milestones.map((_, i) => {
     const y = i * currentVerticalSpacing + 250;
     /* keep the first bend direction you already like
-       (change “+” to “-” if you want to mirror horizontally) */
+       (change "+" to "-" if you want to mirror horizontally) */
     const x = centreX + Math.sin((2 * Math.PI * y) / wavelength)
                        * currentHorizontalAmplitude;
     return { x, y, index: i };
   });
 
-  /* ─── 3.  Build a vertically-flipped “S” Bézier path ── */
+  /* ─── 3.  Build a vertically-flipped "S" Bézier path ── */
   let path = `M ${points[0].x} ${points[0].y}`;
 
   for (let i = 1; i < points.length; i++) {
@@ -97,7 +97,7 @@ const pathData = useMemo(() => {
 
   const { path, points, containerWidth: currentContainerWidth, totalHeight: currentTotalHeight } = pathData
 
-  // Balanced approach: smooth scroll-based progress with milestone visibility
+  // Fixed scroll-based progress with better visibility thresholds
   useEffect(() => {
     setIsClient(true)
     if (typeof window !== 'undefined') {
@@ -114,22 +114,36 @@ const pathData = useMemo(() => {
       const elementTop = rect.top
       const elementHeight = rect.height
       
-      // Faster, more responsive progress calculation
+      // More conservative progress calculation - starts animation only when section is well into view
+      // On mobile, we need even more conservative thresholds
+      const startThreshold = isMobile ? windowHeight * 0.4 : windowHeight * 0.3
+      const endThreshold = isMobile ? windowHeight * 0.8 : windowHeight * 0.7
+      
+      // Only start animating when the timeline section is significantly visible
+      const adjustedTop = elementTop + startThreshold
       const viewportProgress = Math.max(0, Math.min(1, 
-        (windowHeight - elementTop + 100) / (windowHeight + elementHeight * 0.7)
+        (windowHeight - adjustedTop) / (windowHeight + elementHeight - endThreshold)
       ))
       
       setLineProgress(viewportProgress)
       
-      // Update visible milestones with faster threshold
+      // Much more conservative milestone visibility - each milestone needs to be clearly in view
       const newVisibleMilestones = new Set<number>()
-      const progressThreshold = viewportProgress * milestones.length * 1.2 // Faster reveal
       
-      for (let i = 0; i <= Math.floor(progressThreshold); i++) {
-        if (i < milestones.length) {
-          newVisibleMilestones.add(i)
+      points.forEach((point, index) => {
+        const milestoneScreenY = rect.top + point.y
+        const milestoneFromTop = milestoneScreenY
+        const milestoneFromBottom = windowHeight - milestoneScreenY
+        
+        // Milestone becomes visible only when it's well within the viewport
+        // More conservative thresholds especially for mobile
+        const topBuffer = isMobile ? windowHeight * 0.25 : windowHeight * 0.2
+        const bottomBuffer = isMobile ? windowHeight * 0.15 : windowHeight * 0.1
+        
+        if (milestoneFromTop < (windowHeight - topBuffer) && milestoneFromBottom > bottomBuffer) {
+          newVisibleMilestones.add(index)
         }
-      }
+      })
       
       setVisibleMilestones(prev => {
         if (prev.size !== newVisibleMilestones.size || 
@@ -151,14 +165,17 @@ const pathData = useMemo(() => {
       }
     }
 
-    // Header visibility observer
+    // Header visibility observer with more conservative threshold for mobile
     const headerObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           setIsHeaderVisible(true)
         }
       },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      { 
+        threshold: 0.1, 
+        rootMargin: isMobile ? "0px 0px -20% 0px" : "0px 0px -10% 0px" 
+      }
     )
 
     if (headerRef.current) {
@@ -179,7 +196,7 @@ const pathData = useMemo(() => {
         }
       }
     }
-  }, [])
+  }, [isMobile, points]) // Added dependencies
 
   return (
     <div className="w-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
@@ -271,7 +288,7 @@ const pathData = useMemo(() => {
               opacity="0.5"
             />
             
-            {/* Smooth animated path */}
+            {/* Smooth animated path - only animates when section is visible */}
             <path
               d={path}
               stroke="url(#pathGradient)"
@@ -283,7 +300,7 @@ const pathData = useMemo(() => {
               strokeDashoffset={3000 * (1 - lineProgress)}
               filter="url(#glow)"
               style={{
-                transition: 'none', // No CSS transition, rely on smooth RAF updates
+                transition: 'none',
                 paintOrder: 'stroke'
               }}
             />
@@ -307,9 +324,9 @@ const pathData = useMemo(() => {
               >
                 {/* Central node */}
                 <div className="relative flex items-center justify-center">
-                  {/* Faster milestone animations */}
+                  {/* Milestone animations only when clearly visible */}
                   <div className={`
-                    absolute ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 transition-all duration-300 ease-out
+                    absolute ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 transition-all duration-500 ease-out
                     ${isVisible 
                       ? 'border-emerald-400/60 bg-gradient-to-br from-emerald-500/15 to-green-500/15 scale-100' 
                       : 'border-slate-600/40 bg-slate-800/10 scale-90'
@@ -318,40 +335,43 @@ const pathData = useMemo(() => {
                   
                   {/* Middle ring for depth */}
                   <div className={`
-                    absolute ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border transition-all duration-250 ease-out
+                    absolute ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border transition-all duration-400 ease-out
                     ${isVisible 
                       ? 'border-emerald-300/40 bg-emerald-500/5' 
                       : 'border-slate-700/30 bg-slate-800/5'
                     }
                   `} />
                   
-                  {/* Inner core with faster transitions */}
+                  {/* Inner core with delayed animation */}
                   <div className={`
-                    relative ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full transition-all duration-350 ease-out z-10
+                    relative ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full transition-all duration-600 ease-out z-10
                     ${isVisible 
                       ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 shadow-xl shadow-emerald-500/40' 
                       : 'bg-gradient-to-br from-slate-600 to-slate-700'
                     }
                   `}>
-                    {/* Smooth pulsing effects */}
+                    {/* Pulsing effects only when visible */}
                     {isVisible && (
                       <>
-                        <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-20" style={{ animationDuration: '2s' }} />
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-green-500/30 animate-pulse" style={{ animationDuration: '3s' }} />
+                        <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-20" style={{ animationDuration: '2s', animationDelay: '0.3s' }} />
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-green-500/30 animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
                       </>
                     )}
                   </div>
 
-                  {/* Faster text content animations */}
+                  {/* Text content with staggered delays */}
                   <div
-                    className={`absolute z-20 transition-all duration-400 ease-out
+                    className={`absolute z-20 transition-all duration-600 ease-out
                       ${isMobile 
                         ? 'left-1/2 -translate-x-1/2 top-12 mt-4 text-center' 
                         : isLeft 
                           ? 'left-10 -translate-x-full pr-6 text-right' 
                           : 'right-10 translate-x-full pl-6 text-left'}
-                      ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
+                      ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
                       max-w-[280px] md:max-w-[340px] select-none`}
+                    style={{
+                      transitionDelay: isVisible ? `${index * 0.1 + 0.2}s` : '0s'
+                    }}
                   >
                     {/* Phase pill */}
                     <span
@@ -359,28 +379,40 @@ const pathData = useMemo(() => {
                         ${isVisible 
                           ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' 
                           : 'border-slate-600/40 text-slate-400 bg-slate-700/10'}
-                        transition-colors duration-500`}
+                        transition-all duration-500`}
+                      style={{
+                        transitionDelay: isVisible ? `${index * 0.1 + 0.3}s` : '0s'
+                      }}
                     >
                       {milestone.phase}
                     </span>
                     {/* Title */}
                     <h3
                       className={`font-semibold ${isMobile ? 'text-lg' : 'text-xl md:text-2xl'} leading-snug mb-2
-                        ${isVisible ? 'text-white' : 'text-slate-300'} transition-colors duration-500`}
+                        ${isVisible ? 'text-white' : 'text-slate-300'} transition-all duration-500`}
+                      style={{
+                        transitionDelay: isVisible ? `${index * 0.1 + 0.4}s` : '0s'
+                      }}
                     >
                       {milestone.title}
                     </h3>
                     {/* Description */}
                     <p
                       className={`text-slate-400/80 ${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed backdrop-blur-[1px]
-                        ${isVisible ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700 delay-100`}
+                        ${isVisible ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
+                      style={{
+                        transitionDelay: isVisible ? `${index * 0.1 + 0.6}s` : '0s'
+                      }}
                     >
                       {milestone.description}
                     </p>
-                    {/* Faster accent underline */}
+                    {/* Accent underline */}
                     <span
                       className={`block mt-4 h-px w-16 origin-left bg-gradient-to-r from-emerald-400 via-green-500 to-transparent
-                        ${isVisible ? 'scale-x-100 opacity-80' : 'scale-x-0 opacity-0'} transition-all duration-400`}
+                        ${isVisible ? 'scale-x-100 opacity-80' : 'scale-x-0 opacity-0'} transition-all duration-500`}
+                      style={{
+                        transitionDelay: isVisible ? `${index * 0.1 + 0.8}s` : '0s'
+                      }}
                     />
                   </div>
                 </div>
@@ -407,4 +439,4 @@ const pathData = useMemo(() => {
       </section>
     </div>
   )
-}
+} 

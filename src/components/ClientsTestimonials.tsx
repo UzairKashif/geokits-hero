@@ -102,7 +102,7 @@ export default function FancyTestimonialsSlider({
         <div className="mx-auto w-full max-w-3xl text-center">
           {/* Testimonial image */}
           <div className="relative h-32">
-            <div className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[480px] -translate-x-1/2 before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-gradient-to-b before:from-green-400/25 before:via-emerald-500/5 before:via-25% before:to-green-600/0 before:to-75%">
+            <div className="pointer-events-none absolute left-1/2 top-0 h-[280px] w-[280px] md:h-[380px] md:w-[380px] -translate-x-1/2 before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-gradient-to-b before:from-green-400/25 before:via-emerald-500/5 before:via-25% before:to-green-600/0 before:to-75%">
               <div
                 className="h-32"
                 style={{

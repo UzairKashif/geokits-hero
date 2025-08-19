@@ -395,7 +395,7 @@
             {/* Mapbox Container */}
             <div
               ref={mapContainerRef}
-                  className="absolute inset-0 w-full h-full bg-gradient-to-t  from-green-800/30 via-green-400/20 to-yellow-400/30 "
+                  className="absolute inset-0 w-full h-full bg-black "
               style={{ filter: "brightness(0.8) contrast(1.2)" }}
             />
 
