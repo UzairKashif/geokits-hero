@@ -1,98 +1,108 @@
-'use client'
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
 
 interface FormData {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  company: string
-  jobTitle: string
-  serviceInterest: string
-  projectDescription: string
-  budget: string
-  hearAbout: string
-  subscribe: boolean
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  company: string;
+  jobTitle: string;
+  serviceInterest: string;
+  projectDescription: string;
+  budget: string;
+  hearAbout: string;
+  subscribe: boolean;
 }
 
 export default function ContactForm() {
   const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    company: '',
-    jobTitle: '',
-    serviceInterest: '',
-    projectDescription: '',
-    budget: '',
-    hearAbout: '',
-    subscribe: false
-  })
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    company: "",
+    jobTitle: "",
+    serviceInterest: "",
+    projectDescription: "",
+    budget: "",
+    hearAbout: "",
+    subscribe: false,
+  });
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
-    setFormData(prev => ({
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value, type } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }))
-  }
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setSubmitStatus('idle')
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
 
     try {
-      const response = await fetch('/api/contact-resend', {
-        method: 'POST',
+      const response = await fetch("/api/contact-resend", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (response.ok) {
-        setSubmitStatus('success')
+        setSubmitStatus("success");
         setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          company: '',
-          jobTitle: '',
-          serviceInterest: '',
-          projectDescription: '',
-          budget: '',
-          hearAbout: '',
-          subscribe: false
-        })
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          company: "",
+          jobTitle: "",
+          serviceInterest: "",
+          projectDescription: "",
+          budget: "",
+          hearAbout: "",
+          subscribe: false,
+        });
       } else {
-        setSubmitStatus('error')
+        setSubmitStatus("error");
       }
     } catch (error) {
-      console.error('Error submitting form:', error)
-      setSubmitStatus('error')
+      console.error("Error submitting form:", error);
+      setSubmitStatus("error");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50">
-      <h2 className="text-2xl md:text-3xl font-semibold text-white mb-8">
+    <div className="bg-gray-800 p-12">
+      <h2 className="text-2xl font-light text-white mb-8 tracking-tight">
         Send Us a Message
       </h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name Fields */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-slate-300 mb-2">
-              First Name <span className="text-emerald-400">*</span>
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
+              First Name <span className="text-gray-300">*</span>
             </label>
             <input
               type="text"
@@ -101,13 +111,16 @@ export default function ContactForm() {
               required
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
               placeholder="Enter your first name"
             />
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-slate-300 mb-2">
-              Last Name <span className="text-emerald-400">*</span>
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
+              Last Name <span className="text-gray-300">*</span>
             </label>
             <input
               type="text"
@@ -116,7 +129,7 @@ export default function ContactForm() {
               required
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
               placeholder="Enter your last name"
             />
           </div>
@@ -125,8 +138,11 @@ export default function ContactForm() {
         {/* Email and Phone */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-              Email Address <span className="text-emerald-400">*</span>
+            <label
+              htmlFor="email"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
+              Email Address <span className="text-gray-300">*</span>
             </label>
             <input
               type="email"
@@ -135,12 +151,15 @@ export default function ContactForm() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
               placeholder="your.email@example.com"
             />
           </div>
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
               Phone Number
             </label>
             <input
@@ -149,7 +168,7 @@ export default function ContactForm() {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
               placeholder="+92 xxx xxxxxxx"
             />
           </div>
@@ -158,7 +177,10 @@ export default function ContactForm() {
         {/* Company and Job Title */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="company" className="block text-sm font-medium text-slate-300 mb-2">
+            <label
+              htmlFor="company"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
               Company
             </label>
             <input
@@ -167,12 +189,15 @@ export default function ContactForm() {
               name="company"
               value={formData.company}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
               placeholder="Your company name"
             />
           </div>
           <div>
-            <label htmlFor="jobTitle" className="block text-sm font-medium text-slate-300 mb-2">
+            <label
+              htmlFor="jobTitle"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
               Job Title
             </label>
             <input
@@ -181,7 +206,7 @@ export default function ContactForm() {
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
               placeholder="Your job title"
             />
           </div>
@@ -189,8 +214,11 @@ export default function ContactForm() {
 
         {/* Service Interest */}
         <div>
-          <label htmlFor="serviceInterest" className="block text-sm font-medium text-slate-300 mb-2">
-            Service Interest <span className="text-emerald-400">*</span>
+          <label
+            htmlFor="serviceInterest"
+            className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+          >
+            Service Interest <span className="text-gray-300">*</span>
           </label>
           <select
             id="serviceInterest"
@@ -198,14 +226,18 @@ export default function ContactForm() {
             required
             value={formData.serviceInterest}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
           >
             <option value="">Select a service</option>
-            <option value="infrastructure-monitoring">Infrastructure Monitoring</option>
+            <option value="infrastructure-monitoring">
+              Infrastructure Monitoring
+            </option>
             <option value="gis-solutions">GIS Solutions</option>
             <option value="ai-training">AI Training & Implementation</option>
             <option value="early-warning-systems">Early Warning Systems</option>
-            <option value="data-analytics">Data Analytics & Visualization</option>
+            <option value="data-analytics">
+              Data Analytics & Visualization
+            </option>
             <option value="consulting">Consulting Services</option>
             <option value="other">Other</option>
           </select>
@@ -213,8 +245,11 @@ export default function ContactForm() {
 
         {/* Project Description */}
         <div>
-          <label htmlFor="projectDescription" className="block text-sm font-medium text-slate-300 mb-2">
-            Project Description <span className="text-emerald-400">*</span>
+          <label
+            htmlFor="projectDescription"
+            className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+          >
+            Project Description <span className="text-gray-300">*</span>
           </label>
           <textarea
             id="projectDescription"
@@ -223,7 +258,7 @@ export default function ContactForm() {
             rows={4}
             value={formData.projectDescription}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all resize-none"
             placeholder="Please describe your project or inquiry..."
           />
         </div>
@@ -231,7 +266,10 @@ export default function ContactForm() {
         {/* Budget and How did you hear */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="budget" className="block text-sm font-medium text-slate-300 mb-2">
+            <label
+              htmlFor="budget"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
               Estimated Budget
             </label>
             <select
@@ -239,7 +277,7 @@ export default function ContactForm() {
               name="budget"
               value={formData.budget}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
             >
               <option value="">Select budget range</option>
               <option value="under-10k">Under $10,000</option>
@@ -250,7 +288,10 @@ export default function ContactForm() {
             </select>
           </div>
           <div>
-            <label htmlFor="hearAbout" className="block text-sm font-medium text-slate-300 mb-2">
+            <label
+              htmlFor="hearAbout"
+              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            >
               How did you hear about us?
             </label>
             <select
@@ -258,7 +299,7 @@ export default function ContactForm() {
               name="hearAbout"
               value={formData.hearAbout}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
             >
               <option value="">Select an option</option>
               <option value="google">Google Search</option>
@@ -279,10 +320,14 @@ export default function ContactForm() {
             name="subscribe"
             checked={formData.subscribe}
             onChange={handleChange}
-            className="mt-1 w-4 h-4 text-emerald-500 bg-slate-900/50 border-slate-600 rounded focus:ring-emerald-500 focus:ring-2"
+            className="mt-1 w-4 h-4 text-gray-300 bg-gray-900 border-gray-700 focus:ring-0"
           />
-          <label htmlFor="subscribe" className="text-sm text-slate-400">
-            I&apos;d like to receive updates about GIS solutions, industry news, and exclusive offers.
+          <label
+            htmlFor="subscribe"
+            className="text-sm text-gray-400 font-light"
+          >
+            I&apos;d like to receive updates about GIS solutions, industry news,
+            and exclusive offers.
           </label>
         </div>
 
@@ -290,38 +335,56 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-4 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-white text-gray-900 hover:bg-gray-200 font-light py-4 px-6 tracking-wide transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Sending Message...
             </>
           ) : (
-            'Submit Message'
+            "Submit Message"
           )}
         </button>
 
         {/* Status Messages */}
-        {submitStatus === 'success' && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-            <p className="text-emerald-400 text-sm">
-              Thank you! Your message has been sent successfully. We&apos;ll get back to you soon.
+        {submitStatus === "success" && (
+          <div className="p-4 bg-gray-700 border border-gray-600">
+            <p className="text-gray-300 text-sm font-light">
+              Thank you! Your message has been sent successfully. We&apos;ll get
+              back to you soon.
             </p>
           </div>
         )}
 
-        {submitStatus === 'error' && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-            <p className="text-red-400 text-sm">
-              Sorry, there was an error sending your message. Please try again or contact us directly.
+        {submitStatus === "error" && (
+          <div className="p-4 bg-gray-700 border border-gray-600">
+            <p className="text-gray-300 text-sm font-light">
+              Sorry, there was an error sending your message. Please try again
+              or contact us directly.
             </p>
           </div>
         )}
       </form>
     </div>
-  )
+  );
 }

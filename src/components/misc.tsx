@@ -47,12 +47,11 @@ export default function CompanyDescriptionSection() {
 
   return (
     <div ref={wrapperRef} className="relative h-[220vh]">
-      <section className="sticky top-0 h-screen w-full bg-black flex items-center justify-center">
-        <div className="text-center text-white">
-          <h2 className="text-5xl md:text-8xl font-bold mb-8">
+      <section className="sticky top-0 h-screen w-full bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-6xl md:text-7xl font-extralight text-white mb-8 tracking-tight">
             At Geokits, we {" "}
             <span className="inline-block relative align-baseline">
-              <span className="absolute -inset-1 rounded-md bg-emerald-500/10 blur-[8px]" aria-hidden />
               <span className="relative inline-flex h-[1.2em] overflow-hidden">
                 <AnimatePresence mode="popLayout" initial={false}>
                   <motion.span
@@ -61,7 +60,7 @@ export default function CompanyDescriptionSection() {
                     animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
                     exit={{ y: "-60%", opacity: 0, filter: "blur(4px)" }}
                     transition={{ duration: 0.34, ease: "easeOut" }}
-                    className="text-[#32de84] px-1"
+                    className="text-white font-light"
                   >
                     {texts[textIndex]}
                   </motion.span>

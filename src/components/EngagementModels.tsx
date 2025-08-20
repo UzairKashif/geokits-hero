@@ -1,32 +1,50 @@
-'use client'
+"use client";
 
-import React, { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
 const models = [
   {
-    title: 'Pilot Program',
-    description: 'Short-term proof of concept to demonstrate value and feasibility.',
-    features: ['Risk Assessment', 'ROI Analysis', 'Technical Validation', 'Team Training'],
-    timeline: '2-4 weeks',
+    title: "Pilot Program",
+    description:
+      "Short-term proof of concept to demonstrate value and feasibility.",
+    features: [
+      "Risk Assessment",
+      "ROI Analysis",
+      "Technical Validation",
+      "Team Training",
+    ],
+    timeline: "2-4 weeks",
   },
   {
-    title: 'Full-Scale Deployment',
-    description: 'Comprehensive rollout across your organization with complete integration.',
-    features: ['Enterprise Integration', 'Workflow Automation', 'Data Migration', 'Support & Maintenance'],
-    timeline: '3-6 months',
+    title: "Full-Scale Deployment",
+    description:
+      "Comprehensive rollout across your organization with complete integration.",
+    features: [
+      "Enterprise Integration",
+      "Workflow Automation",
+      "Data Migration",
+      "Support & Maintenance",
+    ],
+    timeline: "3-6 months",
   },
   {
-    title: 'Custom Training Packages',
-    description: 'Tailored GIS and photogrammetry training for your technical teams.',
-    features: ['Hands-on Workshops', 'Certification Programs', 'Best Practices', 'Ongoing Support'],
-    timeline: '1-2 months',
+    title: "Custom Training Packages",
+    description:
+      "Tailored GIS and photogrammetry training for your technical teams.",
+    features: [
+      "Hands-on Workshops",
+      "Certification Programs",
+      "Best Practices",
+      "Ongoing Support",
+    ],
+    timeline: "1-2 months",
   },
-]
+];
 
 export default function EngagementModels() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -37,11 +55,11 @@ export default function EngagementModels() {
         delayChildren: 0.1,
       },
     },
-  }
+  };
 
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 50,
       scale: 0.9,
     },
@@ -50,23 +68,35 @@ export default function EngagementModels() {
       y: 0,
       scale: 1,
     },
-  }
+  };
 
   return (
-    <section ref={ref} id="engagement" className="w-full py-24 px-4 bg-gradient-to-b from-slate-950 via-slate-900 to-black">
-      <div className="max-w-7xl mx-auto">
+    <section
+      ref={ref}
+      id="engagement"
+      className="w-full py-40 px-6 bg-gray-900"
+    >
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-left mb-24"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Engagement Models
+          <div className="mb-6">
+            <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
+              Our Approach
+            </span>
+          </div>
+          <h2 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
+            Engagement
+            <br />
+            <span className="font-light">models</span>
           </h2>
-          <p className="text-gray-400 text-lg max-w-3xl mx-auto leading-relaxed">
-            Choose the engagement model that best fits your organizational needs and project timeline
+          <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide">
+            Choose the engagement model that best fits your organizational needs
+            and project timeline.
           </p>
         </motion.div>
 
@@ -75,75 +105,93 @@ export default function EngagementModels() {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid md:grid-cols-3 gap-px bg-gray-800"
         >
           {models.map((model, index) => (
             <motion.div
               key={index}
               variants={cardVariants}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ 
-                y: -8, 
-                scale: 1.02,
-                transition: { duration: 0.3 }
+              whileHover={{
+                y: -10,
+                transition: { duration: 0.3 },
               }}
-              className="group relative"
+              className="group bg-gray-800 p-12 hover:bg-gray-700 transition-all duration-500"
             >
-              {/* Background glow effect */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#00FF9E]/20 to-[#00FF9E]/5 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Card content */}
-              <div className="relative bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-8 h-full transition-all duration-300 group-hover:border-[#00FF9E]/30">
-                {/* Timeline badge */}
-                <div className="relative inline-flex items-center px-3 py-1 rounded-full bg-[#00FF9E]/10 border border-[#00FF9E]/20 mb-6">
-                  <span className="text-[#00FF9E] text-sm font-medium">{model.timeline}</span>
-                  {/* Pulse effect */}
+              {/* Timeline badge */}
+              <div className="mb-8">
+                <span className="text-sm font-light text-gray-300">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-2xl font-light text-white mb-6 tracking-tight">
+                {model.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-base text-gray-300 leading-relaxed mb-8 tracking-normal">
+                {model.description}
+              </p>
+
+              {/* Timeline */}
+              <div className="mb-8">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-light text-gray-400 uppercase tracking-wide">
+                    Timeline
+                  </span>
+                  <div className="h-px flex-1 bg-gray-600"></div>
+                </div>
+                <div className="mt-2">
+                  <span className="text-white font-light tracking-tight">
+                    {model.timeline}
+                  </span>
+                </div>
+              </div>
+
+              {/* Features list */}
+              <div className="space-y-3">
+                <h4 className="text-white font-light text-sm uppercase tracking-wide mb-4">
+                  Key Features
+                </h4>
+                {model.features.map((feature, featureIndex) => (
                   <motion.div
-                    className="absolute inset-0 rounded-full border border-[#00FF9E]/30"
-                    animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: index * 0.5 }}
-                  />
-                </div>
-
-                {/* Title */}
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-[#00FF9E] transition-colors duration-300">
-                  {model.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-400 text-base mb-6 leading-relaxed">
-                  {model.description}
-                </p>
-
-                {/* Features list */}
-                <div className="space-y-3">
-                  <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-3">
-                    Key Features
-                  </h4>
-                  {model.features.map((feature, featureIndex) => (
-                    <motion.div
-                      key={featureIndex}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={isInView ? { opacity: 1, x: 0 } : {}}
-                      transition={{ 
-                        duration: 0.5, 
-                        delay: 0.3 + (index * 0.2) + (featureIndex * 0.1) 
-                      }}
-                      className="flex items-center space-x-3"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#00FF9E] flex-shrink-0" />
-                      <span className="text-gray-300 text-sm">{feature}</span>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Hover accent line */}
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00FF9E] to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                    key={featureIndex}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.3 + index * 0.2 + featureIndex * 0.1,
+                    }}
+                    className="flex items-center space-x-3"
+                  >
+                    <div className="w-1 h-1 bg-gray-400 flex-shrink-0" />
+                    <span className="text-gray-400 text-sm font-light">
+                      {feature}
+                    </span>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Bottom CTA */}
+        <div className="mt-24">
+          <div className="flex items-center gap-12">
+            <button className="px-10 py-4 bg-white text-gray-900 font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
+              Discuss your project
+            </button>
+            <a
+              href="#contact"
+              className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
+            >
+              Schedule consultation →
+            </a>
+          </div>
+        </div>
       </div>
     </section>
-  )
+  );
 }

@@ -4,85 +4,21 @@ import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import { projects } from "@/data/projects";
+import { ChevronUp, ChevronDown, ArrowDown } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const projects = [
-  {
-    id: 1,
-    title: "Pix4D & GIS Training Initiative – NSA Oman",
-    file: "Strategic GIS Integration Training Program.pdf",
-    img: "/projects/pix4d.jpg",
-    description:
-      "GeoKits delivered a GIS and photogrammetry training initiative for the National Survey Authority of Oman, with full knowledge transfer across drone‑based surveying, spatial data processing, and image analysis.",
-    category: "Training & Development",
-    technologies: ["Pix4D", "GIS", "Photogrammetry", "Drone Surveying"],
-  },
-  {
-    id: 2,
-    title: "Cooling Tower Detection System",
-    file: "Cooling Tower Detection System ( CTT).pdf",
-    img: "/projects/ctd.jpg",
-    description:
-      "An automated detection system that maps cooling towers using satellite/aerial imagery, CNNs, OpenCV and Python—integrated with GIS and Google Maps for real‑time spatial analysis.",
-    category: "AI & Computer Vision",
-    technologies: ["CNN", "OpenCV", "Python", "GIS", "Google Maps"],
-  },
-  {
-    id: 3,
-    title: "Advanced Disaster Early Warning System",
-    file: "Advanced Disaster Early Warning System.pdf",
-    img: "/projects/disastermgmt.PNG",
-    description:
-      "A multi‑hazard platform processing satellite + environmental data via AI/ML on cloud‑native infrastructure, generating real‑time alerts across 21 event types.",
-    category: "Disaster Management",
-    technologies: [
-      "AI/ML",
-      "Satellite Data",
-      "Cloud Infrastructure",
-      "Real-time Alerts",
-    ],
-  },
-  {
-    id: 4,
-    title: "Intelligent Property Listing",
-    file: "Intelligent Property Listing .pdf",
-    img: "/projects/ipl.PNG",
-    description:
-      "GIS‑based MLS dashboard combining satellite imagery and spatial metrics (terrain, vegetation, climate) with interactive analytics.",
-    category: "Real Estate Tech",
-    technologies: ["GIS", "MLS", "Satellite Imagery", "Analytics"],
-  },
-  {
-    id: 5,
-    title: "Tennis Court Identification System",
-    file: "Tennis Court Identification.pdf",
-    img: "/blogs/tennis.png",
-    description:
-      "AI-powered system for detecting and mapping tennis courts using aerial imagery and machine learning.",
-    category: "Sports Analytics",
-    technologies: ["AI/ML", "Aerial Imagery", "Geospatial Analysis"],
-  },
-];
-
-// Deterministic particle positions to avoid hydration mismatch
-const particlePositions = [
-  { left: 15, top: 20 },
-  { left: 85, top: 10 },
-  { left: 25, top: 80 },
-  { left: 70, top: 60 },
-  { left: 50, top: 30 },
-  { left: 90, top: 90 },
-];
-
 export default function SolutionsShowcase() {
   const [isClient, setIsClient] = useState(false);
+  const [activeProject, setActiveProject] = useState(0);
+  const [isNavigationVisible, setIsNavigationVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement[]>([]);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const navigationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -91,7 +27,6 @@ export default function SolutionsShowcase() {
   useEffect(() => {
     if (!isClient) return;
 
-    // Small delay to ensure DOM is fully ready and Lenis is initialized
     const timer = setTimeout(() => {
       const ctx = gsap.context(() => {
         // Title entrance animation
@@ -99,7 +34,63 @@ export default function SolutionsShowcase() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 80%",
+            end: "bottom 20%",
             toggleActions: "play none none reverse",
+            onEnter: () => {
+              setIsNavigationVisible(true);
+              // Animate navigation in
+              if (navigationRef.current) {
+                gsap.to(navigationRef.current, {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.5,
+                  delay: 0.3,
+                  ease: "power2.out",
+                });
+              }
+            },
+            onLeave: () => {
+              setIsNavigationVisible(false);
+              // Animate navigation out
+              if (navigationRef.current) {
+                gsap.to(navigationRef.current, {
+                  opacity: 0,
+                  x: 50,
+                  duration: 0.3,
+                  ease: "power2.in",
+                });
+              }
+              gsap.set([titleRef.current, subtitleRef.current], {
+                opacity: 0,
+                y: -50,
+                scale: 0.8,
+              });
+            },
+            onEnterBack: () => {
+              setIsNavigationVisible(true);
+              // Animate navigation back in
+              if (navigationRef.current) {
+                gsap.to(navigationRef.current, {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.5,
+                  ease: "power2.out",
+                });
+              }
+              titleTl.restart();
+            },
+            onLeaveBack: () => {
+              setIsNavigationVisible(false);
+              // Animate navigation out when leaving back
+              if (navigationRef.current) {
+                gsap.to(navigationRef.current, {
+                  opacity: 0,
+                  x: 50,
+                  duration: 0.3,
+                  ease: "power2.in",
+                });
+              }
+            },
           },
         });
 
@@ -110,13 +101,11 @@ export default function SolutionsShowcase() {
               opacity: 0,
               y: 80,
               scale: 0.8,
-              rotationX: 20,
             },
             {
               opacity: 1,
               y: 0,
               scale: 1,
-              rotationX: 0,
               duration: 1.2,
               ease: "power4.out",
             },
@@ -126,7 +115,7 @@ export default function SolutionsShowcase() {
             {
               opacity: 0,
               scaleX: 0,
-              transformOrigin: "center",
+              transformOrigin: "left",
             },
             {
               opacity: 1,
@@ -137,451 +126,296 @@ export default function SolutionsShowcase() {
             "-=0.4",
           );
 
-        // Horizontal scroll setup
-        if (scrollContainerRef.current && cardsRef.current.length > 0) {
-          // Wait for layout to complete
-          setTimeout(() => {
-            const scrollContainer = scrollContainerRef.current;
-            const cards = cardsRef.current;
-
-            if (!scrollContainer) return;
-
-            // Calculate total width needed for horizontal scroll
-            const isMobile = window.innerWidth < 768;
-            const cardWidth = isMobile 
-              ? window.innerWidth - 64 // Full width minus 32px margin on each side for mobile
-              : window.innerWidth * 0.7; // 70vw per card for desktop
-            const gap = 32; // 8 * 4 = 32px gap between cards
-            const padding = isMobile ? 32 : 64; // Smaller padding for mobile
-            const totalContentWidth =
-              cards.length * cardWidth + (cards.length - 1) * gap + padding;
-            const containerWidth = totalContentWidth - window.innerWidth;
-
-            // Set the actual width of the container
-            gsap.set(scrollContainer, { width: totalContentWidth });
-
-            // Create horizontal scroll trigger with proper height
-            ScrollTrigger.create({
-              trigger: sectionRef.current,
-              start: "top top",
-              end: () =>
-                `+=${Math.max(containerWidth, window.innerHeight * 2)}`, // Minimum scroll distance
-              pin: true,
-              anticipatePin: 1,
-              scrub: 1,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                const progress = self.progress;
-                const scrollX = progress * containerWidth;
-                gsap.set(scrollContainer, { x: -scrollX });
-
-                // Update progress bar
-                if (progressBarRef.current) {
-                  gsap.set(progressBarRef.current, { scaleX: progress });
-                }
-              },
-              onRefresh: () => {
-                // Recalculate on window resize
-                const isMobile = window.innerWidth < 768;
-                const newCardWidth = isMobile 
-                  ? window.innerWidth - 64 // Full width minus margins for mobile
-                  : window.innerWidth * 0.7; // 70vw for desktop
-                const newTotalContentWidth =
-                  cards.length * newCardWidth +
-                  (cards.length - 1) * gap +
-                  (isMobile ? 32 : 64); // Adjusted padding for mobile
-                const newContainerWidth =
-                  newTotalContentWidth - window.innerWidth;
-                gsap.set(scrollContainer, { width: newTotalContentWidth });
-                return Math.max(newContainerWidth, window.innerHeight * 2);
-              },
-            });
-          }, 100);
-        }
-
-        // Cards entrance animation - moved outside to access cards properly
-        const cards = cardsRef.current;
-        if (cards.length > 0) {
-          gsap.set(cards, {
+        // Content and image animations
+        gsap.fromTo(
+          [contentRef.current, imageRef.current],
+          {
             opacity: 0,
-            y: 100,
-            rotationY: 25,
-            scale: 0.8,
-          });
-
-          ScrollTrigger.batch(cards, {
-            onEnter: (elements) => {
-              gsap.to(elements, {
-                opacity: 1,
-                y: 0,
-                rotationY: 0,
-                scale: 1,
-                duration: 1,
-                ease: "power3.out",
-                stagger: 0.1,
-              });
-            },
-            start: "left 80%",
-            once: true,
-          });
-
-          // Enhanced hover animations for each card
-          cards.forEach((card: HTMLDivElement, index: number) => {
-            if (card) {
-              const image = card.querySelector(".card-image");
-              const overlay = card.querySelector(".overlay");
-              const content = card.querySelector(".card-content");
-              const badge = card.querySelector(".card-badge");
-              const glow = card.querySelector(".glow-effect");
-
-              const hoverIn = () => {
-                const tl = gsap.timeline();
-
-                tl.to(card, {
-                  y: -15,
-                  rotationX: 8,
-                  scale: 1.02,
-                  duration: 0.4,
-                  ease: "power2.out",
-                })
-                  .to(
-                    image,
-                    {
-                      scale: 1.1,
-                      rotation: 1,
-                      duration: 0.6,
-                      ease: "power3.out",
-                    },
-                    0,
-                  )
-                  .to(
-                    overlay,
-                    {
-                      opacity: 1,
-                      duration: 0.4,
-                      ease: "power2.out",
-                    },
-                    0,
-                  )
-                  .to(
-                    glow,
-                    {
-                      opacity: 0.8,
-                      scale: 1.05,
-                      duration: 0.5,
-                      ease: "power2.out",
-                    },
-                    0,
-                  )
-                  .fromTo(
-                    content,
-                    { y: 30, opacity: 0 },
-                    {
-                      y: 0,
-                      opacity: 1,
-                      duration: 0.5,
-                      ease: "back.out(1.7)",
-                    },
-                    0.2,
-                  )
-                  .to(
-                    badge,
-                    {
-                      scale: 1.1,
-                      rotation: 5,
-                      duration: 0.4,
-                      ease: "elastic.out(1, 0.3)",
-                    },
-                    0.1,
-                  );
-              };
-
-              const hoverOut = () => {
-                const tl = gsap.timeline();
-
-                tl.to(card, {
+            y: 60,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 60%",
+              end: "bottom 20%",
+              toggleActions: "play none none reverse",
+              onLeave: () => {
+                gsap.set([contentRef.current, imageRef.current], {
+                  opacity: 0,
+                  y: 60,
+                });
+              },
+              onEnterBack: () => {
+                gsap.to([contentRef.current, imageRef.current], {
+                  opacity: 1,
                   y: 0,
-                  rotationX: 0,
-                  scale: 1,
-                  duration: 0.4,
-                  ease: "power2.out",
-                })
-                  .to(
-                    image,
-                    {
-                      scale: 1,
-                      rotation: 0,
-                      duration: 0.6,
-                      ease: "power3.out",
-                    },
-                    0,
-                  )
-                  .to(
-                    overlay,
-                    {
-                      opacity: 0,
-                      duration: 0.4,
-                      ease: "power2.out",
-                    },
-                    0,
-                  )
-                  .to(
-                    glow,
-                    {
-                      opacity: 0,
-                      scale: 1,
-                      duration: 0.5,
-                      ease: "power2.out",
-                    },
-                    0,
-                  )
-                  .to(
-                    content,
-                    {
-                      y: 20,
-                      opacity: 0,
-                      duration: 0.3,
-                      ease: "power2.out",
-                    },
-                    0,
-                  )
-                  .to(
-                    badge,
-                    {
-                      scale: 1,
-                      rotation: 0,
-                      duration: 0.4,
-                      ease: "power2.out",
-                    },
-                    0,
-                  );
-              };
+                  duration: 1,
+                  ease: "power3.out",
+                  stagger: 0.2,
+                });
+              },
+            },
+          },
+        );
 
-              card.addEventListener("mouseenter", hoverIn);
-              card.addEventListener("mouseleave", hoverOut);
-            }
-          });
+        // Navigation animation - separate from content
+        if (navigationRef.current) {
+          gsap.set(navigationRef.current, { opacity: 0, x: 50 });
         }
       }, sectionRef);
 
       return () => ctx.revert();
-    }, 100); // Small delay
+    }, 100);
 
     return () => clearTimeout(timer);
   }, [isClient]);
 
-  const addToRefs = (el: HTMLDivElement) => {
-    if (el && !cardsRef.current.includes(el)) {
-      cardsRef.current.push(el);
+  const handleProjectChange = (index: number) => {
+    if (index === activeProject) return;
+
+    // Animate content out
+    gsap.to([contentRef.current, imageRef.current], {
+      opacity: 0,
+      y: 20,
+      duration: 0.3,
+      ease: "power2.out",
+      onComplete: () => {
+        setActiveProject(index);
+        // Animate content in
+        gsap.to([contentRef.current, imageRef.current], {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+        });
+      },
+    });
+  };
+
+  const nextProject = () => {
+    const nextIndex =
+      activeProject === projects.length - 1 ? 0 : activeProject + 1;
+    handleProjectChange(nextIndex);
+  };
+
+  const prevProject = () => {
+    const prevIndex =
+      activeProject === 0 ? projects.length - 1 : activeProject - 1;
+    handleProjectChange(prevIndex);
+  };
+
+  const scrollToNextSection = () => {
+    const nextSection = sectionRef.current?.nextElementSibling;
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   if (!isClient) {
     return (
-      <section className="w-full h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
-        <div className="text-green-400 text-xl">Loading...</div>
+      <section className="w-full h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
       </section>
     );
   }
+
+  const currentProject = projects[activeProject];
 
   return (
     <section
       ref={sectionRef}
       id="solutions"
-      className="w-full h-screen bg-gradient-to-b from-gray-900 to-black relative overflow-hidden"
+      className="w-full min-h-screen bg-gray-900 relative"
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/8 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
-      </div>
-
-      {/* Title Section */}
-      <div className="absolute top-5 left-0 w-full z-20">
-        <div className="text-center">
-          <h2
-            ref={titleRef}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 bg-clip-text text-transparent"
-          >
-            Systems in Action
-          </h2>
-          <div
-            ref={subtitleRef}
-            className="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 mx-auto rounded-full"
-          ></div>
-          <p className="text-gray-300 mt-4 text-lg max-w-2xl mx-auto px-4">
-            Scroll to explore our innovative projects and solutions
-          </p>
+      {/* Header */}
+      <div className="pt-20 pb-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-left">
+            <div className="mb-6">
+              <span
+                ref={subtitleRef}
+                className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase"
+              >
+                Our Portfolio
+              </span>
+            </div>
+            <h2
+              ref={titleRef}
+              className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none"
+            >
+              Featured
+              <br />
+              <span className="font-light">projects</span>
+            </h2>
+          </div>
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gray-800 z-30">
-        <div
-          ref={progressBarRef}
-          className="h-full bg-gradient-to-r from-green-400 to-emerald-500 origin-left scale-x-0"
-        ></div>
-      </div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="grid lg:grid-cols-2 gap-16 min-h-[70vh]">
+          {/* Left Side - Content */}
+          <div ref={contentRef} className="flex flex-col justify-center">
+            <div className="max-w-xl">
+              {/* Project Badge */}
+              <div className="mb-6">
+                <span className="text-sm font-light text-gray-300 tracking-wide">
+                  {String(activeProject + 1).padStart(2, "0")} /{" "}
+                  {String(projects.length).padStart(2, "0")}
+                </span>
+              </div>
 
-      {/* Horizontal Scroll Container */}
-      <div className="absolute inset-0 pt-[250px] pb-20">
-        <div
-          ref={scrollContainerRef}
-          className="flex gap-8 px-4 md:px-8 h-full items-center"
-        >
-          {projects.map((project, index) => (
-            <div
-              key={project.id}
-              ref={addToRefs}
-              className="flex-shrink-0 w-[calc(100vw-64px)] md:w-[70vw] max-w-2xl"
-            >
-              <div className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 h-[600px] cursor-pointer transform-gpu">
-                {/* Deterministic particles - no hydration mismatch */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  {particlePositions.map((pos, i) => (
-                    <div
-                      key={i}
-                      className="particle absolute w-1 h-1 bg-green-400 rounded-full opacity-30"
-                      style={{
-                        left: `${pos.left}%`,
-                        top: `${pos.top}%`,
-                        animationDelay: `${i * 0.3}s`,
-                      }}
-                    />
+              {/* Category */}
+              <div className="mb-4">
+                <span className="text-xs font-light tracking-wider uppercase text-gray-500 border border-gray-700 px-3 py-1">
+                  {currentProject.category}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-3xl md:text-4xl font-light text-white mb-6 leading-tight tracking-tight">
+                {currentProject.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-lg text-gray-300 leading-relaxed mb-8 font-light">
+                {currentProject.description}
+              </p>
+
+              {/* Technologies */}
+              <div className="mb-8">
+                <h4 className="text-sm font-light text-gray-400 uppercase tracking-wide mb-4">
+                  Technologies Used
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {currentProject.technologies.map((tech, index) => (
+                    <span
+                      key={index}
+                      className="text-xs text-gray-400 font-light border-b border-gray-700 pb-1"
+                    >
+                      {tech}
+                      {index < currentProject.technologies.length - 1 && " •"}
+                    </span>
                   ))}
                 </div>
+              </div>
 
-                {/* Project Badge */}
-                <div className="card-badge absolute top-6 left-6 z-20 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                  {String(index + 1).padStart(2, "0")}
-                </div>
-
-                {/* Category Badge */}
-                <div className="absolute top-6 right-6 z-20 bg-black/50 backdrop-blur-sm text-green-300 px-3 py-1 rounded-full text-xs font-medium">
-                  {project.category}
-                </div>
-
-                {/* Image Container */}
-                <div className="relative h-80 overflow-hidden">
-                  <Image
-                    src={project.img}
-                    alt={project.title}
-                    width={600}
-                    height={400}
-                    className="card-image object-cover w-full h-full"
+              {/* CTA */}
+              <button
+                onClick={() => {
+                  const encodedFile = encodeURIComponent(currentProject.file);
+                  window.open("/pdfs/" + encodedFile, "_blank");
+                }}
+                className="inline-flex items-center gap-3 px-8 py-3 bg-white text-gray-900 hover:bg-gray-200 font-light tracking-wide transition-all duration-300 group"
+              >
+                View Case Study
+                <svg
+                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 5l7 7-7 7"
                   />
+                </svg>
+              </button>
+            </div>
+          </div>
 
-                  {/* Gradient Overlay */}
-                  <div className="overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0"></div>
+          {/* Right Side - Image */}
+          <div ref={imageRef} className="flex items-center justify-center">
+            <div className="relative w-full max-w-2xl">
+              <div className="aspect-[4/3] bg-gray-800 overflow-hidden">
+                <Image
+                  src={currentProject.img}
+                  alt={currentProject.title}
+                  fill
+                  className="object-cover filter grayscale hover:grayscale-0 transition-all duration-700"
+                />
+              </div>
 
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 h-52 flex flex-col">
-                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300 line-clamp-2">
-                    {project.title}
-                  </h3>
-
-                  <p className="text-gray-300 text-sm leading-relaxed mb-4 flex-grow line-clamp-3">
-                    {project.description}
-                  </p>
-
-                  {/* Technologies */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies.slice(0, 3).map((tech, i) => (
-                      <span
-                        key={i}
-                        className="text-xs bg-gray-700/50 text-gray-300 px-2 py-1 rounded-full"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {project.technologies.length > 3 && (
-                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
-                        +{project.technologies.length - 3}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Hover Content */}
-                  <div
-                    className="card-content absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/95 to-transparent opacity-0 cursor-pointer"
-                    onClick={() => {
-                      const encodedFile = encodeURIComponent(project.file);
-                      window.open("/pdfs/" + encodedFile, "_blank");
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-green-400 text-sm font-medium hover:text-green-300 transition-colors">
-                        View Project Details
-                      </span>
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                        <svg
-                          className="w-4 h-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Always Visible CTA Button */}
-                  <div className="absolute bottom-4 right-4 z-10">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const encodedFile = encodeURIComponent(project.file);
-                        window.open("/pdfs/" + encodedFile, "_blank");
-                      }}
-                      className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 hover:border-green-400 text-green-400 hover:text-green-300 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 backdrop-blur-sm"
-                    >
-                      View PDF
-                    </button>
-                  </div>
-                </div>
-
-                {/* Glow Effect */}
-                <div className="glow-effect absolute inset-0 rounded-2xl opacity-0 pointer-events-none">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/20 via-emerald-500/10 to-green-500/20 blur-xl"></div>
-                </div>
-
-                {/* Border glow */}
-                <div className="absolute inset-0 rounded-2xl border border-green-500/0 group-hover:border-green-500/50 transition-all duration-500"></div>
+              {/* Image overlay info */}
+              <div className="absolute top-6 left-6 bg-gray-900/80 backdrop-blur-sm px-4 py-2">
+                <span className="text-white text-sm font-light">
+                  {currentProject.title}
+                </span>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 right-8 text-green-400 text-sm font-medium z-20">
-        <div className="flex items-center gap-2">
-          <span>Scroll to explore</span>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+      {/* Navigation */}
+      {isNavigationVisible && (
+        <div
+          ref={navigationRef}
+          className="fixed right-8 top-1/2 -translate-y-1/2 z-20 transition-opacity duration-300"
+        >
+          <div className="flex flex-col items-center gap-4">
+            {/* Up Arrow */}
+            <button
+              onClick={prevProject}
+              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
+            >
+              <ChevronUp className="w-5 h-5 text-gray-400" />
+            </button>
+
+            {/* Project Indicators */}
+            <div className="flex flex-col gap-2">
+              {projects.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleProjectChange(index)}
+                  className={`w-2 h-8 transition-all duration-300 ${
+                    index === activeProject
+                      ? "bg-white"
+                      : "bg-gray-700 hover:bg-gray-600"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Down Arrow */}
+            <button
+              onClick={nextProject}
+              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
+            >
+              <ChevronDown className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
         </div>
+      )}
+
+      {/* Skip to Next Section */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <button
+          onClick={scrollToNextSection}
+          className="flex flex-col items-center gap-2 text-gray-500 hover:text-white transition-colors duration-300 group"
+        >
+          <span className="text-xs font-light tracking-wide">Continue</span>
+          <ArrowDown className="w-4 h-4 animate-bounce" />
+        </button>
+      </div>
+
+      {/* Project Counter */}
+      <div className="absolute bottom-8 right-8 text-right">
+        <div className="text-xs font-light text-gray-500 tracking-wide">
+          <span className="text-white">
+            {String(activeProject + 1).padStart(2, "0")}
+          </span>
+          <span className="mx-2">/</span>
+          <span>{String(projects.length).padStart(2, "0")}</span>
+        </div>
+        <div className="text-xs text-gray-600 mt-1">Featured Projects</div>
       </div>
     </section>
   );

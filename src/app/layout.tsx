@@ -8,7 +8,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       {/* Use arbitrary values for your dark background and white text */}
-      <body className="bg-[#343434] text-white antialiased scrollbar-hide">
+      <body className="bg-white text-black antialiased scrollbar-hide">
         <AnimatedIntro />
         <LenisProvider>
           {children}

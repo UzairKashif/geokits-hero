@@ -1,78 +1,92 @@
-'use client'
+"use client";
 
-import { Suspense } from 'react'
-import MapboxHeroGSAP from '@/components/MapboxHeroGSAP'
-import Stats from '@/components/Stats'
-import Workflow from '@/components/Workflow'
+import { Suspense } from "react";
+import MapboxHeroGSAP from "@/components/MapboxHeroGSAP";
+import Stats from "@/components/Stats";
+import Workflow from "@/components/Workflow";
 // import LiveDataFeeds from '@/components/LiveDataFeeds'
-import SolutionsShowcase from '@/components/SolutionsShowcase'
-import BlogSection from '@/components/BlogSection'
-import FancyTestimonialsSlider from '@/components/ClientsTestimonials'
-import DataFlowVisual from '@/components/DataFlowVisual'
-import ProjectTimeline from '@/components/ProjectTimeline'
-import EngagementModels from '@/components/EngagementModels'
-import Faq from '@/components/Faq'
-import Footer from '@/components/Footer'
-import Link from 'next/link'
-import { ArrowRight, Mail } from 'lucide-react'
-import { useScrollPositionMemory } from '@/hooks/useScrollPositionMemory'
-
+import SolutionsShowcase from "@/components/SolutionsShowcase";
+import BlogSection from "@/components/BlogSection";
+import FancyTestimonialsSlider from "@/components/ClientsTestimonials";
+import DataFlowVisual from "@/components/DataFlowVisual";
+import ProjectTimeline from "@/components/ProjectTimeline";
+import EngagementModels from "@/components/EngagementModels";
+import Faq from "@/components/Faq";
+import Footer from "@/components/Footer";
+import Link from "next/link";
+import { ArrowRight, Mail } from "lucide-react";
+import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
+import ValueProposition from "@/components/ValueProposition";
 function ScrollPositionMemoryBoundary() {
   // Isolated client component to use search params inside Suspense
-  useScrollPositionMemory()
-  return null
+  useScrollPositionMemory();
+  return null;
 }
 
 export default function Page() {
   // Initialize scroll position memory within a Suspense boundary
 
   return (
-    <main className="relative min-h-screen w-full bg-black text-white">
+    <main className="relative min-h-screen w-full bg-white text-black">
       <div className="relative">
         <Suspense fallback={null}>
           <ScrollPositionMemoryBoundary />
         </Suspense>
         <MapboxHeroGSAP />
+        <ValueProposition />
         {/* <Stats /> */}
         {/* <Workflow /> */}
         {/* <LiveDataFeeds /> */}
         <SolutionsShowcase />
         <BlogSection />
         <FancyTestimonialsSlider />
-        <DataFlowVisual />
+        {/* <DataFlowVisual /> */}
         {/* <ParabolaScrollPage /> */}
         <ProjectTimeline />
         <EngagementModels />
-        <Faq />
-        
+        {/* <Faq /> */}
+
         {/* Contact Us Section */}
-        <section className="py-20 px-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-5xl font-light text-white mb-6 tracking-tight">
-              Ready to Get <span className="text-emerald-400">Started?</span>
+        <section className="py-40 px-6 bg-gray-900">
+          <div className="max-w-6xl mx-auto text-left">
+            <div className="mb-6">
+              <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
+                Get Started
+              </span>
+            </div>
+            <h2 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
+              Ready to get
+              <br />
+              <span className="font-light">started?</span>
             </h2>
-            <p className="text-lg md:text-xl text-slate-400 font-light max-w-2xl mx-auto leading-relaxed mb-12">
-              Transform your infrastructure monitoring with our cutting-edge GIS solutions. 
-              Let&apos;s discuss how we can help your organization achieve its goals.
+            <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide mb-12">
+              Transform your infrastructure monitoring with our cutting-edge GIS
+              solutions. Let us discuss how we can help your organization
+              achieve its goals.
             </p>
-            
+
             {/* Contact Button */}
-            <Link
-              href="/contact"
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 rounded-full text-white font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
-            >
-              <Mail className="w-6 h-6" />
-              Contact Us Today
-              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-            
-            {/* Decorative line */}
-            <div className="mx-auto mt-12 h-0.5 w-32 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-60" />
+            <div className="flex items-center gap-12">
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 hover:bg-gray-200 font-light tracking-wide transition-all duration-300"
+              >
+                <Mail className="w-5 h-5" />
+                Contact us today
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+              <a
+                href="mailto:contact@geokits.co"
+                className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
+              >
+                Send direct email →
+              </a>
+            </div>
           </div>
         </section>
-        
+
         <Footer />
       </div>
     </main>
-  )
+  );
 }
