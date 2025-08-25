@@ -24,7 +24,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
 
   return (
     <div onClick={handleClick}>
-      <article className="group relative bg-gray-800 border border-gray-700 hover:border-gray-600 overflow-hidden h-[500px] cursor-pointer transform-gpu transition-all duration-500">
+      <article className="group relative forest-fg border border-gray-700 hover:border-gray-600 overflow-hidden h-[500px] cursor-pointer transform-gpu transition-all duration-500">
         {/* Blog Badge */}
         <div className="absolute top-8 left-8 z-20 bg-white text-gray-900 px-4 py-2 text-sm font-light tracking-wide">
           {String(index + 1).padStart(2, "0")}

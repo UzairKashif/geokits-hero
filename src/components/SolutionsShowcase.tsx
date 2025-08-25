@@ -218,8 +218,8 @@ export default function SolutionsShowcase() {
 
   if (!isClient) {
     return (
-      <section className="w-full h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <section className="w-full h-screen bg-white flex items-center justify-center">
+        <div className="text-[#021400] text-xl">Loading...</div>
       </section>
     );
   }
@@ -230,7 +230,7 @@ export default function SolutionsShowcase() {
     <section
       ref={sectionRef}
       id="solutions"
-      className="w-full min-h-screen bg-gray-900 relative"
+      className="w-full min-h-screen bg-white relative"
     >
       {/* Header */}
       <div className="pt-20 pb-12 px-6">
@@ -246,7 +246,7 @@ export default function SolutionsShowcase() {
             </div>
             <h2
               ref={titleRef}
-              className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none"
+              className="text-6xl md:text-7xl font-extralight text-[#021400] mb-8 leading-none"
             >
               Featured
               <br />
@@ -264,7 +264,7 @@ export default function SolutionsShowcase() {
             <div className="max-w-xl">
               {/* Project Badge */}
               <div className="mb-6">
-                <span className="text-sm font-light text-gray-300 tracking-wide">
+                <span className="text-sm font-light text-gray-600 tracking-wide">
                   {String(activeProject + 1).padStart(2, "0")} /{" "}
                   {String(projects.length).padStart(2, "0")}
                 </span>
@@ -272,31 +272,31 @@ export default function SolutionsShowcase() {
 
               {/* Category */}
               <div className="mb-4">
-                <span className="text-xs font-light tracking-wider uppercase text-gray-500 border border-gray-700 px-3 py-1">
+                <span className="text-xs font-light tracking-wider uppercase text-gray-600 border border-gray-300 px-3 py-1">
                   {currentProject.category}
                 </span>
               </div>
 
               {/* Title */}
-              <h3 className="text-3xl md:text-4xl font-light text-white mb-6 leading-tight tracking-tight">
+              <h3 className="text-3xl md:text-4xl font-light text-[#021400] mb-6 leading-tight tracking-tight">
                 {currentProject.title}
               </h3>
 
               {/* Description */}
-              <p className="text-lg text-gray-300 leading-relaxed mb-8 font-light">
+              <p className="text-lg text-gray-700 leading-relaxed mb-8 font-light">
                 {currentProject.description}
               </p>
 
               {/* Technologies */}
               <div className="mb-8">
-                <h4 className="text-sm font-light text-gray-400 uppercase tracking-wide mb-4">
+                <h4 className="text-sm font-light text-gray-600 uppercase tracking-wide mb-4">
                   Technologies Used
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {currentProject.technologies.map((tech, index) => (
                     <span
                       key={index}
-                      className="text-xs text-gray-400 font-light border-b border-gray-700 pb-1"
+                      className="text-xs text-gray-600 font-light border-b border-gray-300 pb-1"
                     >
                       {tech}
                       {index < currentProject.technologies.length - 1 && " •"}
@@ -311,7 +311,7 @@ export default function SolutionsShowcase() {
                   const encodedFile = encodeURIComponent(currentProject.file);
                   window.open("/pdfs/" + encodedFile, "_blank");
                 }}
-                className="inline-flex items-center gap-3 px-8 py-3 bg-white text-gray-900 hover:bg-gray-200 font-light tracking-wide transition-all duration-300 group"
+                className="inline-flex items-center gap-3 px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group"
               >
                 View Case Study
                 <svg
@@ -334,7 +334,7 @@ export default function SolutionsShowcase() {
           {/* Right Side - Image */}
           <div ref={imageRef} className="flex items-center justify-center">
             <div className="relative w-full max-w-2xl">
-              <div className="aspect-[4/3] bg-gray-800 overflow-hidden">
+              <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
                 <Image
                   src={currentProject.img}
                   alt={currentProject.title}
@@ -344,8 +344,8 @@ export default function SolutionsShowcase() {
               </div>
 
               {/* Image overlay info */}
-              <div className="absolute top-6 left-6 bg-gray-900/80 backdrop-blur-sm px-4 py-2">
-                <span className="text-white text-sm font-light">
+              <div className="absolute top-6 left-6 bg-white/80 backdrop-blur-sm px-4 py-2">
+                <span className="text-[#021400] text-sm font-light">
                   {currentProject.title}
                 </span>
               </div>
@@ -364,9 +364,9 @@ export default function SolutionsShowcase() {
             {/* Up Arrow */}
             <button
               onClick={prevProject}
-              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
+              className="w-12 h-12 border border-gray-300 hover:border-gray-400 bg-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-100/50"
             >
-              <ChevronUp className="w-5 h-5 text-gray-400" />
+              <ChevronUp className="w-5 h-5 text-gray-600" />
             </button>
 
             {/* Project Indicators */}
@@ -377,8 +377,8 @@ export default function SolutionsShowcase() {
                   onClick={() => handleProjectChange(index)}
                   className={`w-2 h-8 transition-all duration-300 ${
                     index === activeProject
-                      ? "bg-white"
-                      : "bg-gray-700 hover:bg-gray-600"
+                      ? "bg-[#021400]"
+                      : "bg-gray-300 hover:bg-gray-400"
                   }`}
                 />
               ))}
@@ -387,9 +387,9 @@ export default function SolutionsShowcase() {
             {/* Down Arrow */}
             <button
               onClick={nextProject}
-              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
+              className="w-12 h-12 border border-gray-300 hover:border-gray-400 bg-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-100/50"
             >
-              <ChevronDown className="w-5 h-5 text-gray-400" />
+              <ChevronDown className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         </div>
@@ -399,7 +399,7 @@ export default function SolutionsShowcase() {
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <button
           onClick={scrollToNextSection}
-          className="flex flex-col items-center gap-2 text-gray-500 hover:text-white transition-colors duration-300 group"
+          className="flex flex-col items-center gap-2 text-gray-500 hover:text-[#021400] transition-colors duration-300 group"
         >
           <span className="text-xs font-light tracking-wide">Continue</span>
           <ArrowDown className="w-4 h-4 animate-bounce" />
@@ -409,13 +409,13 @@ export default function SolutionsShowcase() {
       {/* Project Counter */}
       <div className="absolute bottom-8 right-8 text-right">
         <div className="text-xs font-light text-gray-500 tracking-wide">
-          <span className="text-white">
+          <span className="text-[#021400]">
             {String(activeProject + 1).padStart(2, "0")}
           </span>
           <span className="mx-2">/</span>
           <span>{String(projects.length).padStart(2, "0")}</span>
         </div>
-        <div className="text-xs text-gray-600 mt-1">Featured Projects</div>
+        <div className="text-xs text-gray-400 mt-1">Featured Projects</div>
       </div>
     </section>
   );

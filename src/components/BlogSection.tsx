@@ -225,12 +225,6 @@ export default function BlogSection() {
                 View all articles
               </button>
             </Link>
-            <Link
-              href="/contact"
-              className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
-            >
-              Subscribe to updates →
-            </Link>
           </div>
         </div>
       </div>
