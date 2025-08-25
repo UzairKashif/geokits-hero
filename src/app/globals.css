@@ -157,3 +157,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.forest-bg{
+  background-color: #021400;
+  color: white;
+}

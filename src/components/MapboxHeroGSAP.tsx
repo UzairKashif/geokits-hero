@@ -443,24 +443,24 @@ export default function MapboxHeroGSAP() {
           {/* Text Container - Single container to prevent overlapping */}
           <div
             ref={textContainerRef}
-            className="absolute inset-0 flex items-center justify-start pointer-events-none z-10 w-full max-w-6xl px-6 mx-auto"
+            className="absolute inset-0 flex items-center justify-center md:justify-start pointer-events-none z-10 w-full max-w-6xl px-4 md:px-6 mx-auto"
           >
             {/* Main Heading */}
             <div
               ref={headingRef}
-              className="absolute inset-0 flex flex-col justify-center w-full"
+              className="absolute inset-0 flex flex-col justify-center w-full text-center md:text-left"
             >
-              <div className="mb-6">
-                <span className="text-xs font-light tracking-[0.2em] text-white/70 uppercase">
+              <div className="mb-4 md:mb-6">
+                <span className="text-xs font-light tracking-[0.15em] md:tracking-[0.2em] text-white/70 uppercase">
                   Welcome to Geokits
                 </span>
               </div>
-              <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none tracking-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extralight text-white mb-6 md:mb-8 leading-tight md:leading-none tracking-tight">
                 Advanced GIS
                 <br />
                 <span className="font-light">made accessible</span>
               </h1>
-              <p className="text-lg text-white/80 max-w-xl leading-relaxed tracking-wide font-light">
+              <p className="text-base md:text-lg text-white/80 max-w-lg md:max-w-xl mx-auto md:mx-0 leading-relaxed tracking-wide font-light px-2 md:px-0">
                 Experience the world through geospatial intelligence and
                 innovative system design.
               </p>
@@ -469,19 +469,19 @@ export default function MapboxHeroGSAP() {
             {/* Mid-scroll content */}
             <div
               ref={subtextRef}
-              className="absolute inset-0 flex flex-col justify-center w-full"
+              className="absolute inset-0 flex flex-col justify-center w-full text-center md:text-left"
             >
-              <div className="mb-6">
-                <span className="text-xs font-light tracking-[0.2em] text-white/70 uppercase">
+              <div className="mb-4 md:mb-6">
+                <span className="text-xs font-light tracking-[0.15em] md:tracking-[0.2em] text-white/70 uppercase">
                   Global Perspective
                 </span>
               </div>
-              <h2 className="text-5xl md:text-6xl font-extralight text-white mb-8 leading-none tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6 md:mb-8 leading-tight md:leading-none tracking-tight">
                 Explore our
                 <br />
                 <span className="font-light">spatial data</span>
               </h2>
-              <p className="text-lg text-white/80 max-w-xl leading-relaxed tracking-wide font-light">
+              <p className="text-base md:text-lg text-white/80 max-w-lg md:max-w-xl mx-auto md:mx-0 leading-relaxed tracking-wide font-light px-2 md:px-0">
                 Discover how spatial intelligence transforms the way we
                 understand our world.
               </p>
@@ -490,19 +490,19 @@ export default function MapboxHeroGSAP() {
             {/* Final content */}
             <div
               ref={finalTextRef}
-              className="absolute inset-0 flex flex-col justify-center w-full"
+              className="absolute inset-0 flex flex-col justify-center w-full text-center md:text-left"
             >
-              <div className="mb-6">
-                <span className="text-xs font-light tracking-[0.2em] text-white/70 uppercase">
+              <div className="mb-4 md:mb-6">
+                <span className="text-xs font-light tracking-[0.15em] md:tracking-[0.2em] text-white/70 uppercase">
                   Next Steps
                 </span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-extralight text-white mb-8 leading-none tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-extralight text-white mb-6 md:mb-8 leading-tight md:leading-none tracking-tight">
                 Ready to get
                 <br />
                 <span className="font-light">started?</span>
               </h2>
-              <p className="text-lg text-white/80 max-w-xl leading-relaxed tracking-wide font-light">
+              <p className="text-base md:text-lg text-white/80 max-w-lg md:max-w-xl mx-auto md:mx-0 leading-relaxed tracking-wide font-light px-2 md:px-0">
                 Transform your infrastructure monitoring with cutting-edge GIS
                 solutions.
               </p>
@@ -512,9 +512,9 @@ export default function MapboxHeroGSAP() {
           {/* Scroll indicator */}
           <div
             ref={scrollIndicatorRef}
-            className="absolute bottom-8 left-8 text-white/60 pointer-events-none"
+            className="absolute bottom-6 left-1/2 transform -translate-x-1/2 md:bottom-8 md:left-8 md:transform-none text-white/60 pointer-events-none"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col md:flex-row items-center gap-2">
               <span className="text-sm font-light tracking-wide">
                 Scroll to explore
               </span>
