@@ -13,6 +13,7 @@ import ProjectTimeline from "@/components/ProjectTimeline";
 import EngagementModels from "@/components/EngagementModels";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
+import CommunityEngagement from "@/components/CommunityEngagement";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
@@ -45,6 +46,9 @@ export default function Page() {
         <ProjectTimeline />
         {/* <EngagementModels /> */}
         {/* <Faq /> */}
+
+        {/* Community Engagement Section */}
+        <CommunityEngagement />
 
         {/* Contact Us Section */}
         <section className="py-40 px-6 bg-gray-900">
