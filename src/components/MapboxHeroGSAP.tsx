@@ -189,43 +189,54 @@ export default function MapboxHeroGSAP() {
       },
     });
 
-    // Map zoom animation
+    // Map zoom animation with smoother easing
     mapTimeline.to(
       {},
       {
         duration: 1,
+        ease: "power2.inOut",
         onUpdate: function () {
           const progress = this.progress();
-          const zoom = gsap.utils.interpolate(0.3, 8, progress);
+          // Use a more gradual zoom curve with easing function
+          const easedProgress = gsap.parseEase("power2.inOut")(progress);
+          // Reduce the zoom range for smoother transition
+          const zoom = gsap.utils.interpolate(0.3, 5.5, easedProgress);
           map.setZoom(zoom);
         },
       },
     );
 
-    // Map rotation animation (only when scrolling)
+    // Map rotation animation with smoother progression
     mapTimeline.to(
       {},
       {
         duration: 1,
+        ease: "power1.inOut",
         onUpdate: function () {
           const progress = this.progress();
-          const rotation = gsap.utils.interpolate(0, 360, progress);
+          // Use easing for smoother rotation
+          const easedProgress = gsap.parseEase("power1.inOut")(progress);
+          const rotation = gsap.utils.interpolate(0, 270, easedProgress);
           map.setBearing(rotation);
         },
       },
       0,
     ); // Start at same time as zoom
 
-    // Map pitch animation
+    // Map pitch animation with smoother timing
     mapTimeline.to(
       {},
       {
         duration: 1,
+        ease: "power2.out",
         onUpdate: function () {
           const progress = this.progress();
           let pitch = 0;
-          if (progress > 0.7) {
-            pitch = gsap.utils.interpolate(0, 60, (progress - 0.7) / 0.3);
+          // Start pitch animation earlier and make it more gradual
+          if (progress > 0.5) {
+            const pitchProgress = (progress - 0.5) / 0.5;
+            const easedPitchProgress = gsap.parseEase("power2.out")(pitchProgress);
+            pitch = gsap.utils.interpolate(0, 45, easedPitchProgress);
           }
           map.setPitch(pitch);
         },
@@ -233,19 +244,21 @@ export default function MapboxHeroGSAP() {
       0,
     );
 
-    // Map center animation
+    // Map center animation with coordinated easing
     mapTimeline.to(
       {},
       {
         duration: 1,
+        ease: "power2.inOut",
         onUpdate: function () {
           const progress = this.progress();
+          const easedProgress = gsap.parseEase("power2.inOut")(progress);
           const startLng = 0;
           const startLat = 0;
           const endLng = -74.006;
           const endLat = 40.7128;
-          const currentLng = gsap.utils.interpolate(startLng, endLng, progress);
-          const currentLat = gsap.utils.interpolate(startLat, endLat, progress);
+          const currentLng = gsap.utils.interpolate(startLng, endLng, easedProgress);
+          const currentLat = gsap.utils.interpolate(startLat, endLat, easedProgress);
           map.setCenter([currentLng, currentLat]);
         },
       },
