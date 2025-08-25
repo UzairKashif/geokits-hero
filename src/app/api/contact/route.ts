@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
+
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Define the interface for the form data
 interface ContactFormData {
@@ -20,15 +23,20 @@ export async function POST(request: NextRequest) {
   try {
     const data: ContactFormData = await request.json()
 
-    // Create a transporter using SMTP
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
+    // Validate required environment variables
+    if (!process.env.RESEND_API_KEY) {
+      console.error('❌ RESEND_API_KEY is not set in environment variables')
+      return NextResponse.json(
+        { message: 'Server configuration error: Missing API key' },
+        { status: 500 }
+      )
+    }
+
+    console.log('📧 Attempting to send emails...')
+    console.log('📝 Form data received:', {
+      name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      service: data.serviceInterest
     })
 
     // Email to company
@@ -144,31 +152,63 @@ export async function POST(request: NextRequest) {
       </div>
     `
 
-    // Send email to company
-    await transporter.sendMail({
-      from: `"Geokits Contact Form" <${process.env.SMTP_USER}>`,
-      to: process.env.COMPANY_EMAIL || 'contact@geokits.com',
+    // Send email to company using Resend
+    console.log('📤 Sending email to company...')
+    const companyEmailResult = await resend.emails.send({
+      from: 'Geokits Contact Form <contact@geokits.com>', // Use your verified domain
+      to: [process.env.COMPANY_EMAIL || 'arslantar360@gmail.com'],
       subject: `New Contact Form Submission - ${data.serviceInterest}`,
       html: companyEmailHtml,
       replyTo: data.email,
     })
+    console.log('✅ Company email result:', companyEmailResult)
 
-    // Send confirmation email to customer
-    await transporter.sendMail({
-      from: `"Geokits" <${process.env.SMTP_USER}>`,
-      to: data.email,
-      subject: 'Thank you for contacting Geokits - We\'ll be in touch soon!',
-      html: customerEmailHtml,
-    })
+    // Send confirmation email to customer using Resend
+    console.log('📤 Sending confirmation email to customer...')
+    let customerEmailResult = null;
+    try {
+      customerEmailResult = await resend.emails.send({
+        from: 'Geokits <onboarding@resend.dev>',
+        to: [data.email],
+        subject: 'Thank you for contacting Geokits - We\'ll be in touch soon!',
+        html: customerEmailHtml,
+      })
+      console.log('✅ Customer email result:', customerEmailResult)
+    } catch (customerEmailError) {
+      console.error('⚠️ Customer email failed (but company email succeeded):', customerEmailError)
+      // Don't fail the entire request if customer email fails
+    }
 
+    console.log('🎉 Company email sent successfully!')
     return NextResponse.json(
-      { message: 'Email sent successfully' },
+      { 
+        message: 'Email sent successfully',
+        companyEmailId: companyEmailResult.data?.id,
+        customerEmailId: customerEmailResult?.data?.id || 'failed',
+        note: customerEmailResult ? 'Both emails sent' : 'Company email sent, customer email failed'
+      },
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error sending email:', error)
+    console.error('❌ Error sending email:', error)
+    
+    // Log more detailed error information
+    if (error instanceof Error) {
+      console.error('Error name:', error.name)
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
+    
+    // Check if it's a Resend API error
+    if (error && typeof error === 'object' && 'message' in error) {
+      console.error('API Error details:', error)
+    }
+    
     return NextResponse.json(
-      { message: 'Failed to send email' },
+      { 
+        message: 'Failed to send email',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
