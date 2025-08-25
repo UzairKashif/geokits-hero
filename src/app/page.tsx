@@ -49,7 +49,7 @@ export default function Page() {
         <CommunityEngagement />
 
         {/* Contact Us Section */}
-        <section className="py-40 px-6 bg-gray-900">
+        <section className="py-40 px-6 forest-bg">
           <div className="max-w-6xl mx-auto text-left">
             <div className="mb-6">
               <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">

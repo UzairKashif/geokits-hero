@@ -230,7 +230,7 @@ export default function ProjectTimeline() {
   }, [isMobile, points]); // Added dependencies
 
   return (
-    <div className="w-full bg-gray-900 overflow-hidden">
+    <div className="w-full forest-bg overflow-hidden">
       <section id="timeline" className="w-full py-40 px-6">
         <div
           ref={headerRef}
