@@ -1,233 +1,161 @@
-"use client";
+'use client'
 
-import React, { useRef, useEffect, useState } from "react";
-import Link from "next/link";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import BlogCard from "./BlogCard";
-import { blogPosts } from "../lib/blogData";
+import { useRouter } from 'next/navigation'
+import { BlogPost } from '@/lib/blogData'
 
-gsap.registerPlugin(ScrollTrigger);
+interface BlogPostClientProps {
+  post: BlogPost
+}
 
-export default function BlogSection() {
-  const [isClient, setIsClient] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement[]>([]);
-  const ctxRef = useRef<gsap.Context | null>(null);
-  const eventListenersRef = useRef<
-    Array<{
-      element: HTMLDivElement;
-      events: Array<{ type: string; handler: EventListener }>;
-    }>
-  >([]);
+export default function BlogPostClient({ post }: BlogPostClientProps) {
+  const router = useRouter()
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isClient) return;
-
-    // Small delay to ensure DOM is fully ready and Lenis is initialized
-    const timer = setTimeout(() => {
-      if (!sectionRef.current) return;
-
-      ctxRef.current = gsap.context(() => {
-        // Title entrance animation
-        const titleTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
-          },
-        });
-
-        titleTl
-          .fromTo(
-            titleRef.current,
-            {
-              opacity: 0,
-              y: 80,
-              scale: 0.8,
-              rotationX: 20,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotationX: 0,
-              duration: 1.2,
-              ease: "power4.out",
-            },
-          )
-          .fromTo(
-            subtitleRef.current,
-            {
-              opacity: 0,
-              scaleX: 0,
-              transformOrigin: "center",
-            },
-            {
-              opacity: 1,
-              scaleX: 1,
-              duration: 0.8,
-              ease: "power3.out",
-            },
-            "-=0.4",
-          );
-
-        // Cards entrance animation
-        const cards = cardsRef.current;
-        if (cards.length > 0) {
-          gsap.set(cards, {
-            opacity: 0,
-            y: 100,
-            rotationY: 25,
-            scale: 0.8,
-          });
-
-          gsap.to(cards, {
-            opacity: 1,
-            y: 0,
-            rotationY: 0,
-            scale: 1,
-            duration: 1,
-            ease: "power3.out",
-            stagger: 0.2,
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 60%",
-              toggleActions: "play none none reverse",
-            },
-          });
-
-          // Enhanced hover animations for each card
-          cards.forEach((card: HTMLDivElement) => {
-            if (card) {
-              const hoverIn = () => {
-                gsap.to(card, {
-                  y: -10,
-                  rotationX: 5,
-                  scale: 1.02,
-                  duration: 0.4,
-                  ease: "power2.out",
-                });
-              };
-
-              const hoverOut = () => {
-                gsap.to(card, {
-                  y: 0,
-                  rotationX: 0,
-                  scale: 1,
-                  duration: 0.4,
-                  ease: "power2.out",
-                });
-              };
-
-              // Store event listeners for cleanup
-              const events = [
-                { type: "mouseenter", handler: hoverIn },
-                { type: "mouseleave", handler: hoverOut },
-              ];
-
-              events.forEach(({ type, handler }) => {
-                card.addEventListener(type, handler);
-              });
-
-              eventListenersRef.current.push({ element: card, events });
-            }
-          });
-        }
-      }, sectionRef);
-    }, 100); // Small delay
-
-    return () => {
-      clearTimeout(timer);
-      // Cleanup event listeners
-      eventListenersRef.current.forEach(({ element, events }) => {
-        if (element && element.parentNode) {
-          events.forEach(({ type, handler }) => {
-            element.removeEventListener(type, handler);
-          });
-        }
-      });
-      eventListenersRef.current = [];
-
-      // Cleanup GSAP context
-      if (ctxRef.current) {
-        ctxRef.current.revert();
-        ctxRef.current = null;
-      }
-    };
-  }, [isClient]);
-
-  const addToRefs = (el: HTMLDivElement) => {
-    if (el && !cardsRef.current.includes(el)) {
-      cardsRef.current.push(el);
-    }
-  };
-
-  if (!isClient) {
-    return (
-      <section className="w-full min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </section>
-    );
+  const handleBackToHome = () => {
+    // Navigate back to home page with a query parameter to indicate direct navigation to blog
+    router.push('/?scrollTo=blog')
   }
 
   return (
-    <section
-      ref={sectionRef}
-      id="blog"
-      className="w-full min-h-screen bg-gray-900 py-40 relative overflow-hidden"
-    >
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Title Section */}
-        <div className="text-left mb-24">
-          <div className="mb-6">
-            <span
-              ref={subtitleRef}
-              className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase"
-            >
-              Insights & Updates
-            </span>
-          </div>
-          <h2
-            ref={titleRef}
-            className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none"
+    <div className="w-full bg-gray-900">
+      {/* Header */}
+      <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <button
+            onClick={handleBackToHome}
+            className="inline-flex items-center gap-3 text-gray-400 hover:text-white transition-colors duration-300 font-light tracking-wide cursor-pointer"
           >
-            Latest from
-            <br />
-            <span className="font-light">our blog</span>
-          </h2>
-          <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide">
-            Explore the latest trends, technologies, and insights in geospatial
-            intelligence and smart infrastructure.
-          </p>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to insights
+          </button>
         </div>
+      </header>
 
-        {/* Blog Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-800">
-          {blogPosts.slice(0, 3).map((post, index) => (
-            <div key={post.id} ref={addToRefs} className="transform-gpu">
-              <BlogCard post={post} index={index} />
+      {/* Hero Section */}
+      <section className="w-full py-40 px-6 bg-gray-900">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-left mb-16">
+            <div className="mb-6">
+              <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
+                {post.category}
+              </span>
             </div>
-          ))}
-        </div>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extralight text-white mb-8 leading-none tracking-tight">
+              {post.title}
+            </h1>
+            <p className="text-xl text-gray-400 max-w-3xl leading-relaxed tracking-wide font-light">
+              {post.excerpt}
+            </p>
+          </div>
 
-        {/* View All Blog Button */}
-        <div className="mt-24">
-          <div className="flex items-center gap-12">
-            <Link href="/blog">
-              <button className="px-10 py-4 bg-white text-gray-900 font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
-                View all articles
-              </button>
-            </Link>
+          {/* Meta Information */}
+          <div className="grid md:grid-cols-3 gap-8 text-sm text-gray-500 font-light">
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-gray-500 uppercase tracking-[0.1em]">Author</span>
+              <span className="text-gray-300">{post.author}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-gray-500 uppercase tracking-[0.1em]">Published</span>
+              <span className="text-gray-300">{new Date(post.date).toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric',
+                year: 'numeric'
+              })}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-gray-500 uppercase tracking-[0.1em]">Read Time</span>
+              <span className="text-gray-300">{post.readTime}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
+      </section>
+
+      {/* Article Content */}
+      <article className="w-full py-20 px-6 bg-gray-900">
+        <div className="max-w-4xl mx-auto">
+          {/* Featured Image Placeholder */}
+          <div className="relative h-96 mb-16 overflow-hidden bg-gray-800">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-gray-500 text-center">
+                <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-lg font-light">Featured Image</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Article Content */}
+          <div className="max-w-none">
+            <div 
+              className="text-gray-400 leading-relaxed tracking-wide font-light"
+              dangerouslySetInnerHTML={{ 
+                __html: post.content
+                  .split('\n')
+                  .map(line => {
+                    // Handle headers
+                    if (line.startsWith('# ')) {
+                      return `<h1 class="text-4xl font-extralight text-white mt-16 mb-8 leading-tight">${line.slice(2)}</h1>`
+                    }
+                    if (line.startsWith('## ')) {
+                      return `<h2 class="text-3xl font-light text-white mt-12 mb-6 leading-tight">${line.slice(3)}</h2>`
+                    }
+                    if (line.startsWith('### ')) {
+                      return `<h3 class="text-2xl font-light text-gray-300 mt-10 mb-4">${line.slice(4)}</h3>`
+                    }
+                    
+                    // Handle bold text
+                    if (line.startsWith('**') && line.endsWith('**')) {
+                      return `<p class="font-light text-white mt-8 mb-4 text-lg">${line.slice(2, -2)}</p>`
+                    }
+                    
+                    // Handle regular paragraphs
+                    if (line.trim() && !line.startsWith('#')) {
+                      return `<p class="mb-6 text-lg leading-relaxed">${line}</p>`
+                    }
+                    
+                    return ''
+                  })
+                  .join('')
+              }}
+            />
+          </div>
+
+          {/* Tags Section */}
+          <div className="mt-20 pt-12 border-t border-gray-800">
+            <div className="mb-8">
+              <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
+                Related Topics
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {post.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-300 px-4 py-2 text-sm font-light tracking-wide transition-colors duration-300 cursor-pointer"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Back to Blog */}
+          <div className="mt-20 pt-12 border-t border-gray-800">
+            <button
+              onClick={handleBackToHome}
+              className="inline-flex items-center gap-3 text-gray-400 hover:text-white transition-colors duration-300 font-light tracking-wide"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to insights
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  )
 }

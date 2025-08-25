@@ -24,19 +24,19 @@ export default function BlogCard({ post, index }: BlogCardProps) {
 
   return (
     <div onClick={handleClick}>
-      <article className="group relative forest-fg border border-gray-700 hover:border-gray-600 overflow-hidden h-[500px] cursor-pointer transform-gpu transition-all duration-500">
+      <article className="group relative bg-white border border-gray-200 hover:border-gray-300 overflow-hidden h-[500px] cursor-pointer transform-gpu transition-all duration-500 hover:shadow-lg">
         {/* Blog Badge */}
-        <div className="absolute top-8 left-8 z-20 bg-white text-gray-900 px-4 py-2 text-sm font-light tracking-wide">
+        <div className="absolute top-8 left-8 z-20 bg-[#021400] text-white px-4 py-2 text-sm font-light tracking-wide">
           {String(index + 1).padStart(2, "0")}
         </div>
 
         {/* Category Badge */}
-        <div className="absolute top-8 right-8 z-20 text-gray-400 text-xs font-light tracking-wide uppercase">
+        <div className="absolute top-8 right-8 z-20 text-gray-500 text-xs font-light tracking-wide uppercase">
           {post.category}
         </div>
 
         {/* Image Container */}
-        <div className="relative h-60 overflow-hidden bg-gray-900">
+        <div className="relative h-60 overflow-hidden bg-gray-50">
           {post.img_url ? (
             <img
               src={post.img_url}
@@ -44,8 +44,8 @@ export default function BlogCard({ post, index }: BlogCardProps) {
               className="w-full h-full object-cover filter grayscale hover:grayscale-0 transform group-hover:scale-105 transition-all duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-              <div className="text-gray-600 text-center">
+            <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+              <div className="text-gray-400 text-center">
                 <svg
                   className="w-16 h-16 mx-auto mb-2"
                   fill="none"
@@ -67,11 +67,11 @@ export default function BlogCard({ post, index }: BlogCardProps) {
 
         {/* Content */}
         <div className="p-8 h-60 flex flex-col">
-          <h3 className="text-xl font-light text-white mb-3 tracking-tight line-clamp-2">
+          <h3 className="text-xl font-light text-[#021400] mb-3 tracking-tight line-clamp-2">
             {post.title}
           </h3>
 
-          <p className="text-base text-gray-300 leading-relaxed mb-4 flex-grow line-clamp-3 tracking-normal">
+          <p className="text-base text-gray-600 leading-relaxed mb-4 flex-grow line-clamp-3 tracking-normal">
             {post.excerpt}
           </p>
 
@@ -115,19 +115,19 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                 {post.readTime}
               </span>
             </div>
-            <span className="text-gray-400">{post.author}</span>
+            <span className="text-gray-500">{post.author}</span>
           </div>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
             {post.tags.slice(0, 3).map((tag, i) => (
-              <span key={i} className="text-xs text-gray-400 font-light">
+              <span key={i} className="text-xs text-gray-500 font-light">
                 {tag}
                 {i < Math.min(post.tags.length, 3) - 1 && " •"}
               </span>
             ))}
             {post.tags.length > 3 && (
-              <span className="text-xs text-gray-500 font-light">
+              <span className="text-xs text-gray-400 font-light">
                 +{post.tags.length - 3} more
               </span>
             )}
@@ -135,9 +135,9 @@ export default function BlogCard({ post, index }: BlogCardProps) {
         </div>
 
         {/* Hover Content */}
-        <div className="absolute inset-x-0 bottom-0 p-8 bg-gray-800 border-t border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-x-0 bottom-0 p-8 bg-gray-50 border-t border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-gray-300 font-light tracking-wide hover:text-white transition-colors duration-300">
+            <span className="text-gray-600 font-light tracking-wide hover:text-[#021400] transition-colors duration-300">
               Read article →
             </span>
           </div>
