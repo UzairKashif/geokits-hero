@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
             <strong style="color: #10b981;">The Geokits Team</strong>
           </p>
           <p style="color: #64748b; font-size: 12px; margin: 0;">
-            G 9/4, Islamabad, Pakistan | contact@geokits.co | (+92) 303 7239083
+            G 9/4, Islamabad, Pakistan | contact@geokits.com | (+92) 303 7239083
           </p>
         </div>
       </div>
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     // Send email to company
     await transporter.sendMail({
       from: `"Geokits Contact Form" <${process.env.SMTP_USER}>`,
-      to: process.env.COMPANY_EMAIL || 'contact@geokits.co',
+      to: process.env.COMPANY_EMAIL || 'contact@geokits.com',
       subject: `New Contact Form Submission - ${data.serviceInterest}`,
       html: companyEmailHtml,
       replyTo: data.email,

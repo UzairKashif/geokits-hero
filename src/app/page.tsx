@@ -7,7 +7,6 @@ import Workflow from "@/components/Workflow";
 // import LiveDataFeeds from '@/components/LiveDataFeeds'
 import SolutionsShowcase from "@/components/SolutionsShowcase";
 import BlogSection from "@/components/BlogSection";
-import FancyTestimonialsSlider from "@/components/ClientsTestimonials";
 import DataFlowVisual from "@/components/DataFlowVisual";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import EngagementModels from "@/components/EngagementModels";
@@ -80,7 +79,7 @@ export default function Page() {
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <a
-                href="mailto:contact@geokits.co"
+                href="mailto:contact@geokits.com"
                 className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
               >
                 Send direct email →
