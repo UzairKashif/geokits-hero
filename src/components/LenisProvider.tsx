@@ -1,12 +1,14 @@
 'use client'
 import { useEffect, useRef, createContext, useContext } from 'react'
 import { usePathname } from 'next/navigation'
-import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+// Lazy load Lenis only when needed
+let Lenis: typeof import('lenis').default | null = null;
+
 // Create context for Lenis instance
-const LenisContext = createContext<Lenis | null>(null)
+const LenisContext = createContext<import('lenis').default | null>(null)
 
 export function useLenis() {
   const lenis = useContext(LenisContext)
@@ -14,11 +16,20 @@ export function useLenis() {
 }
 
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
-  const lenisRef = useRef<Lenis | null>(null)
+  const lenisRef = useRef<import('lenis').default | null>(null)
   const rafRef = useRef<number | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
+    // Detect mobile devices and disable smooth scroll on low-end devices
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isLowEndDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+    
+    // Skip Lenis on very low-end mobile devices for better performance
+    if (isMobile && isLowEndDevice) {
+      return;
+    }
+
     // Clean up existing Lenis instance if it exists
     if (lenisRef.current) {
       lenisRef.current.destroy()
@@ -36,38 +47,74 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     gsap.globalTimeline.kill()
     ScrollTrigger.getAll().forEach(trigger => trigger.kill())
 
-    // Delay to ensure DOM is ready after route change
-    const timer = setTimeout(() => {
-      // Initialize Lenis
+    // Lazy load Lenis to reduce initial bundle size
+    const initLenis = async () => {
+      if (!Lenis) {
+        const LenisModule = await import('lenis');
+        Lenis = LenisModule.default;
+      }
+
+      // Initialize Lenis with performance-optimized settings
       const lenis = new Lenis({
-        duration: 1.4,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        duration: isMobile ? 0.8 : 1.2, // Shorter duration for better performance
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: 'vertical',
         gestureOrientation: 'vertical',
-        smoothWheel: true,
-        wheelMultiplier: 1.2,
-        touchMultiplier: 2,
+        smoothWheel: !isMobile, // Disable smooth wheel on mobile
+        wheelMultiplier: isMobile ? 0.6 : 1.0, // Reduced multiplier
+        touchMultiplier: isMobile ? 1.2 : 1.8, // Optimized for touch
         infinite: false,
+        autoResize: true,
+        syncTouch: isMobile,
       })
 
       lenisRef.current = lenis
 
-      // Animation loop
+      // Connect Lenis to GSAP ScrollTrigger for better performance
+      lenis.on('scroll', ScrollTrigger.update)
+
+      // Optimized animation loop with frame rate control
+      let lastTime = 0;
+      const targetFPS = isMobile ? 30 : 60;
+      const frameInterval = 1000 / targetFPS;
+      
       function raf(time: number) {
         if (lenisRef.current) {
-          lenisRef.current.raf(time)
+          // Throttle frame rate for better performance
+          if (time - lastTime >= frameInterval) {
+            lenisRef.current.raf(time)
+            lastTime = time;
+          }
           rafRef.current = requestAnimationFrame(raf)
         }
       }
 
       rafRef.current = requestAnimationFrame(raf)
 
-      // Refresh ScrollTrigger to recalculate positions after route change
-      // This helps with GSAP animations after navigation
-      setTimeout(() => {
-        ScrollTrigger.refresh()
-      }, 100)
-    }, 150)
+      // Debounced ScrollTrigger refresh
+      let refreshTimeout: NodeJS.Timeout;
+      const debouncedRefresh = () => {
+        clearTimeout(refreshTimeout);
+        refreshTimeout = setTimeout(() => {
+          ScrollTrigger.refresh()
+        }, isMobile ? 300 : 150);
+      };
+
+      // Listen for resize events
+      window.addEventListener('resize', debouncedRefresh);
+
+      // Initial refresh after a short delay
+      setTimeout(debouncedRefresh, isMobile ? 500 : 200);
+
+      return () => {
+        clearTimeout(refreshTimeout);
+        window.removeEventListener('resize', debouncedRefresh);
+        lenis.off('scroll', ScrollTrigger.update);
+      };
+    }
+
+    // Delay initialization slightly to prevent blocking
+    const timer = setTimeout(initLenis, isMobile ? 300 : 150)
 
     // Cleanup function
     return () => {

@@ -171,7 +171,7 @@ export default function BlogSection() {
 
   if (!isClient) {
     return (
-      <section className="w-full min-h-screen bg-gray-900 flex items-center justify-center">
+      <section className="w-full min-h-screen bg-[#021400] flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
       </section>
     );
@@ -181,7 +181,7 @@ export default function BlogSection() {
     <section
       ref={sectionRef}
       id="blog"
-      className="w-full min-h-screen bg-gray-900 py-40 relative overflow-hidden"
+      className="w-full min-h-screen bg-[#021400] py-40 relative overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-6">
         {/* Title Section */}
@@ -210,7 +210,7 @@ export default function BlogSection() {
 
         {/* Blog Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-800">
-          {blogPosts.map((post, index) => (
+          {blogPosts.slice(0, 3).map((post, index) => (
             <div key={post.id} ref={addToRefs} className="transform-gpu">
               <BlogCard post={post} index={index} />
             </div>
@@ -221,7 +221,7 @@ export default function BlogSection() {
         <div className="mt-24">
           <div className="flex items-center gap-12">
             <Link href="/blog">
-              <button className="px-10 py-4 bg-white text-gray-900 font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
+              <button className="px-10 py-4 bg-white text-[#021400] font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
                 View all articles
               </button>
             </Link>

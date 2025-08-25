@@ -64,7 +64,7 @@ export default function ClientsTestimonials({
   }, []);
 
   return (
-    <section id="testimonials" className="w-full py-40 px-6 bg-gray-900">
+    <section id="testimonials" className="w-full py-40 px-6 bg-[#021400]">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-left mb-24">
@@ -94,7 +94,6 @@ export default function ClientsTestimonials({
                 <div className="relative flex flex-col" ref={testimonialsRef}>
                   {testimonials.map((testimonial, index) => (
                     <Transition
-                      as="div"
                       key={index}
                       show={active === index}
                       enter="transition ease-in-out duration-500 delay-200 order-first"
@@ -105,9 +104,11 @@ export default function ClientsTestimonials({
                       leaveTo="opacity-0 translate-y-4"
                       beforeEnter={() => heightFix()}
                     >
-                      <blockquote className="text-xl font-light text-gray-300 leading-relaxed tracking-wide italic">
-                        "{testimonial.quote}"
-                      </blockquote>
+                      <div>
+                        <blockquote className="text-xl font-light text-gray-300 leading-relaxed tracking-wide italic">
+                          &ldquo;{testimonial.quote}&rdquo;
+                        </blockquote>
+                      </div>
                     </Transition>
                   ))}
                 </div>
@@ -118,10 +119,8 @@ export default function ClientsTestimonials({
                 <div className="relative">
                   {testimonials.map((testimonial, index) => (
                     <Transition
-                      as="div"
                       key={index}
                       show={active === index}
-                      className="absolute inset-0"
                       enter="transition ease-in-out duration-500"
                       enterFrom="opacity-0 scale-90"
                       enterTo="opacity-100 scale-100"
@@ -129,13 +128,15 @@ export default function ClientsTestimonials({
                       leaveFrom="opacity-100 scale-100"
                       leaveTo="opacity-0 scale-90"
                     >
-                      <Image
-                        className="w-12 h-12 rounded-full grayscale"
-                        src={testimonial.img}
-                        width={48}
-                        height={48}
-                        alt={testimonial.name}
-                      />
+                      <div className="absolute inset-0">
+                        <Image
+                          className="w-12 h-12 rounded-full grayscale"
+                          src={testimonial.img}
+                          width={48}
+                          height={48}
+                          alt={testimonial.name}
+                        />
+                      </div>
                     </Transition>
                   ))}
                   <div className="w-12 h-12 rounded-full bg-gray-700"></div>
@@ -144,7 +145,6 @@ export default function ClientsTestimonials({
                 <div>
                   {testimonials.map((testimonial, index) => (
                     <Transition
-                      as="div"
                       key={index}
                       show={active === index}
                       enter="transition ease-in-out duration-500 delay-100"
@@ -154,11 +154,13 @@ export default function ClientsTestimonials({
                       leaveFrom="opacity-100 translate-x-0"
                       leaveTo="opacity-0 translate-x-4"
                     >
-                      <div className="text-white font-light tracking-tight">
-                        {testimonial.name}
-                      </div>
-                      <div className="text-gray-400 text-sm font-light tracking-wide">
-                        {testimonial.role}
+                      <div>
+                        <div className="text-white font-light tracking-tight">
+                          {testimonial.name}
+                        </div>
+                        <div className="text-gray-400 text-sm font-light tracking-wide">
+                          {testimonial.role}
+                        </div>
                       </div>
                     </Transition>
                   ))}
@@ -195,7 +197,7 @@ export default function ClientsTestimonials({
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-light transition-colors duration-300 ${
                           active === index
-                            ? "bg-white text-gray-900"
+                            ? "bg-white text-[#021400]"
                             : "bg-gray-600 text-gray-300 group-hover:bg-gray-500"
                         }`}
                       >

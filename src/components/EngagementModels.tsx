@@ -74,7 +74,7 @@ export default function EngagementModels() {
     <section
       ref={ref}
       id="engagement"
-      className="w-full py-40 px-6 bg-gray-900"
+      className="w-full py-40 px-6 bg-[#021400]"
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -180,7 +180,7 @@ export default function EngagementModels() {
         {/* Bottom CTA */}
         <div className="mt-24">
           <div className="flex items-center gap-12">
-            <button className="px-10 py-4 bg-white text-gray-900 font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
+            <button className="px-10 py-4 bg-white text-[#021400] font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
               Discuss your project
             </button>
             <a

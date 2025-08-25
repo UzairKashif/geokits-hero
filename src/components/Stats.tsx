@@ -154,7 +154,7 @@ export default function Stats() {
                 />
 
                 {/* Card */}
-                <div className="relative bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 text-center hover:border-[#00FF9E]/50 transition-all duration-500 group-hover:transform group-hover:scale-105">
+                <div className="relative bg-[#021400]/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 text-center hover:border-[#00FF9E]/50 transition-all duration-500 group-hover:transform group-hover:scale-105">
                   {/* Decorative elements */}
                   <div className="absolute top-4 right-4 w-2 h-2 bg-[#00FF9E] rounded-full opacity-60" />
                   <div className="absolute bottom-4 left-4 w-1 h-1 bg-[#00FF9E] rounded-full opacity-40" />

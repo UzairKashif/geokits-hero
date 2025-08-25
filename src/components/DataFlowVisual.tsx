@@ -77,7 +77,7 @@ export default function DataFlowVisual() {
 
                 {/* Content Card */}
                 <motion.div 
-                  className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6 h-full hover:border-[#00FF9E]/30 transition-colors duration-300"
+                  className="bg-[#021400]/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6 h-full hover:border-[#00FF9E]/30 transition-colors duration-300"
                   whileHover={{ y: -4 }}
                   transition={{ duration: 0.2 }}
                 >

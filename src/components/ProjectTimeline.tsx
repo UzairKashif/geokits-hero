@@ -230,7 +230,7 @@ export default function ProjectTimeline() {
   }, [isMobile, points]); // Added dependencies
 
   return (
-    <div className="w-full bg-gray-900 overflow-hidden">
+    <div className="w-full bg-[#021400] overflow-hidden">
       <section id="timeline" className="w-full py-40 px-6">
         <div
           ref={headerRef}
@@ -336,7 +336,7 @@ export default function ProjectTimeline() {
                     ${
                       isVisible
                         ? "border-gray-500 bg-gray-800 scale-100"
-                        : "border-gray-700 bg-gray-900 scale-90"
+                        : "border-gray-700 bg-[#021400] scale-90"
                     }
                   `}
                   />
@@ -351,7 +351,7 @@ export default function ProjectTimeline() {
                     {/* Phase number */}
                     <div
                       className={`absolute inset-0 flex items-center justify-center text-xs font-light tracking-wide transition-colors duration-500 ${
-                        isVisible ? "text-gray-900" : "text-white"
+                        isVisible ? "text-[#021400]" : "text-white"
                       }`}
                     >
                       {String(index + 1).padStart(2, "0")}
@@ -379,7 +379,7 @@ export default function ProjectTimeline() {
                     {/* Minimal content container */}
                     <div
                       className={`
-                      ${isVisible ? "bg-gray-800/50 border-gray-700" : "bg-gray-900/30 border-gray-800"}
+                      ${isVisible ? "bg-gray-800/50 border-gray-700" : "bg-[#021400]/30 border-gray-800"}
                       border backdrop-blur-sm p-4 transition-all duration-500
                     `}
                       style={{

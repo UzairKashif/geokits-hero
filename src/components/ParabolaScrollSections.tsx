@@ -318,7 +318,7 @@ export default function ParabolaScrollSections() {
 
       {/* Second Section */}
       <section 
-        className="relative w-full min-h-screen bg-gradient-to-br from-gray-900 to-black text-white"
+        className="relative w-full min-h-screen bg-gradient-to-br from-[#021400] to-black text-white"
         style={{
           transform: `translateY(${windowHeight - scrollPosition}px)`
         }}

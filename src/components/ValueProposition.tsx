@@ -26,7 +26,7 @@ export default function ValueProposition() {
           <div className="mb-6">
             <span className="text-xs font-light tracking-[0.2em] text-gray-400 uppercase">Our Value</span>
           </div>
-          <h2 className="text-6xl md:text-7xl font-extralight text-gray-900 mb-8 leading-none">
+          <h2 className="text-6xl md:text-7xl font-extralight text-[#021400] mb-8 leading-none">
             Why choose our
             <br />
             <span className="font-light">GIS solutions</span>
@@ -51,7 +51,7 @@ export default function ValueProposition() {
                 </div>
                 
                 <div className="space-y-6">
-                  <h3 className="text-2xl font-light text-gray-900 tracking-tight">
+                  <h3 className="text-2xl font-light text-[#021400] tracking-tight">
                     {value.title}
                   </h3>
                   <p className="text-base text-gray-600 leading-relaxed tracking-normal">
@@ -66,10 +66,10 @@ export default function ValueProposition() {
         {/* Bottom CTA */}
         <div className="mt-24">
           <div className="flex items-center gap-12">
-            <button className="px-10 py-4 bg-gray-900 text-white font-light tracking-wide hover:bg-gray-800 transition-all duration-300">
+            <button className="px-10 py-4 bg-[#021400] text-white font-light tracking-wide hover:bg-gray-800 transition-all duration-300">
               Start your project
             </button>
-            <a href="#contact" className="text-gray-600 font-light tracking-wide hover:text-gray-900 transition-colors duration-300">
+            <a href="#contact" className="text-gray-600 font-light tracking-wide hover:text-[#021400] transition-colors duration-300">
               Schedule consultation →
             </a>
           </div>

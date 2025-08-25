@@ -1,15 +1,16 @@
 "use client"
-import { useState, useEffect, use } from "react"
+
+import { useState, useEffect } from "react"
+import { X, Mail } from "lucide-react"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Mail, Router, X } from "lucide-react"
-import {usePathname} from "next/navigation"
 
 export default function FloatingContactButton() {
   const [isVisible, setIsVisible] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
   const [display, setDisplay] = useState(true)
 
-    const pathname = usePathname()
+  const pathname = usePathname()
 
   useEffect(() => {
     const hasContact = pathname.includes("/contact")
@@ -26,7 +27,6 @@ export default function FloatingContactButton() {
   if (isDismissed || !display) return null
 
   return (
-    
     <div
       className={`fixed bottom-32 right-16 sm:bottom-6 sm:right-16 z-[9999] transition-all duration-500 ease-out ${
         isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"

@@ -218,7 +218,7 @@ export default function SolutionsShowcase() {
 
   if (!isClient) {
     return (
-      <section className="w-full h-screen bg-gray-900 flex items-center justify-center">
+      <section className="w-full h-screen bg-[#021400] flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
       </section>
     );
@@ -230,7 +230,7 @@ export default function SolutionsShowcase() {
     <section
       ref={sectionRef}
       id="solutions"
-      className="w-full min-h-screen bg-gray-900 relative"
+      className="w-full min-h-screen bg-[#021400] relative"
     >
       {/* Header */}
       <div className="pt-20 pb-12 px-6">
@@ -311,7 +311,7 @@ export default function SolutionsShowcase() {
                   const encodedFile = encodeURIComponent(currentProject.file);
                   window.open("/pdfs/" + encodedFile, "_blank");
                 }}
-                className="inline-flex items-center gap-3 px-8 py-3 bg-white text-gray-900 hover:bg-gray-200 font-light tracking-wide transition-all duration-300 group"
+                className="inline-flex items-center gap-3 px-8 py-3 bg-white text-[#021400] hover:bg-gray-200 font-light tracking-wide transition-all duration-300 group"
               >
                 View Case Study
                 <svg
@@ -344,7 +344,7 @@ export default function SolutionsShowcase() {
               </div>
 
               {/* Image overlay info */}
-              <div className="absolute top-6 left-6 bg-gray-900/80 backdrop-blur-sm px-4 py-2">
+              <div className="absolute top-6 left-6 bg-[#021400]/80 backdrop-blur-sm px-4 py-2">
                 <span className="text-white text-sm font-light">
                   {currentProject.title}
                 </span>
@@ -364,7 +364,7 @@ export default function SolutionsShowcase() {
             {/* Up Arrow */}
             <button
               onClick={prevProject}
-              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
+              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-[#021400]/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
             >
               <ChevronUp className="w-5 h-5 text-gray-400" />
             </button>
@@ -387,7 +387,7 @@ export default function SolutionsShowcase() {
             {/* Down Arrow */}
             <button
               onClick={nextProject}
-              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
+              className="w-12 h-12 border border-gray-700 hover:border-gray-600 bg-[#021400]/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-800/50"
             >
               <ChevronDown className="w-5 h-5 text-gray-400" />
             </button>

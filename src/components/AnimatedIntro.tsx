@@ -6,7 +6,6 @@ import Image from "next/image"
 
 export default function AnimatedIntro() {
   const [showIntro, setShowIntro] = useState(true)
-  const [animationComplete, setAnimationComplete] = useState(false)
   
   useEffect(() => {
     // After 2 seconds, start the animation
@@ -18,7 +17,7 @@ export default function AnimatedIntro() {
   }, [])
 
   return (
-    <AnimatePresence mode="wait" onExitComplete={() => setAnimationComplete(true)}>
+    <AnimatePresence mode="wait">
       {showIntro ? (
         <motion.div 
           key="intro"
