@@ -63,7 +63,7 @@ export default function MapboxHeroGSAP() {
     try {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: "mapbox://styles/mapbox/satellite-v9",
+        style: "mapbox://styles/uzairkashif27/cmeihge9s000n01s8dpym8rdv",
         center: [0, 0],
         zoom: 0.3,
         bearing: 0,
