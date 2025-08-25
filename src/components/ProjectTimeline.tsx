@@ -1,38 +1,38 @@
 "use client";
 import React, { useEffect, useRef, useState, useMemo } from "react";
-
 const milestones = [
   {
-    title: "Training Initiative",
+    title: "Data Acquisition",
     description:
-      "Building AI capabilities through specialized training programs and machine learning frameworks",
+      "Collecting geospatial data through satellites, drones, sensors, surveys, and existing databases",
     phase: "Phase 01",
   },
   {
-    title: "Tower Detection",
+    title: "Data Processing & Integration",
     description:
-      "Automated identification of transmission towers using computer vision and satellite imagery",
+      "Cleaning, transforming, and integrating raw data into standardized GIS formats for further analysis",
     phase: "Phase 02",
   },
   {
-    title: "Early Warning",
+    title: "Spatial Analysis & Modeling",
     description:
-      "Advanced alert system for potential infrastructure issues and predictive maintenance",
+      "Applying geospatial analytics, modeling, and algorithms to derive insights and identify patterns",
     phase: "Phase 03",
   },
   {
-    title: "Dashboard",
+    title: "Solution Development",
     description:
-      "Centralized monitoring and analytics platform with real-time data visualization",
+      "Building tailored GIS applications, dashboards, and decision-support tools to meet client needs",
     phase: "Phase 04",
   },
   {
-    title: "Interactive Map",
+    title: "Deployment & Support",
     description:
-      "Geospatial visualization of critical infrastructure with interactive monitoring capabilities",
+      "Delivering the solution to end users, providing training, ongoing maintenance, and scaling capabilities",
     phase: "Phase 05",
   },
 ];
+
 
 export default function ProjectTimeline() {
   const timelineRef = useRef<HTMLDivElement>(null);

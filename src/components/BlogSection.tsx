@@ -102,43 +102,6 @@ export default function BlogSection() {
               toggleActions: "play none none reverse",
             },
           });
-
-          // Enhanced hover animations for each card
-          cards.forEach((card: HTMLDivElement) => {
-            if (card) {
-              const hoverIn = () => {
-                gsap.to(card, {
-                  y: -10,
-                  rotationX: 5,
-                  scale: 1.02,
-                  duration: 0.4,
-                  ease: "power2.out",
-                });
-              };
-
-              const hoverOut = () => {
-                gsap.to(card, {
-                  y: 0,
-                  rotationX: 0,
-                  scale: 1,
-                  duration: 0.4,
-                  ease: "power2.out",
-                });
-              };
-
-              // Store event listeners for cleanup
-              const events = [
-                { type: "mouseenter", handler: hoverIn },
-                { type: "mouseleave", handler: hoverOut },
-              ];
-
-              events.forEach(({ type, handler }) => {
-                card.addEventListener(type, handler);
-              });
-
-              eventListenersRef.current.push({ element: card, events });
-            }
-          });
         }
       }, sectionRef);
     }, 100); // Small delay
@@ -209,9 +172,9 @@ export default function BlogSection() {
         </div>
 
         {/* Blog Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogPosts.slice(0, 3).map((post, index) => (
-            <div key={post.id} ref={addToRefs} className="transform-gpu">
+            <div key={post.id} ref={addToRefs} className="h-full">
               <BlogCard post={post} index={index} />
             </div>
           ))}

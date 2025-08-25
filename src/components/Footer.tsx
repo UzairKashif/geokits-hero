@@ -11,9 +11,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           {/* Company Name */}
           <div className="lg:col-span-2">
-            <h2 className="text-6xl font-bold text-black mb-4">
-              geokits
-            </h2>
+            <div className="w-full max-w-[240px]">
+              <img 
+                src="/img/eng-trans.png" 
+                alt="Geokits" 
+                className="w-full h-auto max-h-[120px] object-contain object-left"
+              />
+            </div>
           </div>
 
           {/* Navigation columns */}
@@ -51,6 +55,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><a href="#" className="text-gray-600 hover:text-black">Story</a></li>
               <li><a href="#" className="text-gray-600 hover:text-black">Team</a></li>
+              <li><a href="/testimonials" className="text-gray-600 hover:text-black">Testimonials</a></li>
             </ul>
           </div>
 

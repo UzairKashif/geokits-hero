@@ -14,9 +14,11 @@ export default function ParabolaScrollPage() {
   const [screenHeight, setScreenHeight] = useState(800)
   const [screenWidth, setScreenWidth] = useState(1200)
   const [isClientReady, setIsClientReady] = useState(false)
+  const [scrollVelocity, setScrollVelocity] = useState(0)
 
   const mainContainerRef = useRef<HTMLDivElement>(null)
   const firstSectionRef = useRef<HTMLDivElement>(null)
+  const scrollAnimationRef = useRef<gsap.core.Tween | null>(null)
   const lenisInstance = useLenis()
 
   useEffect(() => {
@@ -46,6 +48,29 @@ export default function ParabolaScrollPage() {
       }
     })
 
+    // Track scroll velocity using Lenis
+    const handleScroll = () => {
+      if (lenisInstance) {
+        const velocity = Math.abs(lenisInstance.velocity)
+        setScrollVelocity(velocity)
+        
+        // Adjust animation speed based on scroll velocity
+        if (scrollAnimationRef.current) {
+          // Base speed multiplier + velocity-based bonus
+          // Higher velocity = faster filling
+          const velocityMultiplier = 1 + Math.min(velocity / 50, 3) // Cap at 4x speed
+          
+          // Apply time scaling to make parabola fill faster with stronger scrolling
+          scrollAnimationRef.current.timeScale(velocityMultiplier)
+        }
+      }
+    }
+
+    // Listen to Lenis scroll events
+    if (lenisInstance) {
+      lenisInstance.on('scroll', handleScroll)
+    }
+
     const scrollAnimation = gsap.to({ height: 0 }, {
       height: screenHeight * 2, // Allow parabola to grow to 2x screen height
       ease: "none",
@@ -56,16 +81,42 @@ export default function ParabolaScrollPage() {
         trigger: firstSectionRef.current,
         start: "top top",
         end: `+=${screenHeight * 2}`, // Pin for 2x screen height worth of scroll
-        scrub: 1,
+        scrub: 0.5, // Reduce scrub value for more responsive animation
         pin: firstSectionRef.current,
         pinSpacing: true,
         id: "parabola-scroll",
         refreshPriority: -1,
+        onUpdate: (self) => {
+          // Additional velocity-based speed adjustment using ScrollTrigger's built-in velocity
+          const scrollDelta = Math.abs(self.getVelocity())
+          if (scrollDelta > 0 && self.animation) {
+            // More aggressive velocity boost for visual impact
+            const velocityBoost = 1 + Math.min(scrollDelta / 500, 2.5)
+            gsap.to(self.animation, {
+              timeScale: velocityBoost,
+              duration: 0.05, // Faster response
+              ease: "power1.out"
+            })
+          } else if (self.animation) {
+            // Return to normal speed when scroll stops
+            gsap.to(self.animation, {
+              timeScale: 1,
+              duration: 0.3,
+              ease: "power2.out"
+            })
+          }
+        }
       },
     })
 
+    scrollAnimationRef.current = scrollAnimation
+
     return () => {
+      if (lenisInstance) {
+        lenisInstance.off('scroll', handleScroll)
+      }
       scrollAnimation.kill()
+      scrollAnimationRef.current = null
     }
   }, [isClientReady, screenHeight, lenisInstance])
 

@@ -30,9 +30,7 @@ const BlogSection = dynamic(() => import("@/components/BlogSection"), {
   loading: () => <div className="h-96 bg-gray-100 animate-pulse" />,
 });
 
-const ClientsTestimonials = dynamic(() => import("@/components/ClientsTestimonials"), {
-  loading: () => <div className="h-96 bg-gray-100 animate-pulse" />,
-});
+
 
 const ProjectTimeline = dynamic(() => import("@/components/ProjectTimeline"), {
   loading: () => <div className="h-96 bg-gray-100 animate-pulse" />,
@@ -69,20 +67,16 @@ export default function Page() {
         <MapboxHeroGSAP />
         
         {/* Lazy load other sections for better performance */}
-        <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse" />}>
+        {/* <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse" />}>
           <ValueProposition />
         </Suspense>
-        
+         */}
         <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse" />}>
           <SolutionsShowcase />
         </Suspense>
         
         <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse" />}>
           <BlogSection />
-        </Suspense>
-        
-        <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse" />}>
-          <ClientsTestimonials />
         </Suspense>
         
         <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse" />}>
@@ -94,7 +88,7 @@ export default function Page() {
         </Suspense>
 
         {/* Contact Us Section - Keep inline as it's critical */}
-        <section className="py-20 sm:py-40 px-4 sm:px-6 bg-gray-900">
+        <section className="py-20 sm:py-40 px-4 sm:px-6 normal-bg">
           <div className="max-w-6xl mx-auto text-center sm:text-left">
             <div className="mb-4 sm:mb-6">
               <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
@@ -123,7 +117,7 @@ export default function Page() {
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <a
-                href="mailto:contact@geokits.co"
+                href="mailto:contact@geokits.com"
                 className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
               >
                 Send direct email →

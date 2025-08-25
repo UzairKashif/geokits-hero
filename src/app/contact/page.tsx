@@ -125,7 +125,7 @@ export default function ContactPage() {
                   <h3 className="text-lg font-light text-white mb-1 tracking-tight">
                     Email
                   </h3>
-                  <p className="text-gray-400 font-light">contact@geokits.co</p>
+                  <p className="text-gray-400 font-light">contact@geokits.com</p>
                 </div>
               </div>
 
