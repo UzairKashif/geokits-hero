@@ -210,7 +210,7 @@ export default function BlogSection() {
 
         {/* Blog Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-800">
-          {blogPosts.map((post, index) => (
+          {blogPosts.pop.map((post, index) => (
             <div key={post.id} ref={addToRefs} className="transform-gpu">
               <BlogCard post={post} index={index} />
             </div>
