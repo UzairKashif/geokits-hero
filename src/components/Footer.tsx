@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { Linkedin, Instagram, Mail, Phone } from 'lucide-react'
 
 export default function Footer() {
@@ -9,11 +10,16 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto">
         {/* Main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
-          {/* Company Name */}
+          {/* Company Logo */}
           <div className="lg:col-span-2">
-            <h2 className="text-6xl font-bold text-black mb-4">
-              geokits
-            </h2>
+            <Image
+              src="/img/eng-trans.png"
+              alt="Geokits Logo"
+              width={200}
+              height={80}
+              className="h-[200px] w-auto"
+              priority
+            />
           </div>
 
           {/* Navigation columns */}

@@ -99,37 +99,88 @@ export default function CommunityEngagement() {
                   animation: `fadeInUp 0.8s ease-out ${index * 0.2}s both`
                 }}
               >
-                {/* Card Container */}
-                <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden hover:border-gray-600">
-                  {/* Post Header */}
-                  <div className="p-8 pb-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
-                        Instagram Reel
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-semibold text-white mb-3 leading-tight">
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-400 leading-relaxed">
-                      {post.description}
-                    </p>
+                {/* Card Container - Matching BlogCard Style */}
+                <article className="group relative bg-gray-800 border border-gray-700 hover:border-gray-600 overflow-hidden cursor-pointer transform-gpu transition-all duration-500 hover:shadow-lg">
+                  {/* Post Number Badge */}
+                  <div className="absolute top-6 left-6 z-20 bg-white text-gray-900 px-3 py-1 text-sm font-light tracking-wide">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+
+                  {/* Type Badge */}
+                  <div className="absolute top-6 right-6 z-20 text-gray-400 text-xs font-light tracking-wide uppercase">
+                    Instagram Reel
+                  </div>
+
+                  {/* Instagram Embed Container */}
+                  <div className="relative bg-gray-900 border-b border-gray-700">
+                    <div 
+                      className="w-full flex justify-center instagram-embed-container"
+                      dangerouslySetInnerHTML={{ __html: post.embedCode }}
+                    />
                   </div>
                   
-                  {/* Instagram Embed Container */}
-                  <div className="px-4 pb-6">
-                    <div className="relative overflow-hidden rounded-xl">
-                      <div 
-                        className="w-full flex justify-center instagram-embed-container"
-                        dangerouslySetInnerHTML={{ __html: post.embedCode }}
-                      />
+                  {/* Content */}
+                  <div className="p-6 flex flex-col">
+                    <h3 className="text-xl font-light text-white mb-3 tracking-tight line-clamp-2">
+                      {post.title}
+                    </h3>
+
+                    <p className="text-base text-gray-400 leading-relaxed mb-4 flex-grow line-clamp-3 tracking-normal">
+                      {post.description}
+                    </p>
+
+                    {/* Meta Information */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-4 font-light">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                          Live Content
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                          GIS Showcase
+                        </span>
+                      </div>
+                      <span className="text-gray-500">@geokits_</span>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-xs text-gray-500 font-light">GIS</span>
+                      <span className="text-xs text-gray-500 font-light">•</span>
+                      <span className="text-xs text-gray-500 font-light">Geospatial</span>
+                      <span className="text-xs text-gray-500 font-light">•</span>
+                      <span className="text-xs text-gray-500 font-light">Technology</span>
                     </div>
                   </div>
-                </div>
 
-                {/* Decorative Elements */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10"></div>
+                  {/* Hover Overlay - Matching BlogCard Style */}
+                  <div className="absolute inset-x-0 bottom-0 p-6 bg-gray-700 border-t border-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300 font-light tracking-wide hover:text-white transition-colors duration-300">
+                        View on Instagram →
+                      </span>
+                    </div>
+                  </div>
+                </article>
               </div>
             ))}
           </div>
@@ -141,7 +192,7 @@ export default function CommunityEngagement() {
                 href="https://www.instagram.com/geokits_/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 hover:bg-gray-200 font-medium tracking-wide transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 hover:bg-gray-200 font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <div className="relative">
                   <svg 
