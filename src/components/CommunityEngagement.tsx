@@ -67,23 +67,23 @@ export default function CommunityEngagement() {
         onLoad={handleScriptLoad}
       />
       
-      <section className="py-32 px-6 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-32 px-6 forest-bg">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-20">
             <div className="mb-8">
-              <span className="inline-block px-4 py-2 bg-gray-100 text-xs font-medium tracking-[0.3em] text-gray-600 uppercase rounded-full">
+              <span className="inline-block px-4 py-2 bg-gray-800 text-xs font-medium tracking-[0.3em] text-gray-400 uppercase rounded-full">
                 Community
               </span>
             </div>
-            <h2 className="text-6xl md:text-8xl font-extralight forest-fg mb-8 leading-tight">
+            <h2 className="text-6xl md:text-8xl font-extralight text-white mb-8 leading-tight">
               Join Our
               <br />
-              <span className="font-light bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              <span className="font-light bg-gradient-to-r from-gray-300 to-gray-500 bg-clip-text text-transparent">
                 Community
               </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed tracking-wide">
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed tracking-wide">
               Stay connected with our latest updates, insights, and behind-the-scenes content. 
               Follow us on Instagram for real-time project showcases and industry expertise.
             </p>
@@ -100,19 +100,19 @@ export default function CommunityEngagement() {
                 }}
               >
                 {/* Card Container */}
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100">
+                <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden hover:border-gray-600">
                   {/* Post Header */}
                   <div className="p-8 pb-4">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                      <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
                         Instagram Reel
                       </span>
                     </div>
-                    <h3 className="text-2xl font-semibold forest-fg mb-3 leading-tight">
+                    <h3 className="text-2xl font-semibold text-white mb-3 leading-tight">
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-400 leading-relaxed">
                       {post.description}
                     </p>
                   </div>
@@ -129,7 +129,7 @@ export default function CommunityEngagement() {
                 </div>
 
                 {/* Decorative Elements */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 -z-10"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10"></div>
               </div>
             ))}
           </div>
@@ -141,7 +141,7 @@ export default function CommunityEngagement() {
                 href="https://www.instagram.com/geokits_/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-gray-900 to-gray-700 text-white hover:from-gray-800 hover:to-gray-600 font-medium tracking-wide transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 hover:bg-gray-200 font-medium tracking-wide transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <div className="relative">
                   <svg 
@@ -155,7 +155,7 @@ export default function CommunityEngagement() {
                 </div>
                 <span className="relative">
                   Follow @geokits_
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full"></span>
                 </span>
                 <svg 
                   className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
@@ -169,14 +169,14 @@ export default function CommunityEngagement() {
               
               {/* Floating particles */}
               <div className="absolute -inset-4 pointer-events-none">
-                <div className="absolute top-0 left-0 w-2 h-2 bg-purple-400 rounded-full opacity-60 animate-ping" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
-                <div className="absolute top-4 right-0 w-1 h-1 bg-pink-400 rounded-full opacity-60 animate-ping" style={{ animationDelay: '1s', animationDuration: '3s' }}></div>
-                <div className="absolute bottom-0 left-4 w-1.5 h-1.5 bg-blue-400 rounded-full opacity-60 animate-ping" style={{ animationDelay: '2s', animationDuration: '3s' }}></div>
+                <div className="absolute top-0 left-0 w-2 h-2 bg-gray-400 rounded-full opacity-60 animate-ping" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
+                <div className="absolute top-4 right-0 w-1 h-1 bg-gray-500 rounded-full opacity-60 animate-ping" style={{ animationDelay: '1s', animationDuration: '3s' }}></div>
+                <div className="absolute bottom-0 left-4 w-1.5 h-1.5 bg-gray-300 rounded-full opacity-60 animate-ping" style={{ animationDelay: '2s', animationDuration: '3s' }}></div>
               </div>
             </div>
             
             {/* Subtitle */}
-            <p className="mt-6 text-gray-500 text-sm">
+            <p className="mt-6 text-gray-400 text-sm">
               Join our growing community of GIS professionals and enthusiasts
             </p>
           </div>
