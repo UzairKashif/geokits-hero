@@ -33,7 +33,7 @@ export default function Page() {
           <ScrollPositionMemoryBoundary />
         </Suspense>
         <MapboxHeroGSAP />
-        <ValueProposition />
+        {/* <ValueProposition /> */}
         {/* <Stats /> */}
         {/* <Workflow /> */}
         {/* <LiveDataFeeds /> */}
@@ -43,7 +43,7 @@ export default function Page() {
         {/* <DataFlowVisual /> */}
         {/* <ParabolaScrollPage /> */}
         <ProjectTimeline />
-        <EngagementModels />
+        {/* <EngagementModels /> */}
         {/* <Faq /> */}
 
         {/* Contact Us Section */}
