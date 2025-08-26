@@ -48,7 +48,7 @@ export default function TestimonialsPage() {
             Ready to join our satisfied clients?
           </h2>
           <p className="text-lg text-gray-400 mb-12 leading-relaxed">
-            Let's discuss how we can help your organization achieve its geospatial goals with our proven expertise and innovative solutions.
+            Let&apos;s discuss how we can help your organization achieve its geospatial goals with our proven expertise and innovative solutions.
           </p>
           <SafeNavigationLink
             href="/contact"

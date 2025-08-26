@@ -106,7 +106,7 @@ export default function ClientsTestimonials({
                       beforeEnter={() => heightFix()}
                     >
                       <blockquote className="text-xl font-light text-gray-300 leading-relaxed tracking-wide italic">
-                        "{testimonial.quote}"
+                        &quot;{testimonial.quote}&quot;
                       </blockquote>
                     </Transition>
                   ))}
@@ -180,11 +180,10 @@ export default function ClientsTestimonials({
               {testimonials.map((testimonial, index) => (
                 <button
                   key={index}
-                  className={`group w-full text-left p-4 border transition-all duration-300 ${
-                    active === index
+                  className={`group w-full text-left p-4 border transition-all duration-300 ${active === index
                       ? "border-gray-600 bg-gray-700/50"
                       : "border-gray-700 hover:border-gray-600 hover:bg-gray-700/20"
-                  }`}
+                    }`}
                   onClick={() => {
                     setActive(index);
                     setAutorotate(false);
@@ -193,29 +192,26 @@ export default function ClientsTestimonials({
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-light transition-colors duration-300 ${
-                          active === index
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-light transition-colors duration-300 ${active === index
                             ? "bg-white text-gray-900"
                             : "bg-gray-600 text-gray-300 group-hover:bg-gray-500"
-                        }`}
+                          }`}
                       >
                         {String(index + 1).padStart(2, "0")}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div
-                        className={`font-light tracking-tight transition-colors duration-300 ${
-                          active === index
+                        className={`font-light tracking-tight transition-colors duration-300 ${active === index
                             ? "text-white"
                             : "text-gray-300 group-hover:text-white"
-                        }`}
+                          }`}
                       >
                         {testimonial.name}
                       </div>
                       <div
-                        className={`text-sm font-light mt-1 transition-colors duration-300 ${
-                          active === index ? "text-gray-300" : "text-gray-400"
-                        }`}
+                        className={`text-sm font-light mt-1 transition-colors duration-300 ${active === index ? "text-gray-300" : "text-gray-400"
+                          }`}
                       >
                         {testimonial.role}
                       </div>
