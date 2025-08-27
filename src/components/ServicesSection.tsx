@@ -42,8 +42,8 @@ export const ServicesSection = () => {
                                         key={index} 
                                         className={`group cursor-pointer transition-all duration-500 ease-in-out p-6 -m-4 rounded-xl relative overflow-hidden ${
                                             activeService === index 
-                                                ? 'bg-gradient-to-r from-gray-50 via-gray-100 to-white border-l-4 border-gray-800 shadow-2xl transform scale-105' 
-                                                : 'hover:bg-gradient-to-r hover:from-gray-50 hover:via-gray-100 hover:to-white hover:shadow-xl hover:transform hover:scale-102'
+                                                ? 'bg-gradient-to-r from-gray-50 via-gray-100 to-white border-l-4 border-gray-800 shadow-2xl transform scale-102' 
+                                                : 'hover:bg-gradient-to-r hover:from-gray-50 hover:via-gray-100 hover:to-white hover:shadow-xl hover:transform hover:scale-101'
                                         }`}
                                         onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
                                         onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
@@ -79,15 +79,6 @@ export const ServicesSection = () => {
                                         </div>
                                         
                                         <div className="relative z-10">
-                                            <div className="mb-2">
-                                                <span className={`text-sm font-light tracking-wide transition-colors duration-300 ${
-                                                    activeService === index 
-                                                        ? 'text-gray-600' 
-                                                        : 'text-gray-500 group-hover:text-gray-600'
-                                                }`}>
-                                                    {String(index + 1).padStart(2, "0")} / {String(Services.length).padStart(2, "0")}
-                                                </span>
-                                            </div>
                                             <h3 className={`text-2xl md:text-3xl font-light mb-3 leading-tight tracking-tight transition-all duration-300 ${
                                                 activeService === index 
                                                     ? 'text-gray-900 transform translate-x-2' 
