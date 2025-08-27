@@ -99,7 +99,7 @@ export default function Footer() {
             {/* Right side - Address and Copyright */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-2 lg:space-y-0 text-gray-600 text-sm">
               <span>G 9/4, Islamabad, Pakistan</span>
-              <span>© 2025 Geokits</span>
+              <span>© 2025 Geokits. All rights reserved.</span>
             </div>
           </div>
         </div>

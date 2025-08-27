@@ -16,7 +16,7 @@ export const blogPosts: BlogPost[] = [
     id: 1,
     title: "GIS-Driven Agritech Transformation",
     slug: "gis-driven-agritech-transformation",
-    img_url: "/blogs/tennis.png",
+    img_url: "/blogs/agr.png",
     excerpt: "Discover how GeoKits' 40-acre precision agriculture pilot in Punjab, Pakistan revolutionized farming through GIS technology, achieving 20% yield improvement and 40% reduction in pesticide usage.",
     content: `# GIS-Driven Agritech Transformation
 

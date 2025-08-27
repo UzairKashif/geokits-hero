@@ -252,7 +252,7 @@ export default function ProjectTimeline() {
           >
             Project
             <br />
-            <span className="font-light">timeline</span>
+            <span className="font-light">journey</span>
           </h2>
           <p
             className={`text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide transition-all duration-500 delay-100 ease-out ${

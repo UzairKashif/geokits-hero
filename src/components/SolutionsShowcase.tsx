@@ -398,17 +398,6 @@ export default function SolutionsShowcase() {
         </button>
       </div>
 
-      {/* Project Counter */}
-      <div className="absolute bottom-8 right-8 text-right">
-        <div className="text-xs font-light text-gray-500 tracking-wide">
-          <span className="text-[#021400]">
-            {String(activeProject + 1).padStart(2, "0")}
-          </span>
-          <span className="mx-2">/</span>
-          <span>{String(projects.length).padStart(2, "0")}</span>
-        </div>
-        <div className="text-xs text-gray-400 mt-1">Featured Projects</div>
-      </div>
     </section>
   );
 }

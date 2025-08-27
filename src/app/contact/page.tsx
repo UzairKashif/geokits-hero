@@ -1,6 +1,8 @@
 import ContactForm from "@/app/contact/ContactForm";
+import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ContactPage() {
   return (
@@ -19,16 +21,32 @@ export default function ContactPage() {
       {/* Header */}
       <div className="pt-14 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-left">
-          <div className="mb-6">
+          {/* Logo */}
+
+          
+          <div className="mb-6 ">
             <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
               Get In Touch
             </span>
           </div>
+          <div className="h-auto w-auto flex flex-row justify-between" > 
+
           <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
             Contact
             <br />
             <span className="font-light">information</span>
           </h1>
+          <div className="mb-8 pr-16">
+            <Image
+              src="/img/eng-trans.png"
+              alt="Geokits Logo"
+              width={200}
+              height={80}
+              className="h-[200px] w-auto filter invert"
+              priority
+            />
+          </div>
+          </div>
           <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide">
             Ready to transform your infrastructure monitoring? Get in touch with
             our experts today.
@@ -163,6 +181,9 @@ export default function ContactPage() {
           <ContactForm />
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
