@@ -262,14 +262,6 @@ export default function SolutionsShowcase() {
           {/* Left Side - Content */}
           <div ref={contentRef} className="flex flex-col justify-center">
             <div className="max-w-xl">
-              {/* Project Badge */}
-              <div className="mb-6">
-                <span className="text-sm font-light text-gray-600 tracking-wide">
-                  {String(activeProject + 1).padStart(2, "0")} /{" "}
-                  {String(projects.length).padStart(2, "0")}
-                </span>
-              </div>
-
               {/* Category */}
               <div className="mb-4">
                 <span className="text-xs font-light tracking-wider uppercase text-gray-600 border border-gray-300 px-3 py-1">

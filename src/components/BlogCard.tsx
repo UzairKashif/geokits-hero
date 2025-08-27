@@ -30,10 +30,6 @@ export default function BlogCard({ post, index }: BlogCardProps) {
           {String(index + 1).padStart(2, "0")}
         </div>
 
-        {/* Category Badge */}
-        <div className="absolute top-8 right-8 z-20 text-gray-500 text-xs font-light tracking-wide uppercase">
-          {post.category}
-        </div>
 
         {/* Image Container */}
         <div className="relative h-60 overflow-hidden bg-gray-50">
