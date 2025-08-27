@@ -133,12 +133,11 @@ export default function ProjectTimeline() {
       const elementTop = rect.top;
       const elementHeight = rect.height;
 
-      // More conservative progress calculation - starts animation only when section is well into view
-      // On mobile, we need even more conservative thresholds
-      const startThreshold = isMobile ? windowHeight * 0.4 : windowHeight * 0.3;
-      const endThreshold = isMobile ? windowHeight * 0.8 : windowHeight * 0.7;
+      // Faster animation - starts animation earlier and progresses more quickly
+      const startThreshold = isMobile ? windowHeight * 0.6 : windowHeight * 0.3;
+      const endThreshold = isMobile ? windowHeight * 0.4 : windowHeight * 1;
 
-      // Only start animating when the timeline section is significantly visible
+      // Start animating earlier for faster progression
       const adjustedTop = elementTop + startThreshold;
       const viewportProgress = Math.max(
         0,
@@ -151,7 +150,7 @@ export default function ProjectTimeline() {
 
       setLineProgress(viewportProgress);
 
-      // Much more conservative milestone visibility - each milestone needs to be clearly in view
+      // Faster milestone visibility - less conservative thresholds for quicker appearance
       const newVisibleMilestones = new Set<number>();
 
       points.forEach((point, index) => {
@@ -159,12 +158,11 @@ export default function ProjectTimeline() {
         const milestoneFromTop = milestoneScreenY;
         const milestoneFromBottom = windowHeight - milestoneScreenY;
 
-        // Milestone becomes visible only when it's well within the viewport
-        // More conservative thresholds especially for mobile
-        const topBuffer = isMobile ? windowHeight * 0.25 : windowHeight * 0.2;
+        // Faster milestone appearance with less conservative thresholds
+        const topBuffer = isMobile ? windowHeight * 0.35 : windowHeight * 0.3;
         const bottomBuffer = isMobile
-          ? windowHeight * 0.15
-          : windowHeight * 0.1;
+          ? windowHeight * 0.05
+          : windowHeight * 0.05;
 
         if (
           milestoneFromTop < windowHeight - topBuffer &&
@@ -196,7 +194,7 @@ export default function ProjectTimeline() {
       }
     };
 
-    // Header visibility observer with more conservative threshold for mobile
+    // Faster header visibility with quicker threshold
     const headerObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -204,8 +202,8 @@ export default function ProjectTimeline() {
         }
       },
       {
-        threshold: 0.1,
-        rootMargin: isMobile ? "0px 0px -20% 0px" : "0px 0px -10% 0px",
+        threshold: 0.05,
+        rootMargin: isMobile ? "0px 0px -30% 0px" : "0px 0px -20% 0px",
       },
     );
 
@@ -234,7 +232,7 @@ export default function ProjectTimeline() {
       <section id="timeline" className="w-full py-40 px-6">
         <div
           ref={headerRef}
-          className={`text-left max-w-6xl mx-auto mb-24 transition-all duration-700 ease-out ${
+          className={`text-left max-w-6xl mx-auto mb-24 transition-all duration-500 ease-out ${
             isHeaderVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8"
@@ -246,7 +244,7 @@ export default function ProjectTimeline() {
             </span>
           </div>
           <h2
-            className={`text-6xl md:text-7xl font-extralight text-white mb-8 leading-none transition-all duration-800 delay-100 ease-out ${
+            className={`text-6xl md:text-7xl font-extralight text-white mb-8 leading-none transition-all duration-600 delay-50 ease-out ${
               isHeaderVisible
                 ? "opacity-100 translate-y-0 scale-100"
                 : "opacity-0 translate-y-12 scale-95"
@@ -257,7 +255,7 @@ export default function ProjectTimeline() {
             <span className="font-light">timeline</span>
           </h2>
           <p
-            className={`text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide transition-all duration-700 delay-200 ease-out ${
+            className={`text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide transition-all duration-500 delay-100 ease-out ${
               isHeaderVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-6"
@@ -332,7 +330,7 @@ export default function ProjectTimeline() {
                   {/* Outer ring */}
                   <div
                     className={`
-                    absolute ${isMobile ? "w-16 h-16" : "w-20 h-20"} rounded-full border transition-all duration-500 ease-out
+                    absolute ${isMobile ? "w-16 h-16" : "w-20 h-20"} rounded-full border transition-all duration-300 ease-out
                     ${
                       isVisible
                         ? "border-gray-500 bg-gray-800 scale-100"
@@ -344,13 +342,13 @@ export default function ProjectTimeline() {
                   {/* Inner core */}
                   <div
                     className={`
-                    relative ${isMobile ? "w-8 h-8" : "w-10 h-10"} rounded-full transition-all duration-600 ease-out z-10
+                    relative ${isMobile ? "w-8 h-8" : "w-10 h-10"} rounded-full transition-all duration-400 ease-out z-10
                     ${isVisible ? "bg-white" : "bg-gray-600"}
                   `}
                   >
                     {/* Phase number */}
                     <div
-                      className={`absolute inset-0 flex items-center justify-center text-xs font-light tracking-wide transition-colors duration-500 ${
+                      className={`absolute inset-0 flex items-center justify-center text-xs font-light tracking-wide transition-colors duration-300 ${
                         isVisible ? "text-gray-900" : "text-white"
                       }`}
                     >
@@ -358,9 +356,9 @@ export default function ProjectTimeline() {
                     </div>
                   </div>
 
-                  {/* Text content with improved visual balance */}
+                  {/* Text content - simple title only */}
                   <div
-                    className={`absolute z-20 transition-all duration-600 ease-out
+                    className={`absolute z-20 transition-all duration-400 ease-out
                       ${
                         isMobile
                           ? "left-1/2 -translate-x-1/2 top-16 mt-2 text-center"
@@ -369,70 +367,37 @@ export default function ProjectTimeline() {
                             : "right-12 translate-x-full pl-4 text-left"
                       }
                       ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
-                      max-w-[240px] md:max-w-[280px] select-none`}
+                      max-w-[200px] md:max-w-[240px] select-none`}
                     style={{
                       transitionDelay: isVisible
-                        ? `${index * 0.1 + 0.2}s`
+                        ? `${index * 0.05 + 0.1}s`
                         : "0s",
                     }}
                   >
-                    {/* Minimal content container */}
+                    {/* Simple text container */}
                     <div
                       className={`
-                      ${isVisible ? "bg-gray-800/50 border-gray-700" : "bg-gray-900/30 border-gray-800"}
-                      border backdrop-blur-sm p-4 transition-all duration-500
+                      ${isVisible ? "bg-gray-800/60 border-gray-600" : "bg-gray-900/40 border-gray-700"}
+                      border backdrop-blur-sm px-3 py-2 transition-all duration-300
                     `}
                       style={{
                         transitionDelay: isVisible
-                          ? `${index * 0.1 + 0.3}s`
+                          ? `${index * 0.05 + 0.15}s`
                           : "0s",
                       }}
                     >
-                      {/* Phase and title in one line */}
-                      <div className="flex items-center gap-3 mb-3">
-                        <span
-                          className={`
-                          text-xs tracking-wider uppercase font-light px-2 py-1 border
-                          ${isVisible ? "border-gray-600 text-gray-400 bg-gray-700/50" : "border-gray-700 text-gray-500 bg-gray-800/50"}
-                          transition-all duration-500
-                        `}
-                        >
-                          {milestone.phase}
-                        </span>
-                        <div
-                          className={`h-px flex-1 ${isVisible ? "bg-gray-600" : "bg-gray-700"} transition-colors duration-500`}
-                        />
-                      </div>
-
-                      {/* Compact title */}
+                      {/* Just the title */}
                       <h3
-                        className={`font-light ${isMobile ? "text-base" : "text-lg"} leading-tight mb-2 tracking-tight
-                          ${isVisible ? "text-white" : "text-gray-400"} transition-all duration-500`}
+                        className={`font-light ${isMobile ? "text-sm" : "text-base"} leading-tight tracking-tight
+                          ${isVisible ? "text-white" : "text-gray-400"} transition-all duration-300`}
                         style={{
                           transitionDelay: isVisible
-                            ? `${index * 0.1 + 0.4}s`
+                            ? `${index * 0.05 + 0.2}s`
                             : "0s",
                         }}
                       >
                         {milestone.title}
                       </h3>
-
-                      {/* Condensed description */}
-                      <p
-                        className={`text-gray-500 ${isMobile ? "text-xs" : "text-sm"} leading-snug font-light tracking-normal line-clamp-2
-                          ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity duration-700`}
-                        style={{
-                          transitionDelay: isVisible
-                            ? `${index * 0.1 + 0.6}s`
-                            : "0s",
-                        }}
-                      >
-                        {milestone.description
-                          .split(" ")
-                          .slice(0, 12)
-                          .join(" ")}
-                        {milestone.description.split(" ").length > 12 && "..."}
-                      </p>
                     </div>
                   </div>
                 </div>
