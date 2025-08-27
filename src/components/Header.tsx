@@ -33,13 +33,13 @@ export default function Header() {
   return (
     <>
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-[10px] left-1/2 transform -translate-x-1/2 z-50 w-[70%] transition-all duration-300 rounded-lg ${
           isScrolled 
-            ? 'bg-gray-900/95 backdrop-blur-md border-b border-gray-800' 
-            : 'bg-transparent'
+            ? 'bg-gray-900/95 backdrop-blur-md border border-gray-800' 
+            : 'bg-gray-900/80 backdrop-blur-sm border border-gray-700/50'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center">
@@ -110,7 +110,7 @@ export default function Header() {
 
         {/* Mobile Menu */}
         <div 
-          className={`md:hidden bg-gray-900/98 backdrop-blur-md border-t border-gray-800 transition-all duration-300 ${
+          className={`md:hidden bg-gray-900/98 backdrop-blur-md border-t border-gray-800 transition-all duration-300 rounded-b-lg ${
             isMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
           }`}
         >
@@ -150,9 +150,6 @@ export default function Header() {
           </nav>
         </div>
       </header>
-
-      {/* Spacer to prevent content from hiding behind fixed header */}
-      <div className="h-16" />
     </>
   )
 }
