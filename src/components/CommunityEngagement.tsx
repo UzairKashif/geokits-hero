@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import InstagramDisplay from './InstagramDisplay';
 
 interface CommunityPost {
   id: string;
@@ -10,22 +11,74 @@ interface CommunityPost {
   description: string;
 }
 
-// Instagram embed component - sleek and minimal with Firefox support
+// Instagram embed component with oEmbed API support
 function InstagramEmbedWithFallback({ post }: { post: CommunityPost }) {
   const [hasError, setHasError] = useState(false);
   const [isFirefox, setIsFirefox] = useState(false);
+  const [embedHtml, setEmbedHtml] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   React.useEffect(() => {
     // Detect Firefox browser
     const userAgent = navigator.userAgent.toLowerCase();
     const firefoxDetected = userAgent.includes('firefox');
     setIsFirefox(firefoxDetected);
-    
-    // If Firefox, skip iframe and show fallback immediately
-    if (firefoxDetected) {
-      setHasError(true);
-    }
-  }, []);
+
+    // Try to fetch Instagram oEmbed data
+    const fetchInstagramEmbed = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Instagram oEmbed API endpoint
+        const oembedUrl = `https://graph.facebook.com/v18.0/instagram_oembed?url=${encodeURIComponent(post.url)}&access_token=YOUR_FACEBOOK_APP_TOKEN`;
+        
+        // Alternative: Use a proxy service or your own backend
+        const proxyUrl = `/api/instagram-embed?url=${encodeURIComponent(post.url)}`;
+        
+        const response = await fetch(proxyUrl);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setEmbedHtml(data.html);
+        } else {
+          throw new Error('Failed to fetch embed');
+        }
+      } catch (error) {
+        console.log('oEmbed failed, falling back to iframe:', error);
+        if (firefoxDetected) {
+          setHasError(true);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInstagramEmbed();
+  }, [post.url]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-[400px] mx-auto h-[500px] flex items-center justify-center bg-gradient-to-br from-gray-100/50 to-gray-200/50 rounded-2xl border border-gray-300/30 animate-pulse">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-500 text-sm">Loading Instagram post...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show oEmbed content if available
+  if (embedHtml && !hasError) {
+    return (
+      <div className="w-full max-w-[400px] mx-auto">
+        <div 
+          className="instagram-embed-container rounded-2xl overflow-hidden"
+          dangerouslySetInnerHTML={{ __html: embedHtml }}
+        />
+      </div>
+    );
+  }
 
   if (hasError || isFirefox) {
     // Enhanced fallback UI for Firefox and iframe failures
@@ -37,12 +90,12 @@ function InstagramEmbedWithFallback({ post }: { post: CommunityPost }) {
           </svg>
         </div>
         <p className="text-gray-300 text-sm font-light mb-1">
-          {isFirefox ? 'Firefox Security Protection' : 'Content unavailable'}
+          {isFirefox ? 'Firefox Enhanced Tracking Protection' : 'Content Protected'}
         </p>
         <p className="text-gray-400 text-xs mb-4 text-center max-w-xs">
           {isFirefox 
-            ? 'Instagram embeds are blocked by Firefox for security. Click below to view in new window.'
-            : 'Unable to load Instagram content. Click below to view the original post.'
+            ? 'Enhanced Tracking Protection is blocking social media embeds. Click below to view the post directly.'
+            : 'Social media embeds are restricted. Click below to view the original post.'
           }
         </p>
         <a
@@ -74,6 +127,8 @@ function InstagramEmbedWithFallback({ post }: { post: CommunityPost }) {
           loading="lazy"
           onError={() => setHasError(true)}
           allow="encrypted-media"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          referrerPolicy="strict-origin-when-cross-origin"
         />
       </div>
     </div>
@@ -117,8 +172,13 @@ export default function CommunityEngagement() {
           </p>
         </div>
 
-        {/* Instagram Posts Grid - Sleek and Minimal */}
-        <div className="flex flex-col lg:flex-row gap-8 max-w-5xl mx-auto mb-20">
+        {/* Instagram Posts Grid - Using Instagram Display API */}
+        <div className="mb-20">
+          <InstagramDisplay showRecent={true} limit={6} />
+        </div>
+
+        {/* Alternative: Manual Posts Grid (fallback) */}
+        <div className="flex flex-col lg:flex-row gap-8 max-w-5xl mx-auto mb-20" style={{ display: 'none' }}>
           {communityPosts.map((post, index) => (
             <div 
               key={post.id} 
