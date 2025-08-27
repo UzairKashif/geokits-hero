@@ -187,3 +187,8 @@
   overflow: hidden !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
+
+
+.debug-borders{
+  border: 1px solid red !important;
+}

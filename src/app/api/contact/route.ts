@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
     // Send email to company using Resend
     console.log('📤 Sending email to company...')
     const companyEmailResult = await resend.emails.send({
-      from: 'Geokits Contact Form <contact@geokits.com>', // Use your verified domain
+      from: 'Geokits Contact Form <onboarding@resend.dev>', // Use verified domain
       to: [process.env.COMPANY_EMAIL || 'arslantar360@gmail.com'],
       subject: `New Contact Form Submission - ${data.serviceInterest}`,
       html: companyEmailHtml,

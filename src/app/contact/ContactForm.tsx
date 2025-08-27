@@ -10,7 +10,6 @@ interface FormData {
   jobTitle: string;
   serviceInterest: string;
   projectDescription: string;
-  budget: string;
   hearAbout: string;
   subscribe: boolean;
 }
@@ -25,7 +24,6 @@ export default function ContactForm() {
     jobTitle: "",
     serviceInterest: "",
     projectDescription: "",
-    budget: "",
     hearAbout: "",
     subscribe: false,
   });
@@ -73,7 +71,6 @@ export default function ContactForm() {
           jobTitle: "",
           serviceInterest: "",
           projectDescription: "",
-          budget: "",
           hearAbout: "",
           subscribe: false,
         });
@@ -263,53 +260,29 @@ export default function ContactForm() {
           />
         </div>
 
-        {/* Budget and How did you hear */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="budget"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
-            >
-              Estimated Budget
-            </label>
-            <select
-              id="budget"
-              name="budget"
-              value={formData.budget}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
-            >
-              <option value="">Select budget range</option>
-              <option value="under-10k">Under $10,000</option>
-              <option value="10k-25k">$10,000 - $25,000</option>
-              <option value="25k-50k">$25,000 - $50,000</option>
-              <option value="50k-100k">$50,000 - $100,000</option>
-              <option value="over-100k">Over $100,000</option>
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="hearAbout"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
-            >
-              How did you hear about us?
-            </label>
-            <select
-              id="hearAbout"
-              name="hearAbout"
-              value={formData.hearAbout}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
-            >
-              <option value="">Select an option</option>
-              <option value="google">Google Search</option>
-              <option value="social-media">Social Media</option>
-              <option value="referral">Referral</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="industry-event">Industry Event</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
+        {/* How did you hear */}
+        <div>
+          <label
+            htmlFor="hearAbout"
+            className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+          >
+            How did you hear about us?
+          </label>
+          <select
+            id="hearAbout"
+            name="hearAbout"
+            value={formData.hearAbout}
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
+          >
+            <option value="">Select an option</option>
+            <option value="google">Google Search</option>
+            <option value="social-media">Social Media</option>
+            <option value="referral">Referral</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="industry-event">Industry Event</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         {/* Newsletter Subscription */}

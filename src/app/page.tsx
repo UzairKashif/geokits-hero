@@ -17,6 +17,7 @@ import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
 import ValueProposition from "@/components/ValueProposition";
+import { ServicesSection } from "@/components/ServicesSection";
 function ScrollPositionMemoryBoundary() {
   // Isolated client component to use search params inside Suspense
   useScrollPositionMemory();
@@ -38,6 +39,7 @@ export default function Page() {
         {/* <Workflow /> */}
         {/* <LiveDataFeeds /> */}
         <SolutionsShowcase />
+        <ServicesSection/>
         <BlogSection />
         {/* <DataFlowVisual /> */}
         {/* <ParabolaScrollPage /> */}

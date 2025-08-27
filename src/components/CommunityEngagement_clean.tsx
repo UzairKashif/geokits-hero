@@ -74,19 +74,23 @@ const communityPosts: CommunityPost[] = [
 
 export default function CommunityEngagement() {
   return (
-    <section className="py-32 px-6 bg-white">
+    <section className="py-32 px-6 forest-bg">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-20">
-         
-          <h2 className="text-6xl md:text-8xl font-extralight mb-8 leading-tight" style={{ color: '#021400' }}>
+          <div className="mb-8">
+            <span className="inline-block px-4 py-2 bg-gray-800 text-xs font-medium tracking-[0.3em] text-gray-400 uppercase rounded-full">
+              Community
+            </span>
+          </div>
+          <h2 className="text-6xl md:text-8xl font-extralight text-white mb-8 leading-tight">
             Join Our
             <br />
-            <span className="font-light">
+            <span className="font-light bg-gradient-to-r from-gray-300 to-gray-500 bg-clip-text text-transparent">
               Community
             </span>
           </h2>
-          <p className="text-xl max-w-3xl mx-auto leading-relaxed tracking-wide" style={{ color: '#021400' }}>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed tracking-wide">
             Stay connected with our latest updates, insights, and behind-the-scenes content. 
             Follow us on Instagram for real-time project showcases and industry expertise.
           </p>
@@ -104,6 +108,11 @@ export default function CommunityEngagement() {
             >
               {/* Minimal Card Container */}
               <div className="relative">
+                {/* Floating Number Badge */}
+                <div className="absolute -top-3 -left-3 z-10 w-8 h-8 bg-white text-gray-900 rounded-full flex items-center justify-center text-sm font-medium shadow-lg">
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+
                 {/* Instagram Embed */}
                 <InstagramEmbedWithFallback post={post} />
 
@@ -118,7 +127,7 @@ export default function CommunityEngagement() {
                   
                   {/* Simple Tags */}
                   <div className="flex items-center gap-2 mt-3">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#021400' }}></div>
+                    <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
                     <span className="text-gray-400 text-xs">@geokits_</span>
                     <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
                     <span className="text-gray-400 text-xs">GIS Showcase</span>
@@ -136,8 +145,7 @@ export default function CommunityEngagement() {
               href="https://www.instagram.com/geokits_/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-3 px-10 py-4 text-white font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-              style={{ backgroundColor: '#021400' }}
+              className="group relative inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 hover:bg-gray-200 font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <div className="relative">
                 <svg 
@@ -151,7 +159,7 @@ export default function CommunityEngagement() {
               </div>
               <span className="relative">
                 Follow @geokits_
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full"></span>
               </span>
               <svg 
                 className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
@@ -162,10 +170,17 @@ export default function CommunityEngagement() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </a>
+            
+            {/* Floating particles */}
+            <div className="absolute -inset-4 pointer-events-none">
+              <div className="absolute top-0 left-0 w-2 h-2 bg-gray-400 rounded-full opacity-60 animate-ping" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
+              <div className="absolute top-4 right-0 w-1 h-1 bg-gray-500 rounded-full opacity-60 animate-ping" style={{ animationDelay: '1s', animationDuration: '3s' }}></div>
+              <div className="absolute bottom-0 left-4 w-1.5 h-1.5 bg-gray-300 rounded-full opacity-60 animate-ping" style={{ animationDelay: '2s', animationDuration: '3s' }}></div>
+            </div>
           </div>
           
           {/* Subtitle */}
-          <p className="mt-6 text-sm" style={{ color: '#021400' }}>
+          <p className="mt-6 text-gray-400 text-sm">
             Join our growing community of GIS professionals and enthusiasts
           </p>
         </div>
