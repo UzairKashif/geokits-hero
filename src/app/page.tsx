@@ -38,9 +38,15 @@ export default function Page() {
         {/* <Stats /> */}
         {/* <Workflow /> */}
         {/* <LiveDataFeeds /> */}
-        <SolutionsShowcase />
-        <ServicesSection/>
-        <BlogSection />
+        <div id="solutions">
+          <SolutionsShowcase />
+        </div>
+        <div id="services">
+          <ServicesSection/>
+        </div>
+        <div id="blog">
+          <BlogSection />
+        </div>
         {/* <DataFlowVisual /> */}
         {/* <ParabolaScrollPage /> */}
         <ProjectTimeline />
