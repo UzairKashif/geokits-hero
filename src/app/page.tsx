@@ -18,6 +18,8 @@ import { ArrowRight, Mail } from "lucide-react";
 import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
 import ValueProposition from "@/components/ValueProposition";
 import { ServicesSection } from "@/components/ServicesSection";
+import { ContactBg } from "@/components/ContactBg";
+
 function ScrollPositionMemoryBoundary() {
   // Isolated client component to use search params inside Suspense
   useScrollPositionMemory();
@@ -57,8 +59,9 @@ export default function Page() {
         <CommunityEngagement />
 
         {/* Contact Us Section */}
-        <section className="py-40 px-6 forest-bg">
-          <div className="max-w-6xl mx-auto text-left">
+        <section className="relative py-40 px-6 forest-bg overflow-hidden">
+          <ContactBg/>
+          <div className="relative z-10 max-w-6xl mx-auto text-left">
             <div className="mb-6">
               <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
                 Get Started

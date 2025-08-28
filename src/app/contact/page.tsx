@@ -7,6 +7,10 @@ import Image from "next/image";
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gray-900">
+
+
+
+      
       {/* Back Button */}
       <div className="pt-6 px-6">
         <Link

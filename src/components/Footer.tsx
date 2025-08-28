@@ -11,16 +11,16 @@ export default function Footer() {
         {/* Main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           {/* Company Logo */}
-          <div className="lg:col-span-2">
-            <Image
-              src="/img/eng-trans.png"
-              alt="Geokits Logo"
-              width={200}
-              height={80}
-              className="h-[200px] w-auto"
-              priority
-            />
-          </div>
+            <div className="lg:col-span-2 flex justify-center lg:justify-start">
+              <Image
+                src="/img/eng-trans.png"
+                alt="Geokits Logo"
+                width={300}
+                height={80}
+                className="h-[300px] w-auto"
+                priority
+              />
+            </div>
 
           {/* Navigation columns */}
           <div>
