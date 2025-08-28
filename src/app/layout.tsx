@@ -3,7 +3,7 @@ import "./globals.css"   // <-- this must come first
 import LenisProvider from "@/components/LenisProvider"
 import AnimatedIntro from "@/components/AnimatedIntro"
 import FloatingContactButton from "@/components/FloatingContactButton"
-import Header from "@/components/Header"
+import ConditionalHeader from "@/components/ConditionalHeader"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {/* Use arbitrary values for your dark background and white text */}
       <body className="bg-white text-black antialiased scrollbar-hide">
         <AnimatedIntro />
-        <Header />
+        <ConditionalHeader />
         <LenisProvider>
           {children}
         </LenisProvider>

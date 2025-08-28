@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
             <strong style="color: #10b981;">The Geokits Team</strong>
           </p>
           <p style="color: #64748b; font-size: 12px; margin: 0;">
-            G 9/4, Islamabad, Pakistan | contact@geokits.com | (+44 7446284191
+            I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800 | contact@geokits.com | (+44 7446284191
           </p>
         </div>
       </div>
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
     console.log('📤 Sending email to company...')
     const companyEmailResult = await resend.emails.send({
       from: 'Geokits Contact Form <onboarding@resend.dev>', // Use verified domain
-      to: [process.env.COMPANY_EMAIL || 'arslantar360@gmail.com'],
+      to: [process.env.COMPANY_EMAIL || 'contact@gmail.com'],
       subject: `New Contact Form Submission - ${data.serviceInterest}`,
       html: companyEmailHtml,
       replyTo: data.email,

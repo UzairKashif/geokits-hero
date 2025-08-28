@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState, useMemo } from "react";
-
+import GradualBlur from "@/components/ReactBits/GradualBlur"
 const milestones = [
   {
     title: "Data Acquisition",
@@ -228,8 +228,8 @@ export default function ProjectTimeline() {
   }, [isMobile, points]); // Added dependencies
 
   return (
-    <div className="w-full forest-bg overflow-hidden">
-      <section id="timeline" className="w-full py-40 px-6">
+    <div className="w-full forest-bg overflow-hidden relative">
+      <section id="timeline" className="w-full py-40 px-6 relative">
         <div
           ref={headerRef}
           className={`text-left max-w-6xl mx-auto mb-24 transition-all duration-500 ease-out ${
@@ -407,6 +407,17 @@ export default function ProjectTimeline() {
         </div>
 
         <div className="h-16" />
+        
+        <GradualBlur
+          target="parent"
+          position="bottom"
+          height="12rem"
+          strength={4}
+          divCount={8}
+          curve="bezier"
+          exponential={true}
+          opacity={1}
+        />
       </section>
     </div>
   );

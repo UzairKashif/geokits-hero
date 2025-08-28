@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen forest-bg">
 
 
 
@@ -96,7 +96,7 @@ export default function ContactPage() {
                     Our Location
                   </h3>
                   <p className="text-gray-400 font-light">
-                    G 9/4, Islamabad, Pakistan
+                    I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800
                   </p>
                 </div>
               </div>

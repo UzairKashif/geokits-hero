@@ -24,34 +24,39 @@ const CardNav = ({
     const navEl = navRef.current;
     if (!navEl) return 260;
 
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    if (isMobile) {
-      const contentEl = navEl.querySelector(".card-nav-content");
-      if (contentEl) {
-        const wasVisible = contentEl.style.visibility;
-        const wasPointerEvents = contentEl.style.pointerEvents;
-        const wasPosition = contentEl.style.position;
-        const wasHeight = contentEl.style.height;
+    const contentEl = navEl.querySelector(".card-nav-content");
+    if (contentEl) {
+      const wasVisible = contentEl.style.visibility;
+      const wasPointerEvents = contentEl.style.pointerEvents;
+      const wasPosition = contentEl.style.position;
+      const wasHeight = contentEl.style.height;
 
-        contentEl.style.visibility = "visible";
-        contentEl.style.pointerEvents = "auto";
-        contentEl.style.position = "static";
-        contentEl.style.height = "auto";
+      contentEl.style.visibility = "visible";
+      contentEl.style.pointerEvents = "auto";
+      contentEl.style.position = "static";
+      contentEl.style.height = "auto";
 
-        contentEl.offsetHeight;
+      // Force a reflow to get accurate measurements
+      contentEl.offsetHeight;
 
-        const topBar = 60;
-        const padding = 16;
-        const contentHeight = contentEl.scrollHeight;
+      const topBar = 60;
+      const padding = 16;
+      const contentHeight = contentEl.scrollHeight;
 
-        contentEl.style.visibility = wasVisible;
-        contentEl.style.pointerEvents = wasPointerEvents;
-        contentEl.style.position = wasPosition;
-        contentEl.style.height = wasHeight;
+      // Restore original styles
+      contentEl.style.visibility = wasVisible;
+      contentEl.style.pointerEvents = wasPointerEvents;
+      contentEl.style.position = wasPosition;
+      contentEl.style.height = wasHeight;
 
-        return topBar + contentHeight + padding;
-      }
+      const calculatedHeight = topBar + contentHeight + padding;
+      console.log('Calculated height:', calculatedHeight, 'Content height:', contentHeight);
+      
+      return calculatedHeight;
     }
+    
+    // Fallback height for both desktop and mobile
+    console.log('Using fallback height: 260');
     return 260;
   };
 
@@ -83,9 +88,19 @@ const CardNav = ({
     const tl = createTimeline();
     tlRef.current = tl;
 
+    // Force a recalculation after a short delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      if (tlRef.current) {
+        tlRef.current.kill();
+        const newTl = createTimeline();
+        tlRef.current = newTl;
+      }
+    }, 100);
+
     return () => {
       tl?.kill();
       tlRef.current = null;
+      clearTimeout(timeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ease, items]);
@@ -94,33 +109,59 @@ const CardNav = ({
     const handleResize = () => {
       if (!tlRef.current) return;
 
-      if (isExpanded) {
-        const newHeight = calculateHeight();
-        gsap.set(navRef.current, { height: newHeight });
+      // Debounce the resize handling
+      clearTimeout(window.navResizeTimeout);
+      window.navResizeTimeout = setTimeout(() => {
+        if (isExpanded) {
+          const newHeight = calculateHeight();
+          gsap.set(navRef.current, { height: newHeight });
 
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          newTl.progress(1);
-          tlRef.current = newTl;
+          tlRef.current.kill();
+          const newTl = createTimeline();
+          if (newTl) {
+            newTl.progress(1);
+            tlRef.current = newTl;
+          }
+        } else {
+          tlRef.current.kill();
+          const newTl = createTimeline();
+          if (newTl) {
+            tlRef.current = newTl;
+          }
         }
-      } else {
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          tlRef.current = newTl;
-        }
-      }
+      }, 150);
+    };
+
+    // Listen for both resize and zoom events
+    const handleZoom = () => {
+      handleResize();
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    
+    // Also listen for visual viewport changes (covers zoom)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleZoom);
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleZoom);
+      }
+      clearTimeout(window.navResizeTimeout);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpanded]);
 
   const toggleMenu = () => {
     const tl = tlRef.current;
     if (!tl) return;
+    
+    console.log('Toggle menu called. Current state:', { isExpanded, isHamburgerOpen });
+    
     if (!isExpanded) {
       setIsHamburgerOpen(true);
       setIsExpanded(true);
@@ -129,6 +170,23 @@ const CardNav = ({
       setIsHamburgerOpen(false);
       tl.eventCallback("onReverseComplete", () => setIsExpanded(false));
       tl.reverse();
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleMenu();
+    }
+  };
+
+  const handleLinkClick = (link) => {
+    if (link.onClick) {
+      link.onClick();
+    }
+    // Close menu after clicking a link
+    if (isExpanded) {
+      toggleMenu();
     }
   };
 
@@ -147,6 +205,7 @@ const CardNav = ({
           <div
             className={`hamburger-menu ${isHamburgerOpen ? "open" : ""}`}
             onClick={toggleMenu}
+            onKeyDown={handleKeyDown}
             role="button"
             aria-label={isExpanded ? "Close menu" : "Open menu"}
             tabIndex={0}
@@ -156,17 +215,11 @@ const CardNav = ({
             <div className="hamburger-line" />
           </div>
 
-          <div className="logo-container">
-            <img src={logo} alt={logoAlt} className="logo" />
+          <div className="logo-container h-[100px]">
+            <img src={logo} alt={logoAlt} className="logo h-[100px]" />
           </div>
 
-          <button
-            type="button"
-            className="card-nav-cta-button"
-            style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
-          >
-            Get Started
-          </button>
+
         </div>
 
         <div className="card-nav-content" aria-hidden={!isExpanded}>
@@ -185,6 +238,12 @@ const CardNav = ({
                     className="nav-card-link"
                     href={lnk.href}
                     aria-label={lnk.ariaLabel}
+                    onClick={(e) => {
+                      if (lnk.onClick) {
+                        e.preventDefault();
+                        handleLinkClick(lnk);
+                      }
+                    }}
                   >
                     <GoArrowUpRight
                       className="nav-card-link-icon"

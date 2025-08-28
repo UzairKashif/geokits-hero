@@ -28,7 +28,7 @@ export default function FloatingContactButton() {
   return (
     
     <div
-      className={`fixed bottom-32 right-16 sm:bottom-6 sm:right-16 z-[9999] transition-all duration-500 ease-out ${
+      className={`fixed bottom-32 right-16 sm:bottom-[1px] sm:right-16 z-[9999] transition-all duration-500 ease-out ${
         isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       }`}
       style={{ position: 'fixed', zIndex: 9999 }}

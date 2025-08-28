@@ -5,103 +5,91 @@ import Link from 'next/link'
 import Image from 'next/image'
 import CardNav from "@/components/ReactBits/CardNav"
 
+const Header = () => {
+   const scrollToSection = (sectionId: string) => {
+     const element = document.getElementById(sectionId);
+     if (element) {
+       element.scrollIntoView({ behavior: 'smooth' });
+     }
+   };
 
-const logo = ()=>{
-  <Image
-  src="/eng-trans-black.png"
-  alt="Geokits Logo"
-  width={120}
-  height={40}
-  className="h-8 w-auto filter invert"
-  priority
-  />
-  }
-
-
-export const Header=()=>{
    const items = [
-
     {
-
       label: "About",
-
       bgColor: "#0D0716",
-
       textColor: "#fff",
-
       links: [
-
-        { label: "Company", ariaLabel: "About Company" },
-
-        { label: "Careers", ariaLabel: "About Careers" }
-
+        { 
+          label: "Company", 
+          ariaLabel: "About Company",
+          href: "/#about",
+          onClick: () => scrollToSection('about')
+        },
+        { 
+          label: "Our Process", 
+          ariaLabel: "Our Process",
+          href: "/#timeline",
+          onClick: () => scrollToSection('timeline')
+        }
       ]
-
     },
-
     {
-
-      label: "Projects", 
-
+      label: "Services", 
       bgColor: "#170D27",
-
       textColor: "#fff",
-
       links: [
-
-        { label: "Featured", ariaLabel: "Featured Projects" },
-
-        { label: "Case Studies", ariaLabel: "Project Case Studies" }
-
+        { 
+          label: "Solutions", 
+          ariaLabel: "Our Solutions",
+          href: "/#solutions",
+          onClick: () => scrollToSection('solutions')
+        },
+        { 
+          label: "Services", 
+          ariaLabel: "Our Services",
+          href: "/#services",
+          onClick: () => scrollToSection('services')
+        }
       ]
-
     },
-
     {
-
       label: "Contact",
-
       bgColor: "#271E37", 
-
       textColor: "#fff",
-
       links: [
-
-        { label: "Email", ariaLabel: "Email us" },
-
-        { label: "Twitter", ariaLabel: "Twitter" },
-
-        { label: "LinkedIn", ariaLabel: "LinkedIn" }
-
+        { 
+          label: "Get in Touch", 
+          ariaLabel: "Contact Us",
+          href: "/contact"
+        },
+        { 
+          label: "Blog", 
+          ariaLabel: "Our Blog",
+          href: "/#blog",
+          onClick: () => scrollToSection('blog')
+        },
+        { 
+          label: "Email", 
+          ariaLabel: "Email us",
+          href: "mailto:contact@geokits.com"
+        }
       ]
-
     }
-
   ];
 
 
   return (
-
     <CardNav
-
-      logo={logo}
-
+      logo="/img/eng-trans.png"
       logoAlt="Company Logo"
-
       items={items}
-
       baseColor="#fff"
-
       menuColor="#000"
-
       buttonBgColor="#111"
-
       buttonTextColor="#fff"
-
       ease="power3.out"
-
     />
-
   );
 }
 
+export default Header;
