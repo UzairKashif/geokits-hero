@@ -3,22 +3,38 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter, usePathname } from 'next/navigation'
 import CardNav from "@/components/ReactBits/CardNav"
 
 const Header = () => {
-   const scrollToSection = (sectionId: string) => {
-     const element = document.getElementById(sectionId);
-     if (element) {
-       element.scrollIntoView({ behavior: 'smooth' });
-     }
-   };
+  const router = useRouter()
+  const pathname = usePathname()
 
-   const items = [
+  const scrollToSection = (sectionId: string) => {
+    // If we're not on the home page, navigate to home first
+    if (pathname !== '/') {
+      router.push(`/#${sectionId}`)
+      return
+    }
+    
+    // If we're on the home page, scroll to the section
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const items = [
     {
       label: "About",
       bgColor: "#0D0716",
       textColor: "#fff",
       links: [
+        { 
+          label: "Home", 
+          ariaLabel: "Go to Home",
+          href: "/",
+        },
         { 
           label: "Company", 
           ariaLabel: "About Company",
@@ -65,8 +81,7 @@ const Header = () => {
         { 
           label: "Blog", 
           ariaLabel: "Our Blog",
-          href: "/#blog",
-          onClick: () => scrollToSection('blog')
+          href: "/blog"
         },
         { 
           label: "Email", 
@@ -76,7 +91,6 @@ const Header = () => {
       ]
     }
   ];
-
 
   return (
     <CardNav

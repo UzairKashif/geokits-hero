@@ -1,25 +1,9 @@
 import { blogPosts } from '@/lib/blogData'
 import BlogCard from '@/components/BlogCard'
-import SafeNavigationLink from '@/components/SafeNavigationLink'
 
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <SafeNavigationLink
-            href="/?scrollTo=blog"
-            className="inline-flex items-center gap-2 text-[#021400] hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Insights & Innovation
-          </SafeNavigationLink>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

@@ -168,6 +168,79 @@
   color: #021400;
 }
 
+/* Blog Post Markdown Styling */
+.blog-content {
+  background-color: #021400;
+}
+
+.blog-content ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.blog-content ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid #4b5563;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #d1d5db;
+  margin: 1.5rem 0;
+}
+
+.blog-content code {
+  background-color: #1f2937;
+  color: #10b981;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.blog-content pre {
+  background-color: #1f2937;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.blog-content h1, 
+.blog-content h2, 
+.blog-content h3, 
+.blog-content h4 {
+  color: white;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.blog-content strong {
+  color: white;
+  font-weight: 600;
+}
+
+.blog-content em {
+  color: #d1d5db;
+  font-style: italic;
+}
+
+.blog-content hr {
+  border-color: #4b5563;
+  margin: 2rem 0;
+}
+
 /* Community Section Animations */
 @keyframes fadeInUp {
   from {

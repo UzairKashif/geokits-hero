@@ -130,7 +130,7 @@ export default function ClientsTestimonials({
                       leaveTo="opacity-0 scale-90"
                     >
                       <Image
-                        className="w-12 h-12 rounded-full grayscale"
+                        className="w-12 h-12 rounded-full hover:grayscale"
                         src={testimonial.img}
                         width={48}
                         height={48}

@@ -331,7 +331,7 @@ export default function SolutionsShowcase() {
                   src={currentProject.img}
                   alt={currentProject.title}
                   fill
-                  className="object-cover filter grayscale hover:grayscale-0 transition-all duration-700"
+                  className="object-cover hover:filter hover:grayscale transition-all duration-700"
                 />
               </div>
 

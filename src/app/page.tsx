@@ -19,6 +19,7 @@ import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
 import ValueProposition from "@/components/ValueProposition";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ContactBg } from "@/components/ContactBg";
+import ScrollToHash from "@/components/ScrollToHash";
 
 function ScrollPositionMemoryBoundary() {
   // Isolated client component to use search params inside Suspense
@@ -35,11 +36,15 @@ export default function Page() {
         <Suspense fallback={null}>
           <ScrollPositionMemoryBoundary />
         </Suspense>
+        <ScrollToHash />
         <MapboxHeroGSAP />
         {/* <ValueProposition /> */}
         {/* <Stats /> */}
         {/* <Workflow /> */}
         {/* <LiveDataFeeds /> */}
+        <div id="about">
+          <CommunityEngagement />
+        </div>
         <div id="solutions">
           <SolutionsShowcase />
         </div>
@@ -51,12 +56,11 @@ export default function Page() {
         </div>
         {/* <DataFlowVisual /> */}
         {/* <ParabolaScrollPage /> */}
-        <ProjectTimeline />
+        <div id="timeline">
+          <ProjectTimeline />
+        </div>
         {/* <EngagementModels /> */}
         {/* <Faq /> */}
-
-        {/* Community Engagement Section */}
-        <CommunityEngagement />
 
         {/* Contact Us Section */}
         <section className="relative py-40 px-6 forest-bg overflow-hidden">

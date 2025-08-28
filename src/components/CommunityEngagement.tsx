@@ -89,8 +89,8 @@ const communityPosts: CommunityPost[] = [
   {
     id: '1',
     type: 'instagram',
-    url: 'https://www.instagram.com/reel/DNiah8LIji4/',
-    title: 'Latest GIS Project Showcase',
+    url: 'https://www.instagram.com/p/DN04mui0EvC/',
+    title: 'GLOF Situation',
     description: 'Discover our recent geospatial intelligence work and innovative mapping solutions.'
   },
   {

@@ -34,7 +34,7 @@ export const Services: ServicesUnit[] = [
     {
         serviceName: "Remote Sensing",
         serviceDescription: "Description for Remote Sensing",
-        imageUrl: "https://picsum.photos/300/200?grayscale"
+        imageUrl: "https://picsum.photos/300/200"
     }
 
 ];
