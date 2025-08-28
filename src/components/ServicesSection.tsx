@@ -40,7 +40,7 @@ export const ServicesSection = () => {
                                 {Services.map((service: ServicesUnit, index: number) => (
                                     <li 
                                         key={index} 
-                                        className="group cursor-pointer transition-all duration-300 ease-out py-4 relative overflow-hidden"
+                                        className="group cursor-pointer transition-all duration-300 ease-out py-4 relative overflow-hidden border-b-2 border-r-2 border-transparent hover:border-b-gray-800 hover:border-r-gray-800"
                                         onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
                                         onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
                                         onClick={() => handleServiceInteraction(index, service.imageUrl)}

@@ -35,9 +35,10 @@ export default function Header() {
       <header 
         className={`fixed top-[10px] left-1/2 transform -translate-x-1/2 z-50 w-[70%] transition-all duration-300 rounded-lg ${
           isScrolled 
-            ? 'bg-gray-900/95 backdrop-blur-md border border-gray-800' 
-            : 'bg-gray-900/80 backdrop-blur-sm border border-gray-700/50'
+            ? 'backdrop-blur-md border border-white' 
+            : 'backdrop-blur-sm border border-white'
         }`}
+        style={{ backgroundColor: '#021400' }}
       >
         <div className="px-6">
           <div className="flex items-center justify-between h-16">
@@ -110,9 +111,10 @@ export default function Header() {
 
         {/* Mobile Menu */}
         <div 
-          className={`md:hidden bg-gray-900/98 backdrop-blur-md border-t border-gray-800 transition-all duration-300 rounded-b-lg ${
+          className={`md:hidden backdrop-blur-md border-t border-gray-800 transition-all duration-300 rounded-b-lg ${
             isMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
           }`}
+          style={{ backgroundColor: '#021400' }}
         >
           <nav className="px-6 py-4 space-y-4">
             <button
