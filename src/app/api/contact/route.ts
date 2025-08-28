@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
           </p>
           <p style="color: #94a3b8; line-height: 1.6; margin: 0;">
             We typically respond to all inquiries within 24 hours. If you have any urgent questions, 
-            please don't hesitate to call us at <strong style="color: #10b981;">(+92) 303 7239083</strong>.
+            please don't hesitate to call us at <strong style="color: #10b981;">(+44 7446284191</strong>.
           </p>
         </div>
 
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
             <strong style="color: #10b981;">The Geokits Team</strong>
           </p>
           <p style="color: #64748b; font-size: 12px; margin: 0;">
-            G 9/4, Islamabad, Pakistan | contact@geokits.com | (+92) 303 7239083
+            G 9/4, Islamabad, Pakistan | contact@geokits.com | (+44 7446284191
           </p>
         </div>
       </div>

@@ -118,7 +118,7 @@ export default function ContactPage() {
                   <h3 className="text-lg font-light text-white mb-1 tracking-tight">
                     Phone
                   </h3>
-                  <p className="text-gray-400 font-light">(+92) 303 7239083</p>
+                  <p className="text-gray-400 font-light">(+44 7446284191</p>
                 </div>
               </div>
 

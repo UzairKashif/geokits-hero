@@ -73,7 +73,7 @@ export default function Footer() {
               <li>
                 <a href="tel:+923037239083" className="text-gray-600 hover:text-black flex items-center">
                   <Phone className="w-4 h-4 mr-2" />
-                  (+92) 303 7239083
+                  (+44 7446284191
                 </a>
               </li>
             </ul>
@@ -98,7 +98,7 @@ export default function Footer() {
 
             {/* Right side - Address and Copyright */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-2 lg:space-y-0 text-gray-600 text-sm">
-              <span>G 9/4, Islamabad, Pakistan</span>
+              <span>I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800</span>
               <span>© 2025 Geokits. All rights reserved.</span>
             </div>
           </div>
