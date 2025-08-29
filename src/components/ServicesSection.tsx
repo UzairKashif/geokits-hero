@@ -92,40 +92,21 @@ export const ServicesSection = () => {
                                 {Services.map((service: ServicesUnit, index: number) => (
                                     <li 
                                         key={index} 
-                                        className="group cursor-pointer transition-all duration-300 ease-out py-2 lg:py-4 relative overflow-hidden"
+                                        className={`service-item ${activeService === index ? 'active' : ''}`}
                                         onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
                                         onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
                                         onClick={() => handleServiceInteraction(index, service.imageUrl)}
                                         onTouchStart={() => handleServiceInteraction(index, service.imageUrl)}
                                     >
-                                        {/* PNG Wave animation - translates from right to left */}
-                                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                            <div 
-                                                className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-out ${
-                                                    activeService === index 
-                                                        ? 'opacity-20 translate-x-0' 
-                                                        : 'opacity-0 translate-x-full group-hover:opacity-15 group-hover:translate-x-0'
-                                                }`}
-                                                style={{
-                                                    backgroundImage: 'url(/img/wave.png)',
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center',
-                                                    filter: 'contrast(1.2) brightness(0.8)',
-                                                    mixBlendMode: 'multiply'
-                                                }}
-                                            ></div>
-                                        </div>
-                                        
                                         <div className="relative z-10">
-                                            <h3 className={`text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light leading-tight tracking-tight transition-all duration-300 ${
+                                            <h3 className={`service-title text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light leading-tight tracking-tight transition-all duration-300 ${
                                                 activeService === index 
-                                                    ? 'text-[#021400]' 
-                                                    : 'text-gray-400 group-hover:text-gray-600'
+                                                    ? 'text-white' 
+                                                    : 'text-gray-400'
                                             }`}>
                                                 {service.serviceName}
                                             </h3>
                                         </div>
-
                                     </li>
                                 ))}
                             </ul>

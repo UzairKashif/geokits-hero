@@ -81,7 +81,7 @@ const Header = () => {
           ariaLabel: "Our Blog",
           href: "/blog"
         },
-        { x
+        { 
           label: "Email", 
           ariaLabel: "Email us",
           href: "mailto:contact@geokits.com"
