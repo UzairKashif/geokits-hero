@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import GradualBlur from "@/components/ReactBits/GradualBlur"
+// import GradualBlur from "@/components/ReactBits/GradualBlur"
 const milestones = [
   {
     title: "Discovery and Requirements Gathering ",
@@ -407,7 +407,7 @@ Your roadmap to seamless engagement and successful project delivery.
 
         <div className="h-16" />
         
-        <GradualBlur
+        {/* <GradualBlur
           target="parent"
           position="bottom"
           height="12rem"
@@ -418,7 +418,7 @@ Your roadmap to seamless engagement and successful project delivery.
           opacity={0.8}
           zIndex={100}
           blurColor="rgba(2, 20, 0, 0.4)"
-        />
+        /> */}
       </section>
     </div>
   );

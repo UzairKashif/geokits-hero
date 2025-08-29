@@ -25,7 +25,7 @@ const Header = () => {
   const items = [
     {
       label: "About",
-      bgColor: "#0D0716",
+      bgColor: "#021400",
       textColor: "#fff",
       links: [
         { 
@@ -49,7 +49,7 @@ const Header = () => {
     },
     {
       label: "Services", 
-      bgColor: "#170D27",
+      bgColor: "#032800",
       textColor: "#fff",
       links: [
         { 
@@ -68,7 +68,7 @@ const Header = () => {
     },
     {
       label: "Contact",
-      bgColor: "#271E37", 
+      bgColor: "#053C00", 
       textColor: "#fff",
       links: [
         { 
@@ -81,7 +81,7 @@ const Header = () => {
           ariaLabel: "Our Blog",
           href: "/blog"
         },
-        { 
+        { x
           label: "Email", 
           ariaLabel: "Email us",
           href: "mailto:contact@geokits.com"
