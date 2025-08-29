@@ -7,10 +7,6 @@ import Image from "next/image";
 export default function ContactPage() {
   return (
     <div className="min-h-screen forest-bg">
-
-
-
-      
       {/* Back Button */}
       <div className="pt-6 px-6">
         <Link
@@ -27,29 +23,27 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto text-left">
           {/* Logo */}
 
-          
           <div className="mb-6 ">
             <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
               Get In Touch
             </span>
           </div>
-          <div className="h-auto w-auto flex flex-row justify-between" > 
-
-          <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
-            Contact
-            <br />
-            <span className="font-light">information</span>
-          </h1>
-          <div className="mb-8 pr-16">
-            <Image
-              src="/img/eng-trans.png"
-              alt="Geokits Logo"
-              width={200}
-              height={80}
-              className="h-[200px] w-auto hover:filter "
-              priority
-            />
-          </div>
+          <div className="h-auto w-auto flex flex-row justify-between">
+            <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
+              Contact
+              <br />
+              <span className="font-light">information</span>
+            </h1>
+            <div className="mb-8 pr-16">
+              <Image
+                src="/img/eng-trans.png"
+                alt="Geokits Logo"
+                width={200}
+                height={80}
+                className="h-[200px] w-auto hover:filter "
+                priority
+              />
+            </div>
           </div>
           <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide">
             Ready to transform your infrastructure monitoring? Get in touch with
@@ -93,10 +87,11 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-light text-white mb-1 tracking-tight">
-                    Our Location
+                    Our Locations
                   </h3>
                   <p className="text-gray-400 font-light">
-                    I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800
+                    I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad,
+                    44800
                   </p>
                 </div>
               </div>
@@ -147,7 +142,9 @@ export default function ContactPage() {
                   <h3 className="text-lg font-light text-white mb-1 tracking-tight">
                     Email
                   </h3>
-                  <p className="text-gray-400 font-light">contact@geokits.com</p>
+                  <p className="text-gray-400 font-light">
+                    contact@geokits.com
+                  </p>
                 </div>
               </div>
 
