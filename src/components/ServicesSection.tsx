@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Services, ServicesUnit } from '@/data/services';
 
 export const ServicesSection = () => {
@@ -32,8 +32,7 @@ export const ServicesSection = () => {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-6 pb-20">
-                {/* Desktop Layout */}
-                <div className="hidden lg:grid lg:grid-cols-2 gap-16 min-h-[70vh]">
+                <div className="grid lg:grid-cols-2 gap-16 min-h-[70vh]">
                     {/* Services List */}
                     <div className="flex flex-col justify-center">
                         <div className="max-w-xl">
@@ -41,10 +40,11 @@ export const ServicesSection = () => {
                                 {Services.map((service: ServicesUnit, index: number) => (
                                     <li 
                                         key={index} 
-                                        className="group cursor-pointer transition-all duration-300 ease-out py-4 relative overflow-hidden border-b-2 border-r-2 border-transparent hover:border-b-gray-800 hover:border-r-gray-800"
+                                        className="group cursor-pointer transition-all duration-300 ease-out py-4 relative overflow-hidden"
                                         onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
                                         onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
                                         onClick={() => handleServiceInteraction(index, service.imageUrl)}
+                                        onTouchStart={() => handleServiceInteraction(index, service.imageUrl)}
                                     >
                                         {/* PNG Wave animation - translates from right to left */}
                                         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -73,6 +73,7 @@ export const ServicesSection = () => {
                                                 {service.serviceName}
                                             </h3>
                                         </div>
+
                                     </li>
                                 ))}
                             </ul>
@@ -87,61 +88,11 @@ export const ServicesSection = () => {
                                     <img
                                         src={imgUrl}
                                         alt="Service"
-                                        className="w-full h-full object-cover hover:filter hover:grayscale transition-all duration-700"
+                                        className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-700"
                                     />
                                 )}
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* Mobile Layout - Card-based */}
-                <div className="lg:hidden">
-                    <div className="grid gap-6 sm:gap-8">
-                        {Services.map((service: ServicesUnit, index: number) => (
-                            <div 
-                                key={index}
-                                className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
-                            >
-                                {/* Image */}
-                                <div className="aspect-[16/9] sm:aspect-[2/1] bg-gray-200 overflow-hidden">
-                                    <img
-                                        src={service.imageUrl}
-                                        alt={service.serviceName}
-                                        className="w-full h-full object-cover hover:filter hover:grayscale transition-all duration-700"
-                                    />
-                                </div>
-                                
-                                {/* Content */}
-                                <div className="p-6 relative overflow-hidden">
-                                    {/* Background wave effect */}
-                                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                        <div 
-                                            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 hover:opacity-10 transition-opacity duration-500"
-                                            style={{
-                                                backgroundImage: 'url(/img/wave.png)',
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center',
-                                                filter: 'contrast(1.2) brightness(0.8)',
-                                                mixBlendMode: 'multiply'
-                                            }}
-                                        ></div>
-                                    </div>
-                                    
-                                    <div className="relative z-10">
-                                        <h3 className="text-xl sm:text-2xl font-light text-[#021400] mb-3 leading-tight">
-                                            {service.serviceName}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                                            {service.serviceDescription}
-                                        </p>
-                                    </div>
-                                    
-                                    {/* Subtle accent line */}
-                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-[#021400] to-transparent"></div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
