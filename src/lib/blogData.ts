@@ -55,7 +55,7 @@ As climate change continues to alter glacial dynamics across the Himalayan regio
 The heroic actions of the local shepherd who provided early warning serve as an inspiration and a reminder that effective disaster risk reduction combines human vigilance with technological solutions. Moving forward, the challenge is to build systems that enhance and support such community-based resilience while providing the technical infrastructure needed to monitor and respond to these complex natural hazards.`,
     readTime: "18 min read",
     date: "2024-08-28",
-    author: "Rahema Khan",
+    author: "Rahema Khushbakht",
     category: "Disaster Management & Climate",
     tags: ["GLOF", "Climate Change", "Disaster Management", "Remote Sensing", "Pakistan", "Glacial Lakes"]
   },
