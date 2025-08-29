@@ -128,7 +128,7 @@ This pilot underscores how GIS revolutionizes agritech in Pakistan—shifting fa
 The integration of geospatial intelligence with traditional farming knowledge creates powerful synergies that benefit farmers, communities, and the broader agricultural ecosystem. Through continued development and deployment of these technologies, Pakistan's agricultural sector can build resilience against climate change while meeting growing food security demands.`,
   readTime: "12 min read",
   date: "2024-03-20",
-  author: "Uzayr Kashif",
+  author: "Uzair Kashif",
   category: "Agriculture & GIS",
   tags: ["GIS", "Agriculture", "Precision Farming", "IoT", "Pakistan", "Technology"]
 };

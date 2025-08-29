@@ -14,27 +14,27 @@ export const Services: ServicesUnit[] = [
     {
         serviceName: "Early Warning Systems",
         serviceDescription: "Description for Early Warning Systems 2",
-        imageUrl: "/projects/ipl.PNG"
+        imageUrl: "/services/warn.png"
     },
     {
         serviceName: "Infrastructure Monitoring",
         serviceDescription: "Description for Infrastructure Monitoring",
-        imageUrl: "https://picsum.photos/id/237/300/200"
+        imageUrl: "/services/infra.webp"
     },
     {
         serviceName: "Data Analytics",
         serviceDescription: "Description for Data Analytics",
-        imageUrl: "https://picsum.photos/400/300"
+        imageUrl: "/services/analytics.png"
     },
     {
         serviceName: "GIS consulting",
         serviceDescription: "Description for GIS consulting",
-        imageUrl: "https://via.placeholder.com/300x200/0000FF/FFFFFF?text=Image"
+            imageUrl: "/services/giscons.jpeg"
     },
     {
         serviceName: "Remote Sensing",
         serviceDescription: "Description for Remote Sensing",
-        imageUrl: "https://picsum.photos/300/200"
+        imageUrl: "/services/remote-sensing.jpg"
     }
 
 ];
