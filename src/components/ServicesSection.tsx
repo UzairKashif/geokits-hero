@@ -6,6 +6,34 @@ import { Services, ServicesUnit } from '@/data/services';
 export const ServicesSection = () => {
     const [imgUrl, setImgUrl] = useState<string>(Services[0].imageUrl);
     const [activeService, setActiveService] = useState<number>(0);
+    const [imagesLoaded, setImagesLoaded] = useState<boolean>(false);
+    const [preloadedImages, setPreloadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
+
+    // Preload all images when component mounts
+    useEffect(() => {
+        const imagePromises = Services.map((service) => {
+            return new Promise<HTMLImageElement>((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = service.imageUrl;
+            });
+        });
+
+        Promise.all(imagePromises)
+            .then((loadedImages) => {
+                const imageMap: { [key: string]: HTMLImageElement } = {};
+                Services.forEach((service, index) => {
+                    imageMap[service.imageUrl] = loadedImages[index];
+                });
+                setPreloadedImages(imageMap);
+                setImagesLoaded(true);
+            })
+            .catch((error) => {
+                console.warn('Some images failed to preload:', error);
+                setImagesLoaded(true); // Still allow the component to function
+            });
+    }, []);
 
     const handleServiceInteraction = (index: number, imageUrl: string) => {
         setImgUrl(imageUrl);
@@ -32,15 +60,15 @@ export const ServicesSection = () => {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-6 pb-20">
-                <div className="grid lg:grid-cols-2 gap-16 min-h-[70vh]">
+                <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 min-h-[50vh] lg:min-h-[70vh]">
                     {/* Services List */}
                     <div className="flex flex-col justify-center">
                         <div className="max-w-xl">
-                            <ul className="space-y-8">
+                            <ul className="space-y-4 lg:space-y-8">
                                 {Services.map((service: ServicesUnit, index: number) => (
                                     <li 
                                         key={index} 
-                                        className="group cursor-pointer transition-all duration-300 ease-out py-4 relative overflow-hidden"
+                                        className="group cursor-pointer transition-all duration-300 ease-out py-2 lg:py-4 relative overflow-hidden"
                                         onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
                                         onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
                                         onClick={() => handleServiceInteraction(index, service.imageUrl)}
@@ -65,10 +93,10 @@ export const ServicesSection = () => {
                                         </div>
                                         
                                         <div className="relative z-10">
-                                            <h3 className={`text-2xl md:text-3xl font-light leading-tight tracking-tight transition-all duration-300 ${
+                                            <h3 className={`text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light leading-tight tracking-tight transition-all duration-300 ${
                                                 activeService === index 
-                                                    ? 'text-gray-900' 
-                                                    : 'text-[#021400] group-hover:text-gray-700'
+                                                    ? 'text-[#021400]' 
+                                                    : 'text-gray-400 group-hover:text-gray-600'
                                             }`}>
                                                 {service.serviceName}
                                             </h3>
@@ -83,13 +111,32 @@ export const ServicesSection = () => {
                     {/* Services Images */}
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-w-2xl">
-                            <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
-                                {imgUrl && (
-                                    <img
-                                        src={imgUrl}
-                                        alt="Service"
-                                        className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-700"
-                                    />
+                            <div className="aspect-[4/3] bg-gray-200 overflow-hidden rounded-lg">
+                                {!imagesLoaded ? (
+                                    // Loading skeleton
+                                    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse">
+                                        <div className="flex items-center justify-center h-full">
+                                            <div className="text-gray-400 text-lg font-light">Loading images...</div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    // Preloaded image with smooth transition
+                                    <div className="relative w-full h-full">
+                                        <img
+                                            key={imgUrl} // Force re-render for smooth transition
+                                            src={imgUrl}
+                                            alt="Service"
+                                            className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500 opacity-0 animate-fadeIn"
+                                            style={{ 
+                                                animation: 'fadeIn 0.3s ease-in-out forwards',
+                                                animationDelay: '0.1s'
+                                            }}
+                                            onLoad={(e) => {
+                                                // Ensure smooth appearance
+                                                (e.target as HTMLImageElement).style.opacity = '1';
+                                            }}
+                                        />
+                                    </div>
                                 )}
                             </div>
                         </div>
