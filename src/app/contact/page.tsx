@@ -37,11 +37,11 @@ export default function ContactPage() {
             <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
               Contact
               <br />
-              <span className="font-light">information</span>
+              <span className="font-light">Information</span>
             </h1>
             <div className="mb-8 pr-16">
               <Image
-                src="/img/eng-trans.png"
+                src="/img/GEOKITSWHITE.png"
                 alt="Geokits Logo"
                 width={200}
                 height={80}
@@ -62,10 +62,6 @@ export default function ContactPage() {
         <div className="grid lg:grid-cols-2 gap-px bg-gray-800">
           {/* Contact Information */}
           <div className="bg-gray-800 p-12">
-            <h2 className="text-2xl font-light text-white mb-8 tracking-tight">
-              Contact Information
-            </h2>
-
             <div className="space-y-8">
               {/* Location */}
               <div className="flex items-start gap-4">

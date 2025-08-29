@@ -36,7 +36,7 @@ export default function ContactForm() {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    >
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
