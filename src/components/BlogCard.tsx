@@ -62,7 +62,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-8 h-64 flex flex-col">
+        <div className="p-8 h-80 flex flex-col">
           <h3 className="text-xl font-light text-[#021400] mb-3 tracking-tight line-clamp-2">
             {post.title}
           </h3>

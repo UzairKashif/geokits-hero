@@ -516,8 +516,7 @@ export default function MapboxHeroGSAP() {
                 <span className="font-light">started?</span>
               </h2>
               <p className="text-base md:text-lg text-white/80 max-w-lg md:max-w-xl mx-auto md:mx-0 leading-relaxed tracking-wide font-light px-2 md:px-0">
-                Transform your infrastructure monitoring with cutting-edge GIS
-                solutions.
+Unlock new opportunities with our advanced solutions and strategic insights. Let us discuss how we can help your organization achieve its goals.
               </p>
             </div>
           </div>

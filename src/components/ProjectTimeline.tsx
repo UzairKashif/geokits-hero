@@ -3,31 +3,31 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import GradualBlur from "@/components/ReactBits/GradualBlur"
 const milestones = [
   {
-    title: "Data Acquisition",
+    title: "Discovery and Requirements Gathering ",
     description:
       "Collecting geospatial data through satellites, drones, sensors, surveys, and existing databases",
     phase: "Phase 01",
   },
   {
-    title: "Data Processing & Integration",
+    title: " Solution Design and Planning",
     description:
       "Cleaning, transforming, and integrating raw data into standardized GIS formats for further analysis",
     phase: "Phase 02",
   },
   {
-    title: "Spatial Analysis & Modeling",
+    title: "Implementation and Development",
     description:
       "Applying geospatial analytics, modeling, and algorithms to derive insights and identify patterns",
     phase: "Phase 03",
   },
   {
-    title: "Solution Development",
+    title: "Testing and QA",
     description:
       "Building tailored GIS applications, dashboards, and decision-support tools to meet client needs",
     phase: "Phase 04",
   },
   {
-    title: "Deployment & Support",
+    title: "Delivery & Support",
     description:
       "Delivering the solution to end users, providing training, ongoing maintenance, and scaling capabilities",
     phase: "Phase 05",
@@ -240,7 +240,7 @@ export default function ProjectTimeline() {
         >
           <div className="mb-6">
             <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
-              Development Roadmap
+              Engagement Roadmap
             </span>
           </div>
           <h2
@@ -261,8 +261,7 @@ export default function ProjectTimeline() {
                 : "opacity-0 translate-y-6"
             }`}
           >
-            A comprehensive roadmap of our infrastructure monitoring initiative
-            and development phases.
+Your roadmap to seamless engagement and successful project delivery.
           </p>
         </div>
 

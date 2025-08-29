@@ -42,6 +42,16 @@ A warning sent out by a local shepherd helped to prevent the loss of life by ens
 
 
 ![Artificial Lake Formation](/blogs/glof4.png "Satellite imagery showing the formation of a 7-kilometer artificial lake created by flood debris damming the Gilgit River")
+![Artificial Lake Formation](/blogs/glof5.png "Satellite imagery")
+
+The debris has submerged approximately 75 acres of land in the village, blocking the natural flow of the Gilgit River and leading to the accumulation of about 195 acres of water forming the artificial lake, which poses an additional threat of destruction.
+
+
+
+The National Disaster Management Authority (NDMA) and the Provincial Disaster Management Authority (PDMA) have issued flood risk alerts posted by the artificial lake and debris blockage created by the outburst.  The Ghizer district and nearby areas have already endured multiple floods earlier this month, resulting in 13 casualties, several injuries and widespread displacement across the Ghalti, Ishkoman, Gupis, Yasin, Daen and Chaturkhand areas. With fresh warnings of heavy rainfall before September 10, the artificial lake remains a critical concern for renewed flooding in surrounding areas. 
+
+
+
 
 
 ## Conclusion
@@ -55,7 +65,7 @@ As climate change continues to alter glacial dynamics across the Himalayan regio
 The heroic actions of the local shepherd who provided early warning serve as an inspiration and a reminder that effective disaster risk reduction combines human vigilance with technological solutions. Moving forward, the challenge is to build systems that enhance and support such community-based resilience while providing the technical infrastructure needed to monitor and respond to these complex natural hazards.`,
     readTime: "18 min read",
     date: "2024-08-28",
-    author: "Rahema Khan",
+    author: "Rahema Khushbakht",
     category: "Disaster Management & Climate",
     tags: ["GLOF", "Climate Change", "Disaster Management", "Remote Sensing", "Pakistan", "Glacial Lakes"]
   },

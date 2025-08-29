@@ -1,19 +1,71 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Services, ServicesUnit } from '@/data/services';
 
 export const ServicesSection = () => {
     const [imgUrl, setImgUrl] = useState<string>(Services[0].imageUrl);
     const [activeService, setActiveService] = useState<number>(0);
+    const [imageLoaded, setImageLoaded] = useState<{ [key: string]: boolean }>({});
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
+
+    // Smart preloading when section comes into view
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        // Preload all service images when section is visible
+                        Services.forEach((service) => {
+                            if (!imageLoaded[service.imageUrl]) {
+                                const img = new window.Image();
+                                img.onload = () => {
+                                    setImageLoaded(prev => ({ ...prev, [service.imageUrl]: true }));
+                                };
+                                img.src = service.imageUrl;
+                            }
+                        });
+                        observer.disconnect();
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [imageLoaded]);
 
     const handleServiceInteraction = (index: number, imageUrl: string) => {
-        setImgUrl(imageUrl);
-        setActiveService(index);
+        if (imageUrl === imgUrl) return;
+
+        setIsTransitioning(true);
+        
+        // Smooth transition
+        if (imageRef.current) {
+            imageRef.current.style.opacity = '0.5';
+        }
+
+        setTimeout(() => {
+            setImgUrl(imageUrl);
+            setActiveService(index);
+            
+            setTimeout(() => {
+                if (imageRef.current) {
+                    imageRef.current.style.opacity = '1';
+                }
+                setIsTransitioning(false);
+            }, 50);
+        }, 150);
     };
 
     return (
-        <div className="bg-white min-h-screen w-full">
+        <div ref={sectionRef} className="bg-white min-h-screen w-full">
             {/* Header Section */}
             <div className="pt-20 px-6">
                 <div className="max-w-7xl mx-auto">
@@ -83,13 +135,22 @@ export const ServicesSection = () => {
                     {/* Services Images */}
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-w-2xl">
-                            <div className="aspect-[4/3] bg-gray-200 overflow-hidden rounded-lg">
+                            <div className="aspect-[4/3] bg-gray-200 overflow-hidden rounded-lg relative">
                                 <img
-                                    key={imgUrl} // Force re-render for transition
+                                    ref={imageRef}
                                     src={imgUrl}
                                     alt="Service"
-                                    className="w-full h-full object-cover filter hover:scale-105 transition-all duration-300"
+                                    className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+                                    style={{ 
+                                        opacity: isTransitioning ? 0.5 : 1,
+                                        transition: 'opacity 300ms ease-in-out, transform 300ms ease-in-out'
+                                    }}
                                 />
+                                
+                                {/* Subtle transition overlay */}
+                                {isTransitioning && (
+                                    <div className="absolute inset-0 bg-gray-200/20 transition-opacity duration-300"></div>
+                                )}
                             </div>
                         </div>
                     </div>
