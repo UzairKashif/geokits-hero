@@ -2,13 +2,13 @@
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Particle animations */
@@ -17,7 +17,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) translateX(0px) rotate(0deg);
     opacity: 0.3;
   }
@@ -158,14 +159,32 @@
   }
 }
 
-
-.forest-bg{
+.forest-bg {
   background-color: #021400;
   color: white;
 }
 
-.forest-fg{
+.forest-fg {
   color: #021400;
+}
+
+/* Scoped white background + forest text utility for specific sections */
+.white-forest {
+  background-color: #ffffff;
+  color: #021400;
+}
+.white-forest * {
+  color: inherit;
+}
+.white-forest input,
+.white-forest textarea,
+.white-forest select {
+  background-color: #ffffff;
+  border-color: #d1d5db; /* gray-300 */
+  color: #021400;
+}
+.white-forest ::placeholder {
+  color: #9ca3af; /* gray-400 */
 }
 
 /* Blog Post Markdown Styling */
@@ -204,7 +223,7 @@
   color: #10b981;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 0.875rem;
 }
 
@@ -217,9 +236,9 @@
   margin: 1.5rem 0;
 }
 
-.blog-content h1, 
-.blog-content h2, 
-.blog-content h3, 
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
 .blog-content h4 {
   color: white;
   font-weight: 300;
@@ -274,8 +293,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
-
-.debug-borders{
+.debug-borders {
   border: 1px solid red !important;
 }
 
@@ -298,7 +316,6 @@
   height: 100%;
   overflow: hidden;
 }
-
 
 .card-nav-container {
   position: fixed;
@@ -379,7 +396,7 @@
 }
 
 .logo {
-  margin-top:10px;
+  margin-top: 10px;
   height: 100px;
 }
 
@@ -514,17 +531,17 @@
   .hamburger-menu {
     order: 1;
   }
-  
+
   .logo-container {
     order: 2;
   }
-  
+
   .card-nav-content {
     display: flex;
     align-items: flex-end;
     gap: 12px;
   }
-  
+
   .nav-card {
     height: 100%;
     flex: 1 1 0;

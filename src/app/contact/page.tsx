@@ -11,7 +11,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen forest-bg">
+    <div className="min-h-screen forest-bg overflow-x-hidden">
       {/* Back Button */}
       <div className="pt-6 px-6">
         <Link
@@ -33,19 +33,19 @@ export default function ContactPage() {
               Get In Touch
             </span>
           </div>
-          <div className="h-auto w-auto flex flex-row justify-between">
-            <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none">
+          <div className="h-auto w-auto flex flex-row items-center justify-between gap-4">
+            <h1 className="text-6xl md:text-7xl font-extralight text-white mb-8 leading-none break-words">
               Contact
               <br />
               <span className="font-light">Information</span>
             </h1>
-            <div className="mb-8 pr-16">
+            <div className="mb-8 pr-0 flex-shrink-0">
               <Image
                 src="/img/GEOKITSWHITE.png"
                 alt="Geokits Logo"
-                width={200}
-                height={80}
-                className="h-[200px] w-auto hover:filter "
+                width={400}
+                height={120}
+                className="h-20 w-auto md:h-[400px] hover:filter"
                 priority
               />
             </div>
@@ -59,17 +59,17 @@ export default function ContactPage() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="grid lg:grid-cols-2 gap-px bg-gray-800">
+        <div className="grid lg:grid-cols-2 gap-0 lg:gap-px bg-transparent lg:bg-gray-800">
           {/* Contact Information */}
-          <div className="bg-gray-800 p-12">
+          <div className="white-forest p-12 rounded-t-2xl rounded-b-none lg:rounded-2xl lg:rounded-r-none lg:rounded-l-2xl overflow-hidden">
             <div className="space-y-8">
               {/* Location */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 forest-bg flex items-center justify-center flex-shrink-0 rounded-xl">
                   <svg
-                    className="w-6 h-6 text-gray-400"
+                    className="w-6 h-6"
                     fill="none"
-                    stroke="currentColor"
+                    stroke="white"
                     viewBox="0 0 24 24"
                   >
                     <path
@@ -87,10 +87,10 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-light text-white mb-1 tracking-tight">
+                  <h3 className="text-lg font-light mb-1 tracking-tight">
                     Our Locations
                   </h3>
-                  <div className="text-gray-400 font-light space-y-1">
+                  <div className="font-light space-y-1">
                     {ourLocations.map((location) => (
                       <div key={location} className="flex">
                         {/* <span
@@ -99,7 +99,7 @@ export default function ContactPage() {
                         >
                           →
                         </span> */}
-                        <span>{location}</span>
+                        <span className="break-words">{location}</span>
                       </div>
                     ))}
                   </div>
@@ -108,11 +108,11 @@ export default function ContactPage() {
 
               {/* Phone */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 forest-bg flex items-center justify-center flex-shrink-0 rounded-xl">
                   <svg
-                    className="w-6 h-6 text-gray-400"
+                    className="w-6 h-6"
                     fill="none"
-                    stroke="currentColor"
+                    stroke="white"
                     viewBox="0 0 24 24"
                   >
                     <path
@@ -124,20 +124,20 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-light text-white mb-1 tracking-tight">
+                  <h3 className="text-lg font-light mb-1 tracking-tight">
                     Phone
                   </h3>
-                  <p className="text-gray-400 font-light">(+44 7446284191</p>
+                  <p className="font-light">(+44) 7446284191</p>
                 </div>
               </div>
 
               {/* Email */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 forest-bg flex items-center justify-center flex-shrink-0 rounded-xl">
                   <svg
-                    className="w-6 h-6 text-gray-400"
+                    className="w-6 h-6"
                     fill="none"
-                    stroke="currentColor"
+                    stroke="white"
                     viewBox="0 0 24 24"
                   >
                     <path
@@ -149,22 +149,20 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-light text-white mb-1 tracking-tight">
+                  <h3 className="text-lg font-light mb-1 tracking-tight">
                     Email
                   </h3>
-                  <p className="text-gray-400 font-light">
-                    contact@geokits.com
-                  </p>
+                  <p className="font-light">contact@geokits.com</p>
                 </div>
               </div>
 
               {/* Working Hours */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 forest-bg flex items-center justify-center flex-shrink-0 rounded-xl">
                   <svg
-                    className="w-6 h-6 text-gray-400"
+                    className="w-6 h-6"
                     fill="none"
-                    stroke="currentColor"
+                    stroke="white"
                     viewBox="0 0 24 24"
                   >
                     <path
@@ -176,10 +174,10 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-light text-white mb-1 tracking-tight">
+                  <h3 className="text-lg font-light mb-1 tracking-tight">
                     Working Hours
                   </h3>
-                  <div className="text-gray-400 font-light">
+                  <div className="font-light">
                     <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
                     <p>Saturday: 10:00 AM - 2:00 PM</p>
                   </div>

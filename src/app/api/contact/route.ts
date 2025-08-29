@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { generateCompanyEmailHtml } from "@/lib/email/companyTemplate";
-import { generateCustomerEmailHtml } from "@/lib/email/customerTemplate";
+import {
+  generateCompanyEmailHtml,
+  generateCompanyEmailHtmlAlt,
+} from "@/lib/email/companyTemplate";
+import {
+  generateCustomerEmailHtml,
+  generateCustomerEmailHtmlAlt,
+} from "@/lib/email/customerTemplate";
 import type { ContactFormData } from "@/lib/email/types";
 
 // Initialize Resend with API key
@@ -34,10 +40,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Email to company
-    const companyEmailHtml = generateCompanyEmailHtml(data);
+    const companyEmailHtml = generateCompanyEmailHtmlAlt(data);
 
     // Email to customer (confirmation)
-    const customerEmailHtml = generateCustomerEmailHtml(data);
+    const customerEmailHtml = generateCustomerEmailHtmlAlt(data);
 
     // Send email to company using Resend
 

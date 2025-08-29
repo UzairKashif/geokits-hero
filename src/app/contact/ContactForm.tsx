@@ -86,8 +86,8 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="bg-gray-800 p-12">
-      <h2 className="text-2xl font-light text-white mb-8 tracking-tight">
+    <div className="white-forest p-12 rounded-b-2xl rounded-t-none lg:rounded-2xl lg:rounded-l-none lg:rounded-r-2xl overflow-hidden">
+      <h2 className="text-2xl font-light mb-8 tracking-tight">
         Send Us a Message
       </h2>
 
@@ -97,9 +97,9 @@ export default function ContactForm() {
           <div>
             <label
               htmlFor="firstName"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+              className="block text-sm font-light mb-2 tracking-wide"
             >
-              First Name <span className="text-gray-300">*</span>
+              First Name <span>*</span>
             </label>
             <input
               type="text"
@@ -108,16 +108,16 @@ export default function ContactForm() {
               required
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
+              className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
               placeholder="Enter your first name"
             />
           </div>
           <div>
             <label
               htmlFor="lastName"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+              className="block text-sm font-light mb-2 tracking-wide"
             >
-              Last Name <span className="text-gray-300">*</span>
+              Last Name <span>*</span>
             </label>
             <input
               type="text"
@@ -126,7 +126,7 @@ export default function ContactForm() {
               required
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
+              className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
               placeholder="Enter your last name"
             />
           </div>
@@ -137,9 +137,9 @@ export default function ContactForm() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+              className="block text-sm font-light mb-2 tracking-wide"
             >
-              Email Address <span className="text-gray-300">*</span>
+              Email Address <span>*</span>
             </label>
             <input
               type="email"
@@ -148,14 +148,14 @@ export default function ContactForm() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
+              className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
               placeholder="your.email@example.com"
             />
           </div>
           <div>
             <label
               htmlFor="phone"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+              className="block text-sm font-light mb-2 tracking-wide"
             >
               Phone Number
             </label>
@@ -165,8 +165,8 @@ export default function ContactForm() {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
-              placeholder="+92 xxx xxxxxxx"
+              className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
+              placeholder="(+xx) xxx xxxxxxx"
             />
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function ContactForm() {
           <div>
             <label
               htmlFor="company"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+              className="block text-sm font-light mb-2 tracking-wide"
             >
               Company
             </label>
@@ -186,14 +186,14 @@ export default function ContactForm() {
               name="company"
               value={formData.company}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
+              className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
               placeholder="Your company name"
             />
           </div>
           <div>
             <label
               htmlFor="jobTitle"
-              className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+              className="block text-sm font-light mb-2 tracking-wide"
             >
               Job Title
             </label>
@@ -203,7 +203,7 @@ export default function ContactForm() {
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all"
+              className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
               placeholder="Your job title"
             />
           </div>
@@ -213,9 +213,9 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="serviceInterest"
-            className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            className="block text-sm font-light mb-2 tracking-wide"
           >
-            Service Interest <span className="text-gray-300">*</span>
+            Service Interest <span>*</span>
           </label>
           <select
             id="serviceInterest"
@@ -223,7 +223,7 @@ export default function ContactForm() {
             required
             value={formData.serviceInterest}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
+            className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
           >
             <option value="">Select a service</option>
             <option value="infrastructure-monitoring">
@@ -244,9 +244,9 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="projectDescription"
-            className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            className="block text-sm font-light mb-2 tracking-wide"
           >
-            Project Description <span className="text-gray-300">*</span>
+            Project Description <span>*</span>
           </label>
           <textarea
             id="projectDescription"
@@ -255,7 +255,7 @@ export default function ContactForm() {
             rows={4}
             value={formData.projectDescription}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all resize-none"
+            className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all resize-none"
             placeholder="Please describe your project or inquiry..."
           />
         </div>
@@ -264,7 +264,7 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="hearAbout"
-            className="block text-sm font-light text-gray-400 mb-2 tracking-wide"
+            className="block text-sm font-light mb-2 tracking-wide"
           >
             How did you hear about us?
           </label>
@@ -273,7 +273,7 @@ export default function ContactForm() {
             name="hearAbout"
             value={formData.hearAbout}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-gray-600 transition-all"
+            className="w-full px-4 py-3 border focus:outline-none focus:border-gray-400 transition-all"
           >
             <option value="">Select an option</option>
             <option value="google">Google Search</option>
@@ -293,7 +293,7 @@ export default function ContactForm() {
             name="subscribe"
             checked={formData.subscribe}
             onChange={handleChange}
-            className="mt-1 w-4 h-4 text-gray-300 bg-gray-900 border-gray-700 focus:ring-0"
+            className="mt-1 w-4 h-4 border-gray-300 focus:ring-0"
           />
           <label
             htmlFor="subscribe"
@@ -308,7 +308,10 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-white text-gray-900 hover:bg-gray-200 font-light py-4 px-6 tracking-wide transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-[#021400] text-white hover:opacity-90 font-light py-4 px-6 tracking-wide transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          style={{
+            color: "white",
+          }}
         >
           {isSubmitting ? (
             <>
@@ -341,8 +344,8 @@ export default function ContactForm() {
 
         {/* Status Messages */}
         {submitStatus === "success" && (
-          <div className="p-4 bg-gray-700 border border-gray-600">
-            <p className="text-gray-300 text-sm font-light">
+          <div className="p-4 bg-gray-700 border border-gray-600 rounded-lg">
+            <p className="text-sm font-light" style={{ color: "white" }}>
               Thank you! Your message has been sent successfully. We&apos;ll get
               back to you soon.
             </p>
@@ -350,8 +353,8 @@ export default function ContactForm() {
         )}
 
         {submitStatus === "error" && (
-          <div className="p-4 bg-gray-700 border border-gray-600">
-            <p className="text-gray-300 text-sm font-light">
+          <div className="p-4 bg-gray-700 border border-gray-600 rounded-lg">
+            <p className="text-sm font-light" style={{ color: "white" }}>
               Sorry, there was an error sending your message. Please try again
               or contact us directly.
             </p>

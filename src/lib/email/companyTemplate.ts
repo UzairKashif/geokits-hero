@@ -90,3 +90,76 @@ export function generateCompanyEmailHtml(data: ContactFormData): string {
       </div>
     `;
 }
+
+export function generateCompanyEmailHtmlAlt(data: ContactFormData): string {
+  return `
+    <div style="font-family: 'Times New Roman', serif; max-width: 460px; margin: 0 auto; padding: 40px 20px; background-color: #ffffff; color: #021400;">
+      <div style="text-align: center; margin-bottom: 40px;">
+        <h1 style="color: #021400; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase;">Geokits</h1>
+        <div style="width: 60px; height: 2px; background-color: #021400; margin: 16px auto;"></div>
+        <p style="color: #021400; margin: 16px 0 0 0; font-size: 16px; font-weight: 500; opacity: 0.8;">New Contact Form Submission</p>
+      </div>
+      
+      <div style="margin-bottom: 32px;">
+        <h2 style="color: #021400; margin: 0 0 20px 0; font-size: 18px; font-weight: bold; text-align: center;">Contact Information</h2>
+        
+        <div style="margin-bottom: 24px;">
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Name:</strong> ${
+            data.firstName
+          } ${data.lastName}</p>
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Email:</strong> ${
+            data.email
+          }</p>
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Phone:</strong> ${
+            data.phone || "Not provided"
+          }</p>
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Company:</strong> ${
+            data.company || "Not provided"
+          }</p>
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Job Title:</strong> ${
+            data.jobTitle || "Not provided"
+          }</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 32px;">
+        <h2 style="color: #021400; margin: 0 0 20px 0; font-size: 18px; font-weight: bold; text-align: center;">Project Details</h2>
+        
+        <div style="margin-bottom: 24px;">
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Service Interest:</strong> ${
+            data.serviceInterest
+          }</p>
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Budget:</strong> ${
+            data.budget || "Not specified"
+          }</p>
+        </div>
+
+        <div style="border: 1px solid #021400; padding: 20px; margin: 20px 0; background-color: #fafffe;">
+          <p style="color: #021400; margin: 0; font-size: 14px; line-height: 1.7; font-style: italic; text-align: center;">
+            "${data.projectDescription}"
+          </p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 32px;">
+        <h2 style="color: #021400; margin: 0 0 20px 0; font-size: 18px; font-weight: bold; text-align: center;">Additional Information</h2>
+        
+        <div style="margin-bottom: 24px;">
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>How they heard about us:</strong> ${
+            data.hearAbout || "Not specified"
+          }</p>
+          <p style="color: #021400; margin: 0 0 8px 0; font-size: 15px;"><strong>Newsletter subscription:</strong> ${
+            data.subscribe ? "Yes, wants updates" : "No"
+          }</p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; border-top: 1px solid #021400; opacity: 0.4; padding-top: 20px;">
+        <p style="color: #021400; opacity: 0.7; margin: 0; font-size: 13px; line-height: 1.5;">
+          Submitted via Contact Form<br>
+          ${new Date().toLocaleString()}
+        </p>
+      </div>
+    </div>
+  `;
+}
