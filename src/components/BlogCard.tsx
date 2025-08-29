@@ -67,12 +67,12 @@ export default function BlogCard({ post, index }: BlogCardProps) {
             {post.title}
           </h3>
 
-          <p className="text-base text-gray-600 leading-relaxed mb-4 flex-grow line-clamp-3 tracking-normal">
+          <p className="text-base text-gray-600 leading-relaxed mb-8 flex-grow line-clamp-3 tracking-normal">
             {post.excerpt}
           </p>
 
           {/* Meta Information */}
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-4 font-light">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-6 font-light">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <svg
