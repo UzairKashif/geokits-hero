@@ -1,39 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Services, ServicesUnit } from '@/data/services';
 
 export const ServicesSection = () => {
     const [imgUrl, setImgUrl] = useState<string>(Services[0].imageUrl);
     const [activeService, setActiveService] = useState<number>(0);
-    const [imagesLoaded, setImagesLoaded] = useState<boolean>(false);
-    const [preloadedImages, setPreloadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
-
-    // Preload all images when component mounts
-    useEffect(() => {
-        const imagePromises = Services.map((service) => {
-            return new Promise<HTMLImageElement>((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.onerror = reject;
-                img.src = service.imageUrl;
-            });
-        });
-
-        Promise.all(imagePromises)
-            .then((loadedImages) => {
-                const imageMap: { [key: string]: HTMLImageElement } = {};
-                Services.forEach((service, index) => {
-                    imageMap[service.imageUrl] = loadedImages[index];
-                });
-                setPreloadedImages(imageMap);
-                setImagesLoaded(true);
-            })
-            .catch((error) => {
-                console.warn('Some images failed to preload:', error);
-                setImagesLoaded(true); // Still allow the component to function
-            });
-    }, []);
 
     const handleServiceInteraction = (index: number, imageUrl: string) => {
         setImgUrl(imageUrl);
@@ -112,32 +84,12 @@ export const ServicesSection = () => {
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-w-2xl">
                             <div className="aspect-[4/3] bg-gray-200 overflow-hidden rounded-lg">
-                                {!imagesLoaded ? (
-                                    // Loading skeleton
-                                    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse">
-                                        <div className="flex items-center justify-center h-full">
-                                            <div className="text-gray-400 text-lg font-light">Loading images...</div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    // Preloaded image with smooth transition
-                                    <div className="relative w-full h-full">
-                                        <img
-                                            key={imgUrl} // Force re-render for smooth transition
-                                            src={imgUrl}
-                                            alt="Service"
-                                            className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500 opacity-0 animate-fadeIn"
-                                            style={{ 
-                                                animation: 'fadeIn 0.3s ease-in-out forwards',
-                                                animationDelay: '0.1s'
-                                            }}
-                                            onLoad={(e) => {
-                                                // Ensure smooth appearance
-                                                (e.target as HTMLImageElement).style.opacity = '1';
-                                            }}
-                                        />
-                                    </div>
-                                )}
+                                <img
+                                    key={imgUrl} // Force re-render for transition
+                                    src={imgUrl}
+                                    alt="Service"
+                                    className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-300"
+                                />
                             </div>
                         </div>
                     </div>

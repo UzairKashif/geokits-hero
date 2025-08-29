@@ -13,6 +13,8 @@ export default function SolutionsShowcase() {
   const [isClient, setIsClient] = useState(false);
   const [activeProject, setActiveProject] = useState(0);
   const [isNavigationVisible, setIsNavigationVisible] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
@@ -23,6 +25,48 @@ export default function SolutionsShowcase() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Smart preloading: only preload when section is in view
+  useEffect(() => {
+    if (!isClient) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Preload next and previous images when section is visible
+            const preloadImage = (index: number) => {
+              if (imageLoaded[index]) return;
+              
+              const img = new window.Image();
+              img.onload = () => {
+                setImageLoaded(prev => ({ ...prev, [index]: true }));
+              };
+              img.src = projects[index].img;
+            };
+
+            // Preload current, next, and previous images
+            preloadImage(activeProject);
+            
+            const nextIndex = activeProject === projects.length - 1 ? 0 : activeProject + 1;
+            const prevIndex = activeProject === 0 ? projects.length - 1 : activeProject - 1;
+            
+            preloadImage(nextIndex);
+            preloadImage(prevIndex);
+            
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isClient, activeProject, imageLoaded]);
 
   useEffect(() => {
     if (!isClient) return;
@@ -176,22 +220,51 @@ export default function SolutionsShowcase() {
   }, [isClient]);
 
   const handleProjectChange = (index: number) => {
-    if (index === activeProject) return;
+    if (index === activeProject || imageLoading) return;
+
+    setImageLoading(true);
+
+    // Preload the target image if not already loaded
+    if (!imageLoaded[index]) {
+      const img = new window.Image();
+      img.onload = () => {
+        setImageLoaded(prev => ({ ...prev, [index]: true }));
+      };
+      img.src = projects[index].img;
+    }
 
     // Animate content out
     gsap.to([contentRef.current, imageRef.current], {
       opacity: 0,
       y: 20,
-      duration: 0.3,
+      duration: 0.2,
       ease: "power2.out",
       onComplete: () => {
         setActiveProject(index);
+        
         // Animate content in
         gsap.to([contentRef.current, imageRef.current], {
           opacity: 1,
           y: 0,
-          duration: 0.5,
+          duration: 0.3,
           ease: "power2.out",
+          onComplete: () => {
+            setImageLoading(false);
+            
+            // Preload adjacent images after transition
+            const nextIndex = index === projects.length - 1 ? 0 : index + 1;
+            const prevIndex = index === 0 ? projects.length - 1 : index - 1;
+            
+            [nextIndex, prevIndex].forEach(preloadIndex => {
+              if (!imageLoaded[preloadIndex]) {
+                const img = new window.Image();
+                img.onload = () => {
+                  setImageLoaded(prev => ({ ...prev, [preloadIndex]: true }));
+                };
+                img.src = projects[preloadIndex].img;
+              }
+            });
+          },
         });
       },
     });
@@ -326,13 +399,22 @@ export default function SolutionsShowcase() {
           {/* Right Side - Image */}
           <div ref={imageRef} className="flex items-center justify-center">
             <div className="relative w-full max-w-2xl">
-              <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
+              <div className="aspect-[4/3] bg-gray-200 overflow-hidden relative">
                 <Image
                   src={currentProject.img}
                   alt={currentProject.title}
                   fill
+                  priority={activeProject === 0} // Priority for first image only
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover hover:filter hover:grayscale transition-all duration-700"
                 />
+                
+                {/* Subtle loading overlay only during transitions */}
+                {imageLoading && (
+                  <div className="absolute inset-0 bg-gray-200/50 flex items-center justify-center z-10 backdrop-blur-sm">
+                    <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
 
               {/* Image overlay info */}
@@ -397,7 +479,6 @@ export default function SolutionsShowcase() {
           <ArrowDown className="w-4 h-4 animate-bounce" />
         </button>
       </div>
-
     </section>
   );
 }
