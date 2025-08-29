@@ -1,10 +1,26 @@
+"use client";
 import ContactForm from "@/app/contact/ContactForm";
 import Footer from "@/components/Footer";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
 export default function ContactPage() {
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const ourLocations = [
     "I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800",
     "483 Green Lanes, London, England, N13 4BS",
@@ -62,7 +78,37 @@ export default function ContactPage() {
         <div className="grid lg:grid-cols-2 gap-0 lg:gap-px bg-transparent lg:bg-gray-800">
           {/* Contact Information */}
           <div className="white-forest p-12 rounded-t-2xl rounded-b-none lg:rounded-2xl lg:rounded-r-none lg:rounded-l-2xl overflow-hidden">
-            <div className="space-y-8">
+            {/* Mobile Toggle Button */}
+            {isMobile && (
+              <button
+                onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                className="lg:hidden w-full flex items-center justify-between text-left mb-6 p-4 forest-bg rounded-xl hover:bg-opacity-80 transition-all duration-200"
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  boxShadow: "none",
+                  padding: "0",
+                  margin: "0",
+                  cursor: "pointer",
+                }}
+              >
+                <span className="text-lg font-light text-white">
+                  Contact Information
+                </span>
+                {isInfoExpanded ? (
+                  <ChevronUp className="w-5 h-5 text-white" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-white" />
+                )}
+              </button>
+            )}
+
+            {/* Contact Info Content */}
+            <div
+              className={`space-y-8 ${
+                isMobile && !isInfoExpanded ? "hidden" : "block pt-6"
+              }`}
+            >
               {/* Location */}
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 forest-bg flex items-center justify-center flex-shrink-0 rounded-xl">
