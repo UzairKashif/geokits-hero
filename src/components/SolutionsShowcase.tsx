@@ -13,7 +13,6 @@ export default function SolutionsShowcase() {
   const [isClient, setIsClient] = useState(false);
   const [activeProject, setActiveProject] = useState(0);
   const [isNavigationVisible, setIsNavigationVisible] = useState(false);
-  const [imageLoading, setImageLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -220,9 +219,7 @@ export default function SolutionsShowcase() {
   }, [isClient]);
 
   const handleProjectChange = (index: number) => {
-    if (index === activeProject || imageLoading) return;
-
-    setImageLoading(true);
+    if (index === activeProject) return;
 
     // Preload the target image if not already loaded
     if (!imageLoaded[index]) {
@@ -242,15 +239,13 @@ export default function SolutionsShowcase() {
       onComplete: () => {
         setActiveProject(index);
         
-        // Animate content in
+        // Animate content in immediately
         gsap.to([contentRef.current, imageRef.current], {
           opacity: 1,
           y: 0,
           duration: 0.3,
           ease: "power2.out",
           onComplete: () => {
-            setImageLoading(false);
-            
             // Preload adjacent images after transition
             const nextIndex = index === projects.length - 1 ? 0 : index + 1;
             const prevIndex = index === 0 ? projects.length - 1 : index - 1;
@@ -408,13 +403,6 @@ export default function SolutionsShowcase() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover hover:filter hover:grayscale transition-all duration-700"
                 />
-                
-                {/* Subtle loading overlay only during transitions */}
-                {imageLoading && (
-                  <div className="absolute inset-0 bg-gray-200/50 flex items-center justify-center z-10 backdrop-blur-sm">
-                    <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                )}
               </div>
 
               {/* Image overlay info */}

@@ -88,7 +88,7 @@ export const ServicesSection = () => {
                                     key={imgUrl} // Force re-render for transition
                                     src={imgUrl}
                                     alt="Service"
-                                    className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-300"
+                                    className="w-full h-full object-cover filter hover:grayscale transition-all duration-300"
                                 />
                             </div>
                         </div>
