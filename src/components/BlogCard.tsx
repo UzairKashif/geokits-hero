@@ -24,7 +24,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
 
   return (
     <div onClick={handleClick}>
-      <article className="group relative bg-white border border-gray-200 hover:border-gray-300 overflow-hidden h-[500px] cursor-pointer transform-gpu transition-all duration-500 hover:shadow-lg">
+      <article className="group relative bg-white border border-gray-200 hover:border-gray-300 overflow-hidden h-[540px] cursor-pointer transform-gpu transition-all duration-500 hover:shadow-lg">
         {/* Blog Badge */}
         <div className="absolute top-8 left-8 z-20 bg-[#021400] text-white px-4 py-2 text-sm font-light tracking-wide">
           {String(index + 1).padStart(2, "0")}
@@ -67,12 +67,12 @@ export default function BlogCard({ post, index }: BlogCardProps) {
             {post.title}
           </h3>
 
-          <p className="text-base text-gray-600 leading-relaxed mb-8 flex-grow line-clamp-3 tracking-normal">
+          <p className="text-base text-gray-600 leading-relaxed mb-6 flex-grow line-clamp-3 tracking-normal">
             {post.excerpt}
           </p>
 
           {/* Meta Information */}
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-6 font-light">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-4 font-light">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <svg
@@ -111,22 +111,24 @@ export default function BlogCard({ post, index }: BlogCardProps) {
                 {post.readTime}
               </span>
             </div>
-            <span className="text-gray-500">{post.author}</span>
+            <span className="text-gray-500 truncate">{post.author}</span>
           </div>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2">
-            {post.tags.slice(0, 3).map((tag, i) => (
-              <span key={i} className="text-xs text-gray-500 font-light">
-                {tag}
-                {i < Math.min(post.tags.length, 3) - 1 && " •"}
-              </span>
-            ))}
-            {post.tags.length > 3 && (
-              <span className="text-xs text-gray-400 font-light">
-                +{post.tags.length - 3} more
-              </span>
-            )}
+          {/* Tags - Fixed container with overflow handling */}
+          <div className="min-h-[1.5rem] max-h-[3rem] overflow-hidden">
+            <div className="flex flex-wrap gap-2 line-clamp-2">
+              {post.tags.slice(0, 3).map((tag, i) => (
+                <span key={i} className="text-xs text-gray-500 font-light whitespace-nowrap">
+                  {tag}
+                  {i < Math.min(post.tags.length, 3) - 1 && " •"}
+                </span>
+              ))}
+              {post.tags.length > 3 && (
+                <span className="text-xs text-gray-400 font-light whitespace-nowrap">
+                  +{post.tags.length - 3} more
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
