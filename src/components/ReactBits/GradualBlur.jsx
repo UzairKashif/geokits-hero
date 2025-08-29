@@ -17,7 +17,8 @@ const DEFAULT_CONFIG = {
   responsive: false,
   target: 'parent',
   className: '',
-  style: {}
+  style: {},
+  blurColor: 'transparent'
 };
 
 const PRESETS = {
@@ -145,6 +146,7 @@ function GradualBlur(props) {
         WebkitMaskImage: `linear-gradient(${direction}, ${gradient})`,
         backdropFilter: `blur(${blurValue.toFixed(3)}rem)`,
         WebkitBackdropFilter: `blur(${blurValue.toFixed(3)}rem)`,
+        backgroundColor: config.blurColor !== 'transparent' ? config.blurColor : undefined,
         opacity: config.opacity,
         transition: config.animated && config.animated !== 'scroll' ?
           `backdrop-filter ${config.duration} ${config.easing}` : undefined

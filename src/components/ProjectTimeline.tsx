@@ -415,7 +415,9 @@ Your roadmap to seamless engagement and successful project delivery.
           divCount={8}
           curve="bezier"
           exponential={true}
-          opacity={1}
+          opacity={0.8}
+          zIndex={100}
+          blurColor="rgba(2, 20, 0, 0.4)"
         />
       </section>
     </div>
