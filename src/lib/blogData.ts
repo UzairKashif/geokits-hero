@@ -42,6 +42,16 @@ A warning sent out by a local shepherd helped to prevent the loss of life by ens
 
 
 ![Artificial Lake Formation](/blogs/glof4.png "Satellite imagery showing the formation of a 7-kilometer artificial lake created by flood debris damming the Gilgit River")
+![Artificial Lake Formation](/blogs/glof5.png "Satellite imagery")
+
+The debris has submerged approximately 75 acres of land in the village, blocking the natural flow of the Gilgit River and leading to the accumulation of about 195 acres of water forming the artificial lake, which poses an additional threat of destruction.
+
+
+
+The National Disaster Management Authority (NDMA) and the Provincial Disaster Management Authority (PDMA) have issued flood risk alerts posted by the artificial lake and debris blockage created by the outburst.  The Ghizer district and nearby areas have already endured multiple floods earlier this month, resulting in 13 casualties, several injuries and widespread displacement across the Ghalti, Ishkoman, Gupis, Yasin, Daen and Chaturkhand areas. With fresh warnings of heavy rainfall before September 10, the artificial lake remains a critical concern for renewed flooding in surrounding areas. 
+
+
+
 
 
 ## Conclusion
