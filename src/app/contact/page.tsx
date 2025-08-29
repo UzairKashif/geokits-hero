@@ -5,6 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function ContactPage() {
+  const ourLocations = [
+    "I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800",
+    "483 Green Lanes, London, England, N13 4BS",
+  ];
+
   return (
     <div className="min-h-screen forest-bg">
       {/* Back Button */}
@@ -89,10 +94,19 @@ export default function ContactPage() {
                   <h3 className="text-lg font-light text-white mb-1 tracking-tight">
                     Our Locations
                   </h3>
-                  <p className="text-gray-400 font-light">
-                    I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad,
-                    44800
-                  </p>
+                  <div className="text-gray-400 font-light space-y-1">
+                    {ourLocations.map((location) => (
+                      <div key={location} className="flex">
+                        {/* <span
+                          className="mr-2 text-green-400 flex items-start justify-center"
+                          style={{ width: "20px", minWidth: "20px" }}
+                        >
+                          →
+                        </span> */}
+                        <span>{location}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
