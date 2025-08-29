@@ -307,7 +307,7 @@
   transform: translateX(-50%);
   width: 90%;
   max-width: 800px;
-  z-index: 999;
+  z-index: 9999;
   box-sizing: border-box;
 }
 
