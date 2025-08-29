@@ -17,7 +17,7 @@ export const blogPosts: BlogPost[] = [
     title: "Glacial Lake Outburst Flood Devastates Gilgit-Baltistan's Ghizer Valley",
     slug: "glacial-lake-outburst-flood-ghizer-valley",
     img_url: "/blogs/glof1.png",
-    excerpt: "A comprehensive analysis of the devastating glacial lake outburst flood that struck Tallidas village in District Ghizer, displacing over 3,000 people and creating new environmental threats.",
+    excerpt: "A comprehensive analysis of the devastating glacial lake outburst flood that struck Tallidas village in District Ghizer.",
     content: `# Glacial Lake Outburst Flood Devastates Gilgit-Baltistan's Ghizer Valley
 
 In the early hours of August 22, torrents of water and debris tore through Gilgit-Baltistan’s Ghizer Valley, submerging farmland, sweeping away homes, and cutting off entire communities. 
@@ -74,7 +74,7 @@ The heroic actions of the local shepherd who provided early warning serve as an 
     title: "GIS-Driven Agritech Transformation",
     slug: "gis-driven-agritech-transformation",
     img_url: "/blogs/agr.png",
-    excerpt: "Discover how GeoKits' 40-acre precision agriculture pilot in Punjab, Pakistan revolutionized farming through GIS technology, achieving 20% yield improvement and 40% reduction in pesticide usage.",
+    excerpt: "Discover how GeoKits' 40-acre precision agriculture pilot in Punjab, Pakistan revolutionized farming through GIS technology.",
     content: `# GIS-Driven Agritech Transformation
 
 Our team at GeoKits recently conducted a large-scale GIS-driven precision agriculture pilot across 40 acres in Punjab, Pakistan. This initiative, while comprehensive, relies on satellite imagery, ground sensors, and weather forecasts, and may be subject to data resolution and connectivity constraints.
@@ -383,7 +383,7 @@ This transformation from traditional to precision agriculture represents not jus
     title: "Geographic Information Systems",
     slug: "future-gis-technology-smart-cities",
     img_url: "/blogs/gis.png",
-    excerpt: "Exploring how Geographic Information Systems are revolutionizing urban planning and creating more sustainable, efficient cities worldwide.",
+    excerpt: "Exploring how Geographic Information Systems are revolutionizing urban planning creating sustainable cities .",
     content: `# Geographic Information Systems (GIS)
 
 Geographic Information Systems (GIS) represent a comprehensive technological framework that captures, stores, manipulates, analyzes, manages, and presents spatial or geographic data for enterprise-level decision support and operational optimization.
