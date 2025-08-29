@@ -37,7 +37,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
             <img
               src={post.img_url}
               alt={post.title}
-              className="w-full h-full object-cover hover:filter hover:grayscale transform group-hover:scale-105 transition-all duration-500"
+              className="w-full h-full object-cover hover:filter  transform group-hover:scale-105 transition-all duration-500"
             />
           ) : (
             <div className="w-full h-full bg-gray-50 flex items-center justify-center">

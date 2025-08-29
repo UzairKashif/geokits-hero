@@ -401,7 +401,7 @@ export default function SolutionsShowcase() {
                   fill
                   priority={activeProject === 0} // Priority for first image only
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover hover:filter hover:grayscale transition-all duration-700"
+                  className="object-cover hover:filter hover:scale-105  transition-all duration-700"
                 />
               </div>
 

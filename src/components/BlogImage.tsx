@@ -60,7 +60,7 @@ export default function BlogImage({
             alt={alt}
             width={width}
             height={height}
-            className={`w-full h-auto object-cover hover:filter hover:grayscale transition-all duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            className={`w-full h-auto object-cover hover:filter  transition-all duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
             onLoad={handleLoad}
             onError={handleError}
             priority={priority}

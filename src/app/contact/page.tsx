@@ -46,7 +46,7 @@ export default function ContactPage() {
               alt="Geokits Logo"
               width={200}
               height={80}
-              className="h-[200px] w-auto hover:filter hover:grayscale"
+              className="h-[200px] w-auto hover:filter "
               priority
             />
           </div>

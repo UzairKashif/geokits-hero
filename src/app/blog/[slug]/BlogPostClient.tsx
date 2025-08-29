@@ -81,7 +81,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               <img
                 src={post.img_url}
                 alt={post.title}
-                className="w-full h-full object-cover hover:filter hover:grayscale transition-all duration-700"
+                className="w-full h-full object-cover hover:filter  transition-all duration-700"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -115,7 +115,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                             <img 
                               src="${imageUrl}" 
                               alt="${altText}" 
-                              class="w-full h-auto object-cover hover:filter hover:grayscale transition-all duration-700"
+                              class="w-full h-auto object-cover hover:filter  transition-all duration-700"
                               loading="lazy"
                             />
                           </div>
