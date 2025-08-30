@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Services, ServicesUnit } from '@/data/services';
+import SpotlightCard from './SpotlightCard';
 
 export const ServicesSection = () => {
     const [imgUrl, setImgUrl] = useState<string>(Services[0].imageUrl);
@@ -10,6 +11,8 @@ export const ServicesSection = () => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const sectionRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
+
+
 
     // Smart preloading when section comes into view
     useEffect(() => {
@@ -66,6 +69,8 @@ export const ServicesSection = () => {
 
     return (
         <div ref={sectionRef} className="bg-white min-h-screen w-full">
+            
+
             {/* Header Section */}
             <div className="pt-20 px-6">
                 <div className="max-w-7xl mx-auto">
@@ -90,23 +95,30 @@ export const ServicesSection = () => {
                         <div className="max-w-xl">
                             <ul className="space-y-4 lg:space-y-8">
                                 {Services.map((service: ServicesUnit, index: number) => (
-                                    <li 
-                                        key={index} 
-                                        className={`service-item ${activeService === index ? 'active' : ''}`}
-                                        onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
-                                        onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
-                                        onClick={() => handleServiceInteraction(index, service.imageUrl)}
-                                        onTouchStart={() => handleServiceInteraction(index, service.imageUrl)}
-                                    >
-                                        <div className="relative z-10">
-                                            <h3 className={`service-title text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light leading-tight tracking-tight transition-all duration-300 ${
-                                                activeService === index 
-                                                    ? 'text-white' 
-                                                    : 'text-gray-400'
-                                            }`}>
-                                                {service.serviceName}
-                                            </h3>
-                                        </div>
+                                    <li key={index}>
+                                        <SpotlightCard
+                                            className={`service-item cursor-pointer transition-all duration-300 ${
+                                                activeService === index ? 'active' : ''
+                                            }`}
+                                            spotlightColor="rgba(255, 255, 255, 0.15)"
+                                            spotlightSize={400}
+                                        >
+                                            <div 
+                                                className="relative z-10 p-3 lg:p-4"
+                                                onMouseEnter={() => handleServiceInteraction(index, service.imageUrl)}
+                                                onMouseLeave={() => setImgUrl(Services[activeService].imageUrl)}
+                                                onClick={() => handleServiceInteraction(index, service.imageUrl)}
+                                                onTouchStart={() => handleServiceInteraction(index, service.imageUrl)}
+                                            >
+                                                <h3 className={`service-title text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light leading-tight tracking-tight transition-all duration-300 ${
+                                                    activeService === index 
+                                                        ? 'text-white' 
+                                                        : 'text-gray-400'
+                                                }`}>
+                                                    {service.serviceName}
+                                                </h3>
+                                            </div>
+                                        </SpotlightCard>
                                     </li>
                                 ))}
                             </ul>
