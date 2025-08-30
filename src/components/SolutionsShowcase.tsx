@@ -371,7 +371,7 @@ export default function SolutionsShowcase() {
                   const encodedFile = encodeURIComponent(currentProject.file);
                   window.open("/pdfs/" + encodedFile, "_blank");
                 }}
-                className="inline-flex items-center gap-3 px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group"
+                className="inline-flex items-center gap-3 px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group btn-soft-curve btn-primary"
               >
                 View Case Study
                 <svg

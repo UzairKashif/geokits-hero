@@ -166,7 +166,7 @@ export default function CommunityEngagement() {
               href="https://www.instagram.com/geokits_/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-3 px-10 py-4 text-white font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="group relative inline-flex items-center gap-3 px-10 py-4 text-white font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 btn-soft-curve btn-primary"
               style={{ backgroundColor: '#021400' }}
             >
               <div className="relative">

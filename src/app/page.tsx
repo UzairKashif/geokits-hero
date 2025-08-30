@@ -80,7 +80,7 @@ export default function Page() {
             <div className="flex items-center gap-12">
               <Link
                 href="/contact"
-                className="group inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 hover:bg-gray-200 font-light tracking-wide transition-all duration-300"
+                className="btn-soft-curve btn-secondary group inline-flex items-center gap-3 px-10 py-4 font-light tracking-wide"
               >
                 <Mail className="w-5 h-5" />
                 Contact us today

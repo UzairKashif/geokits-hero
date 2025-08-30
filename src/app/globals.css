@@ -227,6 +227,53 @@
   }
 }
 
+/* Global Button Styling with Soft Curved Borders */
+.btn-soft-curve {
+  border-radius: 0.75rem;
+  transition: transform 0.3s ease-out, background-color 0.3s ease-out, box-shadow 0.3s ease-out, border-color 0.2s ease-out;
+  will-change: transform;
+}
+
+.btn-soft-curve:hover {
+  transform: scale(1.02);
+}
+
+/* Primary Button Variant */
+.btn-primary {
+  background-color: #021400;
+  color: white;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background-color: rgba(2, 20, 0, 0.9);
+  box-shadow: 0 4px 20px rgba(2, 20, 0, 0.3);
+}
+
+/* Secondary Button Variant */
+.btn-secondary {
+  background-color: white;
+  color: #021400;
+  border: 1px solid rgba(2, 20, 0, 0.2);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(2, 20, 0, 0.05);
+  border-color: rgba(2, 20, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(2, 20, 0, 0.1);
+}
+
+/* Floating Button Variant */
+.btn-floating {
+  border-radius: 50%;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.btn-floating:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
 /* Blog Post Markdown Styling */
 .blog-content {
   background-color: #021400;

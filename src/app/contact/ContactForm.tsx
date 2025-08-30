@@ -308,7 +308,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#021400] text-white hover:opacity-90 font-light py-4 px-6 tracking-wide transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="btn-soft-curve btn-primary w-full font-light py-4 px-6 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           style={{
             color: "white",
           }}

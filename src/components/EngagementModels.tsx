@@ -180,8 +180,7 @@ export default function EngagementModels() {
         {/* Bottom CTA */}
         <div className="mt-24">
           <div className="flex items-center gap-12">
-            <button className="px-10 py-4 bg-white text-gray-900 font-light tracking-wide hover:bg-gray-200 transition-all duration-300">
-              Discuss your project
+          <button className="btn-soft-curve btn-secondary px-10 py-4 font-light tracking-wide">              Discuss your project
             </button>
             <a
               href="#contact"

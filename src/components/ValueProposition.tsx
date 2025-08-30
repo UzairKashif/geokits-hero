@@ -66,7 +66,7 @@ export default function ValueProposition() {
         {/* Bottom CTA */}
         <div className="mt-24">
           <div className="flex items-center gap-12">
-            <button className="px-10 py-4 bg-gray-900 text-white font-light tracking-wide hover:bg-gray-800 transition-all duration-300">
+            <button className="btn-soft-curve btn-primary px-10 py-4 font-light tracking-wide">
               Start your project
             </button>
             <a href="#contact" className="text-gray-600 font-light tracking-wide hover:text-gray-900 transition-colors duration-300">

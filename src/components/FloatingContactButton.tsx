@@ -40,7 +40,7 @@ export default function FloatingContactButton() {
       <div className="relative">
         <Link
           href="/contact"
-          className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-500/30 border-2 border-white/20"
+          className="btn-floating group relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/30 border-2 border-white/20"
           aria-label="Email us"
         >
           <Mail className="w-6 h-6 text-white" />
@@ -52,7 +52,7 @@ export default function FloatingContactButton() {
         {/* Dismiss Button */}
         <button
           onClick={() => setIsDismissed(true)}
-          className="absolute -top-2 -left-2 w-6 h-6 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white text-xs transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-500/30"
+          className="btn-floating absolute -top-2 -left-2 w-6 h-6 bg-gray-600 hover:bg-gray-700 flex items-center justify-center text-white text-xs focus:outline-none focus:ring-2 focus:ring-gray-500/30"
           aria-label="Dismiss contact button"
         >
           <X className="w-3 h-3" />
