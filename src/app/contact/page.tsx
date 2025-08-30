@@ -67,7 +67,7 @@ export default function ContactPage() {
             </div>
           </div>
           <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide">
-            Ready to transform your infrastructure monitoring? Get in touch with
+            Ready to transform your project? Get in touch with
             our experts today.
           </p>
         </div>

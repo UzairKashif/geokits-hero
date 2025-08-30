@@ -2,7 +2,7 @@ const projects = [
     {
       id: 1,
       title: "Advanced Disaster Early Warning System",
-      file: "Advanced Disaster Early Warning System.pdf",
+      file: "Advance Disaster Early Warning System.pdf",
       img: "/projects/disastermgmt.PNG",
       description:
         "A multi‑hazard platform processing satellite + environmental data via AI/ML on cloud‑native infrastructure, generating real‑time alerts across 21 event types.",
@@ -17,7 +17,7 @@ const projects = [
     {
       id: 2,
       title: "Tennis Court Identification System",
-      file: "Tennis Court Identification.pdf",
+      file: "Tennis Court Identifcation Mapping System.pdf",
       img: "/blogs/tennis.png",
       description:
         "AI-powered system for detecting and mapping tennis courts using aerial imagery and machine learning.",
@@ -27,7 +27,7 @@ const projects = [
     {
       id: 3,
       title: "Cooling Tower Detection System",
-      file: "Cooling Tower Detection System ( CTT).pdf",
+      file: "Cooling Tower System.pdf",
       img: "/projects/ctd.jpg",
       description:
         "An automated detection system that maps cooling towers using satellite/aerial imagery, CNNs, OpenCV and Python—integrated with GIS and Google Maps for real‑time spatial analysis.",
@@ -38,7 +38,7 @@ const projects = [
     {
       id: 4,
       title: "Intelligent Property Listing",
-      file: "Intelligent Property Listing .pdf",
+      file: "Intelligent Property Listing System.pdf",
       img: "/projects/ipl.PNG",
       description:
         "GIS‑based MLS dashboard combining satellite imagery and spatial metrics (terrain, vegetation, climate) with interactive analytics.",
@@ -49,7 +49,7 @@ const projects = [
     {
       id: 5,
       title: "Pix4D & GIS Training Initiative – NSA Oman",
-      file: "Strategic GIS Integration Training Program.pdf",
+      file: "Strategic GIS Integration.pdf",
       img: "/projects/pix4d.jpg",
       description:
         "GeoKits delivered a GIS and photogrammetry training initiative for the National Survey Authority of Oman, with full knowledge transfer across drone‑based surveying, spatial data processing, and image analysis.",
