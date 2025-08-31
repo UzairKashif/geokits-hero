@@ -58,7 +58,7 @@ export default function Footer() {
               <li><a href="#" className="text-gray-600 hover:text-black">Story</a></li>
               <li><a href="#" className="text-gray-600 hover:text-black">Team</a></li>
               <li><a href="/technologies" className="text-gray-600 hover:text-black">Technologies</a></li>
-              <li><a href="/testimonials" className="text-gray-600 hover:text-black">Testimonials</a></li>
+              {/*<li><a href="/testimonials" className="text-gray-600 hover:text-black">Testimonials</a></li>*/}
             </ul>
           </div>
 
@@ -74,7 +74,7 @@ export default function Footer() {
               <li>
                 <a href="tel:+923037239083" className="text-gray-600 hover:text-black flex items-center">
                   <Phone className="w-4 h-4 mr-2" />
-                  (+44 7446284191
+                  +44 7446284191
                 </a>
               </li>
             </ul>

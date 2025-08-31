@@ -363,7 +363,7 @@ export default function ParabolaScrollSections() {
           </div>
 
           <div className="text-center mb-20">
-            <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 md:py-4 md:px-12 rounded-full text-lg md:text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl">
+            <button className="btn-soft-curve bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 md:py-4 md:px-12 text-lg md:text-xl shadow-2xl">
               Begin Your Transformation
             </button>
           </div>

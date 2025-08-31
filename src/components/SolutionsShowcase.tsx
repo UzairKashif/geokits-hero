@@ -366,30 +366,28 @@ export default function SolutionsShowcase() {
               </div>
 
               {/* CTA */}
-              <div className="text-center lg:text-left">
-                <button
-                  onClick={() => {
-                    const encodedFile = encodeURIComponent(currentProject.file);
-                    window.open("/pdfs/" + encodedFile, "_blank");
-                  }}
-                  className="inline-flex items-center gap-3 px-6 md:px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group text-sm md:text-base"
+              <button
+                onClick={() => {
+                  const encodedFile = encodeURIComponent(currentProject.file);
+                  window.open("/pdfs/" + encodedFile, "_blank");
+                }}
+                className="inline-flex items-center gap-3 px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group btn-soft-curve btn-primary"
+              >
+                View Case Study
+                <svg
+                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  View Case Study
-                  <svg
-                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
 
