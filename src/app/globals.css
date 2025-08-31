@@ -212,7 +212,7 @@
 }
 
 .service-item.active {
-  background-color: rgba(3, 40, 0, 0.9);
+  background-color: #021400;
   border-color: rgba(3, 40, 0, 0.7);
   color: #a7f3d0;
   transform: scale(1.01);
