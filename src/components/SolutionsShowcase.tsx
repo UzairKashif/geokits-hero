@@ -301,10 +301,10 @@ export default function SolutionsShowcase() {
       className="w-full min-h-screen bg-white relative"
     >
       {/* Header */}
-      <div className="pt-20 pb-12 px-6">
+      <div className="pt-20 pb-8 md:pb-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-left">
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <span
                 ref={subtitleRef}
                 className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase"
@@ -314,7 +314,7 @@ export default function SolutionsShowcase() {
             </div>
             <h2
               ref={titleRef}
-              className="text-6xl md:text-7xl font-extralight text-[#021400] mb-8 leading-none"
+              className="text-4xl md:text-6xl lg:text-7xl font-extralight text-[#021400] mb-6 md:mb-8 leading-none"
             >
               Featured
               <br />
@@ -325,34 +325,34 @@ export default function SolutionsShowcase() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid lg:grid-cols-2 gap-16 min-h-[70vh]">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-16 md:pb-20">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 md:gap-16 min-h-[60vh] md:min-h-[70vh]">
           {/* Left Side - Content */}
-          <div ref={contentRef} className="flex flex-col justify-center">
-            <div className="max-w-xl">
+          <div ref={contentRef} className="flex flex-col justify-center order-2 lg:order-1">
+            <div className="max-w-xl mx-auto lg:mx-0">
               {/* Category */}
-              <div className="mb-4">
-                <span className="text-xs font-light tracking-wider uppercase text-gray-600 border border-gray-300 px-3 py-1">
+              <div className="mb-4 text-center lg:text-left">
+                <span className="text-xs font-light tracking-wider uppercase text-gray-600 border border-gray-300 px-3 py-1 inline-block">
                   {currentProject.category}
                 </span>
               </div>
 
               {/* Title */}
-              <h3 className="text-3xl md:text-4xl font-light text-[#021400] mb-6 leading-tight tracking-tight">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-light text-[#021400] mb-4 md:mb-6 leading-tight tracking-tight text-center lg:text-left">
                 {currentProject.title}
               </h3>
 
               {/* Description */}
-              <p className="text-lg text-gray-700 leading-relaxed mb-8 font-light">
+              <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-6 md:mb-8 font-light text-center lg:text-left">
                 {currentProject.description}
               </p>
 
               {/* Technologies */}
-              <div className="mb-8">
-                <h4 className="text-sm font-light text-gray-600 uppercase tracking-wide mb-4">
+              <div className="mb-6 md:mb-8">
+                <h4 className="text-sm font-light text-gray-600 uppercase tracking-wide mb-3 md:mb-4 text-center lg:text-left">
                   Technologies Used
                 </h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
                   {currentProject.technologies.map((tech, index) => (
                     <span
                       key={index}
@@ -366,47 +366,49 @@ export default function SolutionsShowcase() {
               </div>
 
               {/* CTA */}
-              <button
-                onClick={() => {
-                  const encodedFile = encodeURIComponent(currentProject.file);
-                  window.open("/pdfs/" + encodedFile, "_blank");
-                }}
-                className="inline-flex items-center gap-3 px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group btn-soft-curve btn-primary"
-              >
-                View Case Study
-                <svg
-                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="text-center lg:text-left">
+                <button
+                  onClick={() => {
+                    const encodedFile = encodeURIComponent(currentProject.file);
+                    window.open("/pdfs/" + encodedFile, "_blank");
+                  }}
+                  className="inline-flex items-center gap-3 px-8 py-3 bg-[#021400] text-white hover:bg-[#032200] font-light tracking-wide transition-all duration-300 group btn-soft-curve btn-primary"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+                  View Case Study
+                  <svg
+                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Right Side - Image */}
-          <div ref={imageRef} className="flex items-center justify-center">
-            <div className="relative w-full max-w-2xl">
-              <div className="aspect-[4/3] bg-gray-200 overflow-hidden relative">
+          <div ref={imageRef} className="flex items-center justify-center order-1 lg:order-2">
+            <div className="relative w-full max-w-md md:max-w-lg lg:max-w-2xl">
+              <div className="aspect-[4/3] bg-gray-200 overflow-hidden relative rounded-lg md:rounded-none">
                 <Image
                   src={currentProject.img}
                   alt={currentProject.title}
                   fill
                   priority={activeProject === 0} // Priority for first image only
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover hover:filter hover:scale-105  transition-all duration-700"
+                  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover hover:filter hover:scale-105 transition-all duration-700"
                 />
               </div>
 
-              {/* Image overlay info */}
-              <div className="absolute top-6 left-6 bg-white/80 backdrop-blur-sm px-4 py-2">
+              {/* Image overlay info - hidden on mobile for cleaner look */}
+              <div className="absolute top-4 md:top-6 left-4 md:left-6 bg-white/80 backdrop-blur-sm px-3 md:px-4 py-2 rounded md:rounded-none hidden md:block">
                 <span className="text-[#021400] text-sm font-light">
                   {currentProject.title}
                 </span>
@@ -420,15 +422,15 @@ export default function SolutionsShowcase() {
       {isNavigationVisible && (
         <div
           ref={navigationRef}
-          className="fixed right-8 top-1/2 -translate-y-1/2 z-20 transition-opacity duration-300"
+          className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 transition-opacity duration-300"
         >
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-3 md:gap-4">
             {/* Up Arrow */}
             <button
               onClick={prevProject}
-              className="w-12 h-12 border border-gray-300 hover:border-gray-400 bg-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-100/50"
+              className="w-10 h-10 md:w-12 md:h-12 border border-gray-300 hover:border-gray-400 bg-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-100/50 rounded-full md:rounded-none"
             >
-              <ChevronUp className="w-5 h-5 text-gray-600" />
+              <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
             </button>
 
             {/* Project Indicators */}
@@ -437,7 +439,7 @@ export default function SolutionsShowcase() {
                 <button
                   key={index}
                   onClick={() => handleProjectChange(index)}
-                  className={`w-2 h-8 transition-all duration-300 ${
+                  className={`w-2 h-6 md:h-8 transition-all duration-300 rounded-full md:rounded-none ${
                     index === activeProject
                       ? "bg-[#021400]"
                       : "bg-gray-300 hover:bg-gray-400"
@@ -449,16 +451,16 @@ export default function SolutionsShowcase() {
             {/* Down Arrow */}
             <button
               onClick={nextProject}
-              className="w-12 h-12 border border-gray-300 hover:border-gray-400 bg-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-100/50"
+              className="w-10 h-10 md:w-12 md:h-12 border border-gray-300 hover:border-gray-400 bg-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-gray-100/50 rounded-full md:rounded-none"
             >
-              <ChevronDown className="w-5 h-5 text-gray-600" />
+              <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
             </button>
           </div>
         </div>
       )}
 
       {/* Skip to Next Section */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2">
         <button
           onClick={scrollToNextSection}
           className="flex flex-col items-center gap-2 text-gray-500 hover:text-[#021400] transition-colors duration-300 group"

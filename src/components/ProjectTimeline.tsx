@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState, useMemo } from "react";
-// import GradualBlur from "@/components/ReactBits/GradualBlur"
+// import GradualBlur from "@/components/ReactBits/GradualBlur
 const milestones = [
   {
     title: "Discovery and Requirements Gathering ",
