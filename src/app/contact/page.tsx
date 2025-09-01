@@ -55,7 +55,7 @@ export default function ContactPage() {
               <br />
               <span className="font-light">Information</span>
             </h1>
-            <div className="mb-8 pr-0 flex-shrink-0">
+            <div className="mb-8 pr-0 flex-shrink-0 hidden md:block">
               <Image
                 src="/img/GEOKITSWHITE.png"
                 alt="Geokits Logo"
