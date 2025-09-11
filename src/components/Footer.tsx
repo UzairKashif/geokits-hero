@@ -99,7 +99,7 @@ export default function Footer() {
 
             {/* Right side - Address and Copyright */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-2 lg:space-y-0 text-gray-600 text-sm">
-              <span>I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800</span>
+              <span>I10, Plot No. 94, 3 Street 7, I-10/3 sector, Islamabad, 44800</span>
               <span>© 2025 Geokits. All rights reserved.</span>
             </div>
           </div>

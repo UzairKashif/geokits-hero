@@ -45,6 +45,11 @@ const Header = () => {
           href: "/teams"
         },
         { 
+          label: "Careers", 
+          ariaLabel: "Join Our Team",
+          href: "/careers"
+        },
+        { 
           label: "Our Process", 
           ariaLabel: "Our Process",
           href: "/#timeline",

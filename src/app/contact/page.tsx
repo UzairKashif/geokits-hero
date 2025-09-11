@@ -22,7 +22,7 @@ export default function ContactPage() {
   }, []);
 
   const ourLocations = [
-    "I10, Plot No, 94, 3 Street 7, I-10/3 sector, Islamabad, 44800",
+    "I10, Plot No. 94, 3 Street 7, I-10/3 sector, Islamabad, 44800",
     "483 Green Lanes, London, England, N13 4BS",
   ];
 
