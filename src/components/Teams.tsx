@@ -148,8 +148,8 @@ const Teams: React.FC = () => {
         </div>
       </section> */}
 
-      {/* Leaders Section - White Background */}
-      <section className="forest-bg py-32 px-6 h-screen">
+      {/* Leaders Section - Light Mode */}
+      <section className="bg-white py-32 px-6 h-screen">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
@@ -159,12 +159,12 @@ const Teams: React.FC = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-6xl md:text-7xl font-extralight  mb-6 leading-none">
+            <h2 className="text-6xl md:text-7xl font-extralight text-[#021400] mb-6 leading-none">
               Our
               <br />
               <span className="font-light">Leadership</span>
             </h2>
-            <p className="text-lg text-white/70 max-w-3xl mx-auto">
+            <p className="text-lg text-[#021400]/70 max-w-3xl mx-auto">
               Visionary leaders with proven track records in scaling geospatial technology companies and delivering enterprise solutions.
             </p>
           </motion.div>
@@ -203,7 +203,7 @@ const Teams: React.FC = () => {
           </motion.div>
 
           {/* Team Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center max-w-6xl mx-auto">
             {teamMembers.map((member, index) => (
               <motion.div
                 key={member.id}
@@ -211,6 +211,7 @@ const Teams: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
+                className="w-full flex justify-center"
               >
                 <TeamCard member={member} isLeader={false} />
               </motion.div>
@@ -265,7 +266,7 @@ const Teams: React.FC = () => {
               </motion.a>
               
               <motion.a
-                href="mailto:hello@geokits.com"
+                href="mailto:contact@geokits.com"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white rounded-lg font-medium transition-all duration-300 hover:bg-white hover:text-[#021400]"
