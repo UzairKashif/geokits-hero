@@ -40,6 +40,11 @@ const Header = () => {
           onClick: () => scrollToSection('about')
         },
         { 
+          label: "Our Team", 
+          ariaLabel: "Meet Our Team",
+          href: "/teams"
+        },
+        { 
           label: "Our Process", 
           ariaLabel: "Our Process",
           href: "/#timeline",

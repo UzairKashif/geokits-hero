@@ -56,7 +56,7 @@ export default function Footer() {
             <h3 className="font-semibold text-black mb-4">About</h3>
             <ul className="space-y-2">
               <li><a href="#" className="text-gray-600 hover:text-black">Story</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-black">Team</a></li>
+              <li><a href="/teams" className="text-gray-600 hover:text-black">Team</a></li>
               <li><a href="/technologies" className="text-gray-600 hover:text-black">Technologies</a></li>
               {/*<li><a href="/testimonials" className="text-gray-600 hover:text-black">Testimonials</a></li>*/}
             </ul>

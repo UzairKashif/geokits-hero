@@ -23,10 +23,10 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 2,
-    name: "Sarah Johnson",
+    name: "Lana Del Rey",
     role: "CTO & Co-Founder",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
-    imageUrl: "/img/team/leader2.jpg",
+    imageUrl: "/team/ldr.jpeg",
     linkedIn: "https://linkedin.com/in/sarahjohnson",
     email: "sarah@geokits.com",
     category: "leader"
@@ -35,55 +35,55 @@ export const teamMembers: TeamMember[] = [
   // Team Members
   {
     id: 3,
-    name: "Michael Chen",
+    name: "Charles White",
     role: "Senior GIS Developer",
     description: "Expert in web mapping applications and spatial data visualization with focus on performance optimization.",
-    imageUrl: "/img/team/member1.jpg",
+    imageUrl: "/team/charlie.jpeg",
     linkedIn: "https://linkedin.com/in/michaelchen",
     category: "team"
   },
   {
     id: 4,
-    name: "Emily Rodriguez",
+    name: "Idubbbz",
     role: "Geospatial Analyst",
     description: "Specialized in remote sensing, environmental monitoring, and predictive modeling for climate solutions.",
-    imageUrl: "/img/team/member2.jpg",
+    imageUrl: "/team/idubz.webp",
     linkedIn: "https://linkedin.com/in/emilyrodriguez",
     category: "team"
   },
   {
     id: 5,
-    name: "David Park",
+    name: "Max MoeFoe",
     role: "Full Stack Developer",
     description: "Building scalable web applications and API integrations for geospatial data processing pipelines.",
-    imageUrl: "/img/team/member3.jpg",
+    imageUrl: "/team/max.jpeg",
     linkedIn: "https://linkedin.com/in/davidpark",
     category: "team"
   },
   {
     id: 6,
-    name: "Lisa Thompson",
+    name: "Filthy Frank",
     role: "UI/UX Designer",
     description: "Creating intuitive interfaces for complex geospatial tools and data visualization platforms.",
-    imageUrl: "/img/team/member4.jpg",
+    imageUrl: "/team/frank.webp",
     linkedIn: "https://linkedin.com/in/lisathompson",
     category: "team"
   },
   {
     id: 7,
-    name: "James Wilson",
+    name: "Arslan Tariq",
     role: "Data Scientist",
     description: "Machine learning and AI applications for spatial pattern recognition and predictive analytics.",
-    imageUrl: "/img/team/member5.jpg",
+    imageUrl: "/team/ars.jpeg",
     linkedIn: "https://linkedin.com/in/jameswilson",
     category: "team"
   },
   {
     id: 8,
-    name: "Anna Martinez",
+    name: "TwoMad",
     role: "Project Manager",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/img/team/member6.jpg",
+    imageUrl: "/team/twoma.jpg",
     linkedIn: "https://linkedin.com/in/annamartinez",
     category: "team"
   }
