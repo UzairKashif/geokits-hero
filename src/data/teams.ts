@@ -3,7 +3,7 @@ export interface TeamMember {
   name: string
   role: string
   description: string
-  imageUrl: string
+  imageUrl?: string
   linkedIn?: string
   
   category: 'leader' | 'team'
@@ -19,7 +19,6 @@ export const teamMembers: TeamMember[] = [
     description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
     imageUrl: "/team/uzair.png",
     linkedIn: "https://www.linkedin.com/in/uzairkashif/",
-    
     category: "leader"
   },
   {
@@ -27,7 +26,7 @@ export const teamMembers: TeamMember[] = [
     name: "Amir Liaquat Baig",
     role: "GIS Analyst",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
-    imageUrl: "/team/ld.jpeg",
+    imageUrl: "/team/amir.png",
     
     category: "leader"
   },
@@ -36,7 +35,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mirza Imran Baig",
     role: "Director Operations",
     description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
-    imageUrl: "/team/uzir.png",
+    imageUrl: "/team/imran.jpeg",
     
     category: "leader"
   },
@@ -45,7 +44,7 @@ export const teamMembers: TeamMember[] = [
     name: "Kashif Khalil",
     role: "Managing Director",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
-    imageUrl: "/team/lr.jpeg",
+    
     
     category: "leader"
   },
@@ -55,7 +54,7 @@ export const teamMembers: TeamMember[] = [
     name: "Muhammad Omer Tarar",
     role: "HR Manager",
     description: "Expert in web mapping applications and spatial data visualization with focus on performance optimization.",
-    imageUrl: "/team/char.jpeg",
+    
     category: "team",
     team: "operations"
   },
@@ -64,7 +63,7 @@ export const teamMembers: TeamMember[] = [
     name: "Talha Waheed",
     role: "GIS + Backend Developer",
     description: "Specialized in remote sensing, environmental monitoring, and predictive modeling for climate solutions.",
-    imageUrl: "/team/y.webp",
+    
     category: "team",
     team: "tech"
   },
@@ -73,7 +72,7 @@ export const teamMembers: TeamMember[] = [
     name: "Arslan Tariq",
     role: "FUll-Stack + AI Engineer",
     description: "Building scalable web applications and API integrations for geospatial data processing pipelines.",
-    imageUrl: "/team/ma.jpeg",
+    
     linkedIn: "https://www.linkedin.com/in/arslan-tariq-5a566a26b/",
     category: "team",
     team: "tech"
@@ -83,7 +82,7 @@ export const teamMembers: TeamMember[] = [
     name: "Kumail Hassan",
     role: "Financial Manager",
     description: "Creating intuitive interfaces for complex geospatial tools and data visualization platforms.",
-    imageUrl: "/team/fr.webp",
+    
     category: "team",
     team: "operations"
   },
@@ -92,7 +91,7 @@ export const teamMembers: TeamMember[] = [
     name: "Asawir Fatima",
     role: "UI/UX developer",
     description: "Machine learning and AI applications for spatial pattern recognition and predictive analytics.",
-    imageUrl: "/team/ar.jpeg",
+    
     category: "team",
     team: "tech"
   },
@@ -101,7 +100,7 @@ export const teamMembers: TeamMember[] = [
     name: "Rahema Khushbakht",
     role: "GIS Analyst + Content Writer",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -110,7 +109,7 @@ export const teamMembers: TeamMember[] = [
     name: "Tahreem Fatima",
     role: "GIS Engineer",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -119,7 +118,7 @@ export const teamMembers: TeamMember[] = [
     name: "Eman Abrar",
     role: "GIS Engineer",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -128,7 +127,7 @@ export const teamMembers: TeamMember[] = [
     name: "Taha Kashif",
     role: "Data Analyst",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -137,7 +136,7 @@ export const teamMembers: TeamMember[] = [
     name: "Abdullah Sial",
     role: "Public Relations",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "operations"
   },
@@ -146,7 +145,7 @@ export const teamMembers: TeamMember[] = [
     name: "Fasi Ur Rehman",
     role: "Financial Data Analyst",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -155,7 +154,7 @@ export const teamMembers: TeamMember[] = [
     name: "Shameekh Naveed",
     role: "Full-Stack Engineer + SWE",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaw.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -164,7 +163,7 @@ export const teamMembers: TeamMember[] = [
     name: "Arham Atif",
     role: "Health Data Analyst ",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/twomaww.jpg",
+    
     category: "team",
     team: "tech"
   },
@@ -173,7 +172,7 @@ export const teamMembers: TeamMember[] = [
     name: "Suleiman Adil",
     role: "Social Media Manager",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
-    imageUrl: "/team/ko.jpg",
+    
     category: "team",
     team: "operations"
   },

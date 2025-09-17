@@ -6,23 +6,17 @@ import { getLeaders, getTechTeamMembers, getOperationsTeamMembers, TeamMember } 
 import Footer from '@/components/Footer'
 
 const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member, isLeader = false }) => {
-  const [imageError, setImageError] = React.useState(false)
-  const [imageLoaded, setImageLoaded] = React.useState(false)
-
-  // Check if image URL is valid
-  const hasValidImage = member.imageUrl && member.imageUrl.trim() !== ''
+  const [showFallback, setShowFallback] = React.useState(!member.imageUrl)
 
   // Generate initials for fallback
   const initials = member.name.split(' ').map(n => n[0]).join('')
 
   const handleImageError = () => {
-    setImageError(true)
-    setImageLoaded(false)
+    setShowFallback(true)
   }
 
   const handleImageLoad = () => {
-    setImageLoaded(true)
-    setImageError(false)
+    setShowFallback(false)
   }
 
   return (
@@ -34,7 +28,7 @@ const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member
       className="group relative w-64 mx-auto"
     >
       {/* Glass morphism card - Square aspect ratio */}
-      <div className={`relative overflow-hidden   transition-all duration-500 aspect-square ${
+      <div className={`relative overflow-hidden transition-all duration-500 h-80 ${
         isLeader 
           ? 'bg-white/80 ' 
           : 'bg-white/10 '
@@ -44,21 +38,22 @@ const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member
         <div className="relative overflow-hidden h-[75%]">
           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent z-10"></div>
           
-          {/* Show image only if valid URL exists and no error occurred */}
-          {hasValidImage && !imageError && (
+          {/* Image - only render if we have a URL */}
+          {member.imageUrl && (
             <img
               src={member.imageUrl}
-              alt=""
-              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+              alt={member.name}
+              className={`w-full h-full object-fit transition-all duration-300 group-hover:scale-110 ${
+                showFallback ? 'hidden' : 'block'
+              }`}
               onError={handleImageError}
               onLoad={handleImageLoad}
-              style={{ display: imageLoaded ? 'block' : 'none' }}
             />
           )}
           
-          {/* Always show fallback if no valid image, error occurred, or image hasn't loaded yet */}
-          {(!hasValidImage || imageError || !imageLoaded) && (
-            <div className={`w-full h-full bg-gradient-to-br ${
+          {/* Fallback - show when no image URL or image fails to load */}
+          {showFallback && (
+            <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
               isLeader ? 'from-[#021400]/20 to-[#021400]/40' : 'from-[#021400]/40 to-[#021400]/60'
             } flex items-center justify-center`}>
               <span className={`${
@@ -92,7 +87,7 @@ const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member
             className="absolute top-2 right-2 inline-flex items-center justify-center w-6 h-6 text-[#021400]/60 hover:text-[#021400] transition-colors duration-300"
           >
             <svg 
-              className="w-8 h-8 transform translate-x-2  rotate-315" 
+              className="w-8 h-8 transform translate-x-2 rotate-315" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -194,7 +189,6 @@ const Teams: React.FC = () => {
               <h3 className="text-2xl md:text-3xl font-light text-[#021400] mb-3 leading-tight tracking-tight">
                 Tech Team
               </h3>
-
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center max-w-6xl mx-auto">
@@ -224,7 +218,6 @@ const Teams: React.FC = () => {
               <h3 className="text-2xl md:text-3xl font-light text-[#021400] mb-3 leading-tight tracking-tight">
                 Operations Team
               </h3>
-   
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center max-w-6xl mx-auto">
@@ -263,7 +256,6 @@ const Teams: React.FC = () => {
             </p>
           </motion.div>
 
-
           {/* Main CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -297,9 +289,6 @@ const Teams: React.FC = () => {
                 </svg>  
               </motion.a>
             </div>
-
-            {/* Trust Badge */}
-
           </motion.div>
         </div>
       </section>
