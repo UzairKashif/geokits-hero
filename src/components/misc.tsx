@@ -49,7 +49,7 @@ export default function CompanyDescriptionSection() {
     <div ref={wrapperRef} className="relative h-[220vh]">
       <section className="sticky top-0 h-screen w-full forest-bg flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-6xl md:text-7xl font-extralight text-white mb-8 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-extralight text-white mb-8 tracking-tight">
             At Geokits, we {" "}
             <span className="inline-block relative align-baseline">
               <span className="relative inline-flex h-[1.2em] overflow-hidden">

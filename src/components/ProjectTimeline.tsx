@@ -360,10 +360,10 @@ Your roadmap to seamless engagement and successful project delivery.
                     className={`absolute z-20 transition-all duration-400 ease-out
                       ${
                         isMobile
-                          ? "left-1/2 -translate-x-1/2 top-16 mt-2 text-center"
+                          ? "left-1/2 -translate-x-1/2  text-center" /* Increased mobile top margin */
                           : isLeft
-                            ? "left-12 -translate-x-full pr-4 text-right"
-                            : "right-12 translate-x-full pl-4 text-left"
+                            ? "left-0 -translate-x-full pr-6 text-right" /* Increased left distance from 12 to 20 */
+                            : "right-0 translate-x-full pl-6 text-left" /* Increased right distance from 12 to 20 */
                       }
                       ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
                       max-w-[200px] md:max-w-[240px] select-none`}

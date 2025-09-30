@@ -221,46 +221,69 @@ export default function SolutionsShowcase() {
   const handleProjectChange = (index: number) => {
     if (index === activeProject) return;
 
-    // Preload the target image if not already loaded
-    if (!imageLoaded[index]) {
-      const img = new window.Image();
-      img.onload = () => {
-        setImageLoaded(prev => ({ ...prev, [index]: true }));
-      };
-      img.src = projects[index].img;
-    }
+    // Function to ensure image is loaded before proceeding
+    const ensureImageLoaded = (imageIndex: number): Promise<void> => {
+      return new Promise((resolve) => {
+        if (imageLoaded[imageIndex]) {
+          resolve();
+          return;
+        }
+
+        const img = new window.Image();
+        img.onload = () => {
+          setImageLoaded(prev => ({ ...prev, [imageIndex]: true }));
+          resolve();
+        };
+        img.onerror = () => {
+          // Even if image fails to load, resolve to prevent hanging
+          resolve();
+        };
+        img.src = projects[imageIndex].img;
+      });
+    };
 
     // Animate content out
     gsap.to([contentRef.current, imageRef.current], {
       opacity: 0,
       y: 20,
-      duration: 0.2,
+      duration: 0.25,
       ease: "power2.out",
       onComplete: () => {
-        setActiveProject(index);
-        
-        // Animate content in immediately
-        gsap.to([contentRef.current, imageRef.current], {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          ease: "power2.out",
-          onComplete: () => {
-            // Preload adjacent images after transition
-            const nextIndex = index === projects.length - 1 ? 0 : index + 1;
-            const prevIndex = index === 0 ? projects.length - 1 : index - 1;
-            
-            [nextIndex, prevIndex].forEach(preloadIndex => {
-              if (!imageLoaded[preloadIndex]) {
-                const img = new window.Image();
-                img.onload = () => {
-                  setImageLoaded(prev => ({ ...prev, [preloadIndex]: true }));
-                };
-                img.src = projects[preloadIndex].img;
-              }
-            });
-          },
-        });
+        // Handle async operations without making the callback async
+        (async () => {
+          // Ensure the target image is loaded before updating state
+          await ensureImageLoaded(index);
+          
+          // Update the project state
+          setActiveProject(index);
+          
+          // Small delay to ensure DOM has updated
+          await new Promise(resolve => setTimeout(resolve, 50));
+          
+          // Animate content in
+          gsap.to([contentRef.current, imageRef.current], {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: "power2.out",
+            stagger: 0.05, // Slight stagger for smoother appearance
+            onComplete: () => {
+              // Preload adjacent images after transition
+              const nextIndex = index === projects.length - 1 ? 0 : index + 1;
+              const prevIndex = index === 0 ? projects.length - 1 : index - 1;
+              
+              [nextIndex, prevIndex].forEach(preloadIndex => {
+                if (!imageLoaded[preloadIndex]) {
+                  const img = new window.Image();
+                  img.onload = () => {
+                    setImageLoaded(prev => ({ ...prev, [preloadIndex]: true }));
+                  };
+                  img.src = projects[preloadIndex].img;
+                }
+              });
+            },
+          });
+        })();
       },
     });
   };
@@ -465,8 +488,7 @@ export default function SolutionsShowcase() {
           onClick={scrollToNextSection}
           className="flex flex-col items-center gap-2 text-gray-500 hover:text-[#021400] transition-colors duration-300 group"
         >
-          <span className="text-xs font-light tracking-wide">Continue</span>
-          <ArrowDown className="w-4 h-4 animate-bounce" />
+
         </button>
       </div>
     </section>

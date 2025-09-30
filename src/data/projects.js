@@ -1,6 +1,16 @@
 const projects = [
     {
       id: 1,
+      title: "Saaya - Smart Agriculture Platform",
+      file: "saaya.pdf",
+      img: "/projects/saya-web.png",
+      description:
+        "An intelligent agriculture platform designed to help farmers in Pakistan optimize crop management, resource allocation, and harvest planning through satellite imagery, IoT sensors, and predictive analytics.",
+      category: "Smart Agriculture",
+      technologies: ["Satellite Imagery", "IoT Sensors", "Predictive Analytics", "GIS"],
+    },
+    {
+      id: 2,
       title: "Advanced Disaster Early Warning System",
       file: "Advance Disaster Early Warning System.pdf",
       img: "/projects/disastermgmt.PNG",
@@ -15,7 +25,7 @@ const projects = [
       ],
     },
     {
-      id: 2,
+      id: 3,
       title: "Tennis Court Identification System",
       file: "Tennis Court Identifcation Mapping System.pdf",
       img: "/blogs/tennis.png",
@@ -25,7 +35,7 @@ const projects = [
       technologies: ["AI/ML", "Aerial Imagery", "Geospatial Analysis"],
     },
     {
-      id: 3,
+      id: 4,
       title: "Cooling Tower Detection System",
       file: "Cooling Tower System.pdf",
       img: "/projects/ctd.jpg",
@@ -36,7 +46,7 @@ const projects = [
     },
 
     {
-      id: 4,
+      id: 5,
       title: "Intelligent Property Listing",
       file: "Intelligent Property Listing System.pdf",
       img: "/projects/ipl.PNG",
@@ -47,7 +57,7 @@ const projects = [
     },
 
     {
-      id: 5,
+      id: 6,
       title: "Pix4D & GIS Training Initiative – NSA Oman",
       file: "Strategic GIS Integration.pdf",
       img: "/projects/pix4d.jpg",
