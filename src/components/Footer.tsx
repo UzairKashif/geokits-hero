@@ -35,17 +35,17 @@ export default function Footer() {
             <h3 className="font-semibold text-black mb-4">Our work</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#systems-in-action" className="text-gray-600 hover:text-black flex items-center">
+                <a href="#services" className="text-gray-600 hover:text-black flex items-center">
                   The Fundamentals
                 </a>
               </li>
               <li>
-                <a href="#systems-in-action" className="text-gray-600 hover:text-black flex items-center">
+                <a href="https://www.instagram.com/geokits_" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black flex items-center">
                   The Creative
                 </a>
               </li>
               <li>
-                <a href="#systems-in-action" className="text-gray-600 hover:text-black flex items-center">
+                <a href="#solutions" className="text-gray-600 hover:text-black flex items-center">
                   The Collective
                 </a>
               </li>
