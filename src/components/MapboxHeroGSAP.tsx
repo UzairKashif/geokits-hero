@@ -524,16 +524,16 @@ Unlock new opportunities with our advanced solutions and strategic insights. Let
           {/* Scroll indicator */}
           <div
             ref={scrollIndicatorRef}
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 md:bottom-12 md:left-12 md:transform-none text-white/70 pointer-events-none z-20"
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 md:bottom-12 text-white/70 pointer-events-none z-20"
           >
             <div className="flex flex-col items-center gap-3 md:flex-row md:gap-4">
-              <div className="flex items-center gap-3 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+              <div className="flex items-center px-4 py-2 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                 <span className="text-sm font-light tracking-wider uppercase">
                   Scroll to explore
                 </span>
                
               </div>
-              <div className="hidden md:block w-px h-8 bg-gradient-to-b from-white/30 to-transparent"></div>
+             
             </div>
           </div>
 
