@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://geokits.com/sitemap.xml
+
+# Specific directives
+Allow: /blog
+Allow: /contact
+Allow: /teams
+Allow: /technologies
+Allow: /testimonials
+
+# Block unwanted crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
