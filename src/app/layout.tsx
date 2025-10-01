@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     images: ['https://geokits.com/img/GEOKITSWHITE.png'],
   },
   verification: {
-    google: 'your-google-verification-code', // Replace with your actual verification code
+    google: 'JdOwVYxO3hL6PSjQ5q1KFseVQZHLupI_tH_H5FaAkvw', // Replace with the actual code from Google Search Console HTML tag method
   },
   alternates: {
     canonical: 'https://geokits.com',
