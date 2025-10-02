@@ -8,14 +8,14 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
-    default: 'GeoKits - Advanced GIS Solutions & Infrastructure Monitoring',
-    template: '%s | GeoKits'
+    default: 'Geokits - Advanced GIS Solutions & Infrastructure Monitoring',
+    template: '%s | Geokits'
   },
   description: 'Transform your infrastructure monitoring with cutting-edge GIS solutions. We provide advanced geospatial technology, spatial data analysis, and custom mapping solutions for organizations worldwide.',
   keywords: ['GIS', 'Geographic Information Systems', 'Infrastructure Monitoring', 'Spatial Data Analysis', 'Mapping Solutions', 'Geospatial Technology', 'Data Analytics', 'Remote Sensing'],
-  authors: [{ name: 'GeoKits Team' }],
-  creator: 'GeoKits',
-  publisher: 'GeoKits',
+  authors: [{ name: 'Geokits Team' }],
+  creator: 'Geokits',
+  publisher: 'Geokits',
   robots: {
     index: true,
     follow: true,
@@ -31,21 +31,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://geokits.com',
-    siteName: 'GeoKits',
-    title: 'GeoKits - Advanced GIS Solutions & Infrastructure Monitoring',
+    siteName: 'Geokits',
+    title: 'Geokits - Advanced GIS Solutions & Infrastructure Monitoring',
     description: 'Transform your infrastructure monitoring with cutting-edge GIS solutions. We provide advanced geospatial technology, spatial data analysis, and custom mapping solutions.',
     images: [
       {
         url: 'https://geokits.com/img/GEOKITSWHITE.png',
         width: 1200,
         height: 630,
-        alt: 'GeoKits - Advanced GIS Solutions',
-      },
+        alt: 'Geokits - Advanced GIS Solutions',
+      }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GeoKits - Advanced GIS Solutions & Infrastructure Monitoring',
+    title: ' - Advanced GIS Solutions & Infrastructure Monitoring',
     description: 'Transform your infrastructure monitoring with cutting-edge GIS solutions. Advanced geospatial technology and custom mapping solutions.',
     images: ['https://geokits.com/img/GEOKITSWHITE.png'],
   },
@@ -71,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "GeoKits",
+              "name": "Geokits",
               "url": "https://geokits.com",
               "logo": "https://geokits.com/img/GEOKITSWHITE.png",
               "description": "Advanced GIS solutions and infrastructure monitoring services",
