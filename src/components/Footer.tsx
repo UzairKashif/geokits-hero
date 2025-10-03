@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { Linkedin, Instagram, Mail, Phone } from 'lucide-react'
+import { Linkedin, Instagram, Mail, Phone, MapPin } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -55,7 +55,6 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-black mb-4">About</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-black">Story</a></li>
               <li><a href="/teams" className="text-gray-600 hover:text-black">Team</a></li>
               <li><a href="/technologies" className="text-gray-600 hover:text-black">Technologies</a></li>
               {/*<li><a href="/testimonials" className="text-gray-600 hover:text-black">Testimonials</a></li>*/}
@@ -99,7 +98,10 @@ export default function Footer() {
 
             {/* Right side - Address and Copyright */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-2 lg:space-y-0 text-gray-600 text-sm">
-              <span>I10, Plot No. 94, 3 Street 7, I-10/3 sector, Islamabad, 44800</span>
+              <span className="flex items-center">
+                <MapPin className="w-4 h-4 mr-2" />
+                I10, Plot No. 94, 3 Street 7, I-10/3 sector, Islamabad, 44800
+              </span>
               <span>© 2025 Geokits. All rights reserved.</span>
             </div>
           </div>
