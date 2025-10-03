@@ -77,13 +77,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "description": "Advanced GIS solutions and infrastructure monitoring services",
               "contactPoint": {
                 "@type": "ContactPoint",
-                "telephone": "+1-XXX-XXX-XXXX", // Replace with actual phone
+                "telephone": "+44-744-628-4191", 
                 "contactType": "Customer Service",
                 "email": "contact@geokits.com"
               },
               "sameAs": [
-                "https://linkedin.com/company/geokits", // Add your actual social links
-                "https://twitter.com/geokits"
+                "https://linkedin.com/company/geokits", 
+                "https://www.instagram.com/geokits_/"
               ]
             })
           }}
