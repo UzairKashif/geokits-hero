@@ -1,6 +1,21 @@
 const projects = [
+  {
+    id: 1,
+    title: "Advanced Disaster Early Warning System",
+    file: "Advance Disaster Early Warning System.pdf",
+    img: "/projects/disastermgmt.PNG",
+    description:
+      "A multi‑hazard platform processing satellite + environmental data via AI/ML on cloud‑native infrastructure, generating real‑time alerts across 21 event types.",
+    category: "Disaster Management",
+    technologies: [
+      "AI/ML",
+      "Satellite Data",
+      "Cloud Infrastructure",
+      "Real-time Alerts",
+    ],
+  },
     {
-      id: 1,
+      id: 2,
       title: "Saaya - Smart Agriculture Platform",
       file: "saaya.pdf",
       img: "/projects/saya-web.png",
@@ -8,21 +23,6 @@ const projects = [
         "An intelligent agriculture platform designed to help farmers in Pakistan optimize crop management, resource allocation, and harvest planning through satellite imagery, IoT sensors, and predictive analytics.",
       category: "Smart Agriculture",
       technologies: ["Satellite Imagery", "IoT Sensors", "Predictive Analytics", "GIS"],
-    },
-    {
-      id: 2,
-      title: "Advanced Disaster Early Warning System",
-      file: "Advance Disaster Early Warning System.pdf",
-      img: "/projects/disastermgmt.PNG",
-      description:
-        "A multi‑hazard platform processing satellite + environmental data via AI/ML on cloud‑native infrastructure, generating real‑time alerts across 21 event types.",
-      category: "Disaster Management",
-      technologies: [
-        "AI/ML",
-        "Satellite Data",
-        "Cloud Infrastructure",
-        "Real-time Alerts",
-      ],
     },
     {
       id: 3,
