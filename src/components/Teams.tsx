@@ -43,7 +43,7 @@ const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member
             <img
               src={member.imageUrl}
               alt={member.name}
-              className={`w-full h-full object-fit transition-all duration-300 group-hover:scale-110 ${
+              className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
                 showFallback ? 'hidden' : 'block'
               }`}
               onError={handleImageError}
@@ -141,19 +141,19 @@ const Teams: React.FC = () => {
 
           {/* Leaders Grid - Custom layout for 4 cards */}
           <div className="flex flex-col items-center gap-6 max-w-4xl mx-auto">
-            {/* First row - 3 cards */}
+            {/* First row - 1 card centered */}
+            {leaders.length > 0 && (
+              <div className="flex justify-center">
+                <TeamCard key={leaders[0].id} member={leaders[0]} isLeader={true} />
+              </div>
+            )}
+            
+            {/* Second row - 3 cards */}
             <div className="flex flex-wrap justify-center gap-6">
-              {leaders.slice(0, 3).map((leader) => (
+              {leaders.slice(1, 4).map((leader) => (
                 <TeamCard key={leader.id} member={leader} isLeader={true} />
               ))}
             </div>
-            
-            {/* Second row - 1 card centered under the middle card */}
-            {leaders.length > 3 && (
-              <div className="flex justify-center">
-                <TeamCard key={leaders[3].id} member={leaders[3]} isLeader={true} />
-              </div>
-            )}
           </div>
         </div>
       </section>

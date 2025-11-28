@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 interface FormData {
   firstName: string;
@@ -32,6 +33,9 @@ export default function ContactForm() {
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error"
   >("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -50,14 +54,23 @@ export default function ContactForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus("idle");
+    setErrorMessage("");
 
     try {
+      // Check Turnstile token
+      if (!turnstileToken) {
+        setSubmitStatus("error");
+        setErrorMessage("Please complete the security verification.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, turnstileToken }),
       });
 
       if (response.ok) {
@@ -74,8 +87,13 @@ export default function ContactForm() {
           hearAbout: "",
           subscribe: false,
         });
+        // Reset Turnstile for next submission
+        setTurnstileToken(null);
+        turnstileRef.current?.reset();
       } else {
+        const errorData = await response.json().catch(() => ({}));
         setSubmitStatus("error");
+        setErrorMessage(errorData.message || "Failed to send message. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -304,6 +322,24 @@ export default function ContactForm() {
           </label>
         </div>
 
+        {/* Cloudflare Turnstile */}
+        <div className="flex justify-center">
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => {
+              setTurnstileToken(null);
+              setErrorMessage("Security verification failed. Please try again.");
+            }}
+            onExpire={() => setTurnstileToken(null)}
+            options={{
+              theme: "light",
+              size: "normal",
+            }}
+          />
+        </div>
+
         {/* Submit Button */}
         <button
           type="submit"
@@ -355,8 +391,7 @@ export default function ContactForm() {
         {submitStatus === "error" && (
           <div className="p-4 bg-gray-700 border border-gray-600 rounded-lg">
             <p className="text-sm font-light" style={{ color: "white" }}>
-              Sorry, there was an error sending your message. Please try again
-              or contact us directly.
+              {errorMessage || "Sorry, there was an error sending your message. Please try again or contact us directly."}
             </p>
           </div>
         )}

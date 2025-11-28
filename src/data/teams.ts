@@ -35,7 +35,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mirza Imran Baig",
     role: "Director Operations",
     description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
-    imageUrl: "/team/imran.jpeg",
+    imageUrl: "/team/imran.png",
     
     category: "leader"
   },
@@ -44,6 +44,8 @@ export const teamMembers: TeamMember[] = [
     name: "Kashif Khalil",
     role: "Managing Director",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
+    imageUrl: "/team/khalil.png",
+
     
     
     category: "leader"
