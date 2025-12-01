@@ -30,15 +30,15 @@ export const teamMembers: TeamMember[] = [
     
     category: "leader"
   },
-    {
-    id: 10,
-    name: "Mirza Imran Baig",
-    role: "Director Operations",
-    description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
-    imageUrl: "/team/imran.png",
+  //   {
+  //   id: 10,
+  //   name: "Mirza Imran Baig",
+  //   role: "Director Operations",
+  //   description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
+  //   imageUrl: "/team/imran.png",
     
-    category: "leader"
-  },
+  //   category: "leader"
+  // },
   {
     id: 11,
     name: "Kashif Khalil",
