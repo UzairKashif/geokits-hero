@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { getLeaders, getTechTeamMembers, getOperationsTeamMembers, TeamMember } from '@/data/teams'
 import Footer from '@/components/Footer'
@@ -40,10 +41,12 @@ const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member
           
           {/* Image - only render if we have a URL */}
           {member.imageUrl && (
-            <img
+            <Image
               src={member.imageUrl}
               alt={member.name}
-              className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
+              fill
+              sizes="(max-width: 768px) 100vw, 256px"
+              className={`object-cover transition-all duration-300 group-hover:scale-110 ${
                 showFallback ? 'hidden' : 'block'
               }`}
               onError={handleImageError}
