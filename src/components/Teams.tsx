@@ -124,7 +124,7 @@ const Teams: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Leaders Section - Light Mode */}
-      <section className="bg-white py-32 px-6 min-h-screen">
+      <section className="bg-white py-20 px-6 min-h-screen">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
@@ -144,16 +144,21 @@ const Teams: React.FC = () => {
 
           {/* Leaders Grid - Custom layout for 4 cards */}
           <div className="flex flex-col items-center gap-6 max-w-4xl mx-auto">
-            {/* First row - 1 card centered */}
+            {/* First row - 1 card centered
             {leaders.length > 0 && (
               <div className="flex justify-center">
                 <TeamCard key={leaders[0].id} member={leaders[0]} isLeader={true} />
               </div>
-            )}
-            
+            )} */}
+
+           <div className="flex flex-wrap justify-center gap-6">
+              {leaders.slice(0, 2).map((leader) => (
+                <TeamCard key={leader.id} member={leader} isLeader={true} />
+              ))}
+            </div>
             {/* Second row - 3 cards */}
             <div className="flex flex-wrap justify-center gap-6">
-              {leaders.slice(1, 4).map((leader) => (
+              {leaders.slice(2, 4).map((leader) => (
                 <TeamCard key={leader.id} member={leader} isLeader={true} />
               ))}
             </div>

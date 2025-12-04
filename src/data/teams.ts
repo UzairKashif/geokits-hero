@@ -30,15 +30,15 @@ export const teamMembers: TeamMember[] = [
     
     category: "leader"
   },
-  //   {
-  //   id: 10,
-  //   name: "Mirza Imran Baig",
-  //   role: "Director Operations",
-  //   description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
-  //   imageUrl: "/team/imran.png",
+    {
+    id: 10,
+    name: "Mirza Imran Baig",
+    role: "Director Operations",
+    description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
+    imageUrl: "/team/imran.png",
     
-  //   category: "leader"
-  // },
+    category: "leader"
+  },
   {
     id: 11,
     name: "Kashif Khalil",
@@ -63,7 +63,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 4,
     name: "Talha Waheed",
-    role: "GIS + Backend Developer",
+    role: "GIS Backend Engineer",
     description: "Specialized in remote sensing, environmental monitoring, and predictive modeling for climate solutions.",
     
     category: "team",
@@ -72,7 +72,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 5,
     name: "Arslan Tariq",
-    role: "FUll-Stack + AI Engineer",
+    role: "AI Engineer",
     description: "Building scalable web applications and API integrations for geospatial data processing pipelines.",
     
     linkedIn: "https://www.linkedin.com/in/arslan-tariq-5a566a26b/",
@@ -100,7 +100,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 8,
     name: "Rahema Khushbakht",
-    role: "GIS Analyst + Content Writer",
+    role: "GIS Analyst",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
     
     category: "team",
@@ -117,7 +117,7 @@ export const teamMembers: TeamMember[] = [
   },
     {
     id: 12,
-    name: "Eman Abrar",
+    name: "Emaan Abrar",
     role: "GIS Engineer",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
     
@@ -154,7 +154,7 @@ export const teamMembers: TeamMember[] = [
     {
     id: 16,
     name: "Shameekh Naveed",
-    role: "Full-Stack Engineer + SWE",
+    role: "Software Engineer",
     description: "Coordinating complex GIS projects and ensuring seamless delivery of client solutions.",
     
     category: "team",
