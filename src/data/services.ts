@@ -22,7 +22,7 @@ export const Services: ServicesUnit[] = [
         imageUrl: "/services/service-infrastructure.png"
     },
     {
-        serviceName: "Data Analytics",
+        serviceName: "Data Analytics & AI Automation",
         serviceDescription: "Description for Data Analytics",
         imageUrl: "/services/service - data analytics.png"
     },
@@ -32,9 +32,9 @@ export const Services: ServicesUnit[] = [
         imageUrl: "/services/service-gis consulting.png"
     },
     {
-        serviceName: "AI Automation",
-        serviceDescription: "Description for AI Automation",
-        imageUrl: "/services/service - AI automation.png"
+        serviceName: "Town Planning & Surveying",
+        serviceDescription: "Description for Town Planning & Surveying",
+        imageUrl: "/services/topo.jpeg"
     }
 
 ];
