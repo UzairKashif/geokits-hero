@@ -68,6 +68,11 @@ const Header = () => {
           ariaLabel: "Our Services",
           href: "/#services",
           onClick: () => scrollToSection('services')
+        },
+        { 
+          label: "Data Portal", 
+          ariaLabel: "Data Portal",
+          href: "/data-portal"
         }
       ]
     },
