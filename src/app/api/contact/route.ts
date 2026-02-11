@@ -40,12 +40,13 @@ async function verifyTurnstile(token: string): Promise<{ success: boolean }> {
   }
 }
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
-resend.domains.create({
-  name: "geokits.com",
-  customReturnPath: "contact@geokits.com",
-});
+// Lazy-initialize Resend to avoid throwing at module load when API key is missing
+let resend: Resend | null = null
+function getResend(): Resend | null {
+  if (!process.env.RESEND_API_KEY) return null
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY)
+  return resend
+}
 
 // Form data type now imported from shared types
 
@@ -71,7 +72,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate required environment variables
-    if (!process.env.RESEND_API_KEY) {
+    const r = getResend()
+    if (!r) {
       return NextResponse.json(
         { message: "Server configuration error: Missing API key" },
         { status: 500 }
@@ -110,7 +112,7 @@ export async function POST(request: NextRequest) {
 
     const from = `Geokits Contact Form <${process.env.COMPANY_EMAIL}>`;
 
-    const companyEmailResult = await resend.emails.send({
+    const companyEmailResult = await r.emails.send({
       from: from,
       to: [process.env.COMPANY_PERSONNEL_EMAIL!],
       subject: `New Contact Form Submission - ${data.serviceInterest}`,
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
     // Send confirmation email to customer using Resend
     let customerEmailResult = null;
     try {
-      customerEmailResult = await resend.emails.send({
+      customerEmailResult = await r.emails.send({
         from: from,
         to: [data.email],
         subject: "Thank you for contacting Geokits - We'll be in touch soon!",

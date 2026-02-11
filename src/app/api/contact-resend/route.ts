@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let resend: Resend | null = null
+function getResend(): Resend | null {
+  if (!process.env.RESEND_API_KEY) return null
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY)
+  return resend
+}
 
 // Define the interface for the form data
 interface ContactFormData {
@@ -136,7 +141,11 @@ export async function POST(request: NextRequest) {
     `
 
     // Send email to company
-    await resend.emails.send({
+    const r = getResend()
+    if (!r) {
+      return NextResponse.json({ message: 'Server configuration error: Missing Resend API key' }, { status: 500 })
+    }
+    await r.emails.send({
       from: 'Geokits Contact Form <noreply@geokits.com>',
       to: [process.env.COMPANY_EMAIL || 'contact@geokits.com'],
       subject: `New Contact Form Submission - ${data.serviceInterest}`,
@@ -145,7 +154,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Send confirmation email to customer
-    await resend.emails.send({
+    await r.emails.send({
       from: 'Geokits <noreply@geokits.com>',
       to: [data.email],
       subject: 'Thank you for contacting Geokits - We\'ll be in touch soon!',

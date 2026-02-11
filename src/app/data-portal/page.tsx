@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
 
@@ -27,9 +28,15 @@ const DataPortalLogin = () => {
       await signInWithEmailAndPassword(auth, email, password)
       setLoading(false)
       router.push('/data-portal/dashboard')
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false)
-      setError(err?.message || 'Failed to sign in')
+      let message = 'Failed to sign in'
+      type ErrWithMessage = { message?: unknown }
+      const maybeErr = err as ErrWithMessage
+      if (maybeErr && typeof maybeErr.message === 'string') {
+        message = maybeErr.message
+      }
+      setError(message)
     }
   }
 
@@ -43,7 +50,7 @@ const DataPortalLogin = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               className="mt-1 block w-full border px-3 py-2 rounded"
               placeholder="you@example.com"
             />
@@ -54,7 +61,7 @@ const DataPortalLogin = () => {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               className="mt-1 block w-full border px-3 py-2 rounded"
               placeholder="password"
             />
@@ -70,7 +77,7 @@ const DataPortalLogin = () => {
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
-            <a href="/" className="text-sm text-gray-600">Back to site</a>
+            <Link href="/" className="text-sm text-gray-600">Back to site</Link>
           </div>
         </form>
       </div>
