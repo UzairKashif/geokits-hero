@@ -9,6 +9,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { Plus_Jakarta_Sans } from "next/font/google"
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, LogOut, Database, Layers } from 'lucide-react'
+import Image from 'next/image'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ["300", "400", "500", "600", "700"],
@@ -29,6 +30,8 @@ interface LayerRowProps {
   layer: MapLayer
   toggle: (layer: MapLayer) => void
   collapsed: boolean
+  opacity: number
+  onOpacityChange: (value: number) => void
 }
 
 interface BaseStyle {
@@ -72,14 +75,25 @@ const BASE_STYLES: BaseStyle[] = [
 
 type AddExternalLayerOptions = {
   flyOnAdd?: boolean
+  opacity?: number
+}
+
+const getDefaultOpacity = (layer: MapLayer) => (layer.type === 'raster' ? 0.85 : 0.6)
+
+const applyLayerOpacity = (map: mapboxgl.Map, layerId: string, layerType: MapLayer['type'], value: number) => {
+  const paintProp = layerType === 'raster' ? 'raster-opacity' : 'fill-opacity'
+  if (map.getLayer(layerId)) {
+    map.setPaintProperty(layerId, paintProp, value)
+  }
 }
 
 const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExternalLayerOptions = {}) => {
   if (!layer.sourceUrl) return
 
-  const { flyOnAdd = false } = options
+  const { flyOnAdd = false, opacity } = options
   const sourceId = `source-${layer.id}`
   const layerId = `layer-${layer.id}`
+  const targetOpacity = opacity ?? getDefaultOpacity(layer)
 
   if (!map.getSource(sourceId)) {
     map.addSource(sourceId, {
@@ -95,7 +109,7 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
         id: layerId,
         type: 'raster',
         source: sourceId,
-        paint: { 'raster-opacity': 0.8 }
+        paint: { 'raster-opacity': targetOpacity }
       })
     } else {
       const sourceLayerName = layer.sourceLayer || layer.id.split('.').pop() || layer.id
@@ -106,7 +120,7 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
         'source-layer': sourceLayerName,
         paint: {
           'fill-color': '#32de84',
-          'fill-opacity': 0.5,
+          'fill-opacity': targetOpacity,
           'fill-outline-color': '#fff'
         }
       })
@@ -114,6 +128,8 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
   } else {
     map.setLayoutProperty(layerId, 'visibility', 'visible')
   }
+
+  applyLayerOpacity(map, layerId, layer.type, targetOpacity)
 
   if (flyOnAdd && layer.center) {
     map.flyTo({ center: layer.center, zoom: 9 })
@@ -128,15 +144,21 @@ const Dashboard = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const externalLayersRef = useRef<MapLayer[]>([])
+  const layerOpacityRef = useRef<Record<string, number>>({})
   const [externalLayers, setExternalLayers] = useState<MapLayer[]>([])
   const [mapLoaded, setMapLoaded] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeBaseStyle, setActiveBaseStyle] = useState(BASE_STYLES[0].id)
+  const [layerOpacity, setLayerOpacity] = useState<Record<string, number>>({})
   const initialBaseStyleRef = useRef(activeBaseStyle)
 
   useEffect(() => {
     externalLayersRef.current = externalLayers
   }, [externalLayers])
+
+  useEffect(() => {
+    layerOpacityRef.current = layerOpacity
+  }, [layerOpacity])
 
   // 1. Auth & Data Fetching
   useEffect(() => {
@@ -156,6 +178,15 @@ const Dashboard = () => {
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setExternalLayers(data.map((l: MapLayer) => ({ ...l, visible: false })));
+      setLayerOpacity(prev => {
+        const next = { ...prev }
+        data.forEach((l: MapLayer) => {
+          if (next[l.id] === undefined) {
+            next[l.id] = getDefaultOpacity(l)
+          }
+        })
+        return next
+      })
     } catch (err) {
       console.error("Layer fetch error:", err);
     }
@@ -184,7 +215,10 @@ const Dashboard = () => {
 
       externalLayersRef.current
         .filter(layer => layer.visible)
-        .forEach(layer => addExternalLayer(map, layer, { flyOnAdd: false }))
+        .forEach(layer => {
+          const opacityValue = layerOpacityRef.current[layer.id] ?? getDefaultOpacity(layer)
+          addExternalLayer(map, layer, { flyOnAdd: false, opacity: opacityValue })
+        })
 
       setMapLoaded(true)
     });
@@ -217,13 +251,23 @@ const Dashboard = () => {
     const layerId = `layer-${layer.id}`;
 
     if (!layer.visible) {
-      addExternalLayer(map, layer, { flyOnAdd: true })
+      const currentOpacity = layerOpacity[layer.id] ?? getDefaultOpacity(layer)
+      addExternalLayer(map, layer, { flyOnAdd: true, opacity: currentOpacity })
+      setLayerOpacity(prev => ({ ...prev, [layer.id]: currentOpacity }))
     } else {
       // TURN OFF
       if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', 'none');
     }
 
     setExternalLayers(prev => prev.map(l => l.id === layer.id ? { ...l, visible: !l.visible } : l));
+  }
+
+  const handleLayerOpacityChange = (layer: MapLayer, value: number) => {
+    if (!mapRef.current) return
+    const normalized = Math.min(1, Math.max(0, value))
+    const layerId = `layer-${layer.id}`
+    applyLayerOpacity(mapRef.current, layerId, layer.type, normalized)
+    setLayerOpacity(prev => ({ ...prev, [layer.id]: normalized }))
   }
 
   if (!user) return null
@@ -248,9 +292,18 @@ const Dashboard = () => {
       >
 
         <div className="p-6 border-b border-white/5 flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#32de84] rounded-lg flex items-center justify-center font-bold text-black text-xs">GK</div>
-          {!isCollapsed && <span className="font-semibold">GeoKits</span>}
-        </div>
+          <div className="relative h-10 w-8 overflow-hidden">
+            <Image
+              src="/img/GEOKITSWHITE.png"
+              alt="GeoKits mark"
+              fill
+              sizes="32px"
+              className="object-contain"
+              priority
+            />
+          </div>
+          {!isCollapsed && <span className="font-semibold tracking-wide">GeoKits</span>}
+        </div>  
 
         {!isCollapsed && (
           <div className="px-4 py-4 border-b border-white/5 space-y-3">
@@ -288,10 +341,17 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" data-lenis-prevent data-lenis-prevent-wheel>
           {externalLayers.length ? (
             externalLayers.map(l => (
-              <LayerRow key={l.id} layer={l} toggle={toggleLayer} collapsed={isCollapsed} />
+              <LayerRow
+                key={l.id}
+                layer={l}
+                toggle={toggleLayer}
+                collapsed={isCollapsed}
+                opacity={layerOpacity[l.id] ?? getDefaultOpacity(l)}
+                onOpacityChange={(value) => handleLayerOpacityChange(l, value)}
+              />
             ))
           ) : (
             <p className="text-xs text-white/40 text-center mt-10">No data layers available</p>
@@ -313,16 +373,32 @@ const Dashboard = () => {
   )
 }
 
-const LayerRow = ({ layer, toggle, collapsed }: LayerRowProps) => (
-  <button
-    onClick={() => toggle(layer)}
-    className={`w-full flex items-center rounded-lg mb-1 transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
-  >
-    <div className="flex items-center gap-3 overflow-hidden">
-      <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
-      {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
-    </div>
-  </button>
+const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange }: LayerRowProps) => (
+  <div className="mb-2">
+    <button
+      onClick={() => toggle(layer)}
+      className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
+    >
+      <div className="flex items-center gap-3 overflow-hidden">
+        <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
+        {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
+      </div>
+    </button>
+    {!collapsed && layer.visible && (
+      <div className="mt-2 flex items-center gap-2 px-1 text-[11px] text-white/60">
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.05}
+          value={opacity}
+          onChange={(e) => onOpacityChange(Number(e.target.value))}
+          className="flex-1 accent-[#32de84]"
+        />
+        <span>{Math.round(opacity * 100)}%</span>
+      </div>
+    )}
+  </div>
 )
 
 export default Dashboard
