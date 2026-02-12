@@ -8,7 +8,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Plus_Jakarta_Sans } from "next/font/google"
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, LogOut, Layers, Database } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Database } from 'lucide-react'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ["300", "400", "500", "600", "700"],
@@ -18,17 +18,10 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 interface MapLayer {
   id: string
   name?: string
-  type: 'style' | 'vector' | 'raster'
+  type: 'vector' | 'raster'
   visible: boolean
   sourceUrl?: string
   center?: [number, number]
-}
-
-interface TabButtonProps {
-  active: boolean
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
 }
 
 interface LayerRowProps {
@@ -45,11 +38,9 @@ const Dashboard = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   
-  const [styleLayers, setStyleLayers] = useState<MapLayer[]>([])
   const [externalLayers, setExternalLayers] = useState<MapLayer[]>([])
   const [mapLoaded, setMapLoaded] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [activeTab, setActiveTab] = useState<'style' | 'data'>('style')
 
   // 1. Auth & Data Fetching
   useEffect(() => {
@@ -95,13 +86,6 @@ const Dashboard = () => {
     });
 
     map.on('load', () => {
-      const existing = map.getStyle().layers || [];
-      setStyleLayers(existing.map(l => ({
-        id: l.id,
-        name: l.id,
-        type: 'style',
-        visible: map.getLayoutProperty(l.id, 'visibility') !== 'none'
-      })));
       setMapLoaded(true);
     })
 
@@ -109,19 +93,19 @@ const Dashboard = () => {
     return () => map.remove()
   }, [user])
 
+  useEffect(() => {
+    if (!mapRef.current) return
+    const timeoutId = window.setTimeout(() => {
+      mapRef.current?.resize()
+    }, 350)
+    return () => window.clearTimeout(timeoutId)
+  }, [isCollapsed])
+
   // 3. Toggle Logic (The Engine)
   const toggleLayer = (layer: MapLayer) => {
     if (!mapRef.current) return;
     const map = mapRef.current;
     
-    // --- Internal Style Layers ---
-    if (layer.type === 'style') {
-      const nextState = layer.visible ? 'none' : 'visible';
-      map.setLayoutProperty(layer.id, 'visibility', nextState);
-      setStyleLayers(prev => prev.map(l => l.id === layer.id ? { ...l, visible: !l.visible } : l));
-      return;
-    }
-
     // --- External Tilesets (Data) ---
     const sourceId = `source-${layer.id}`;
     const layerId = `layer-${layer.id}`;
@@ -177,18 +161,23 @@ const Dashboard = () => {
   if (!user) return null
 
   return (
-    <div className={`flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden ${plusJakartaSans.className}`}>
+    <div className={`relative flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden ${plusJakartaSans.className}`}>
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute top-10 z-30 w-7 h-7 bg-[#32de84] rounded-full flex items-center justify-center text-black shadow-lg"
+        style={{ left: isCollapsed ? 16 : 304 }}
+        aria-label={isCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
+      >
+        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+      </button>
+
       <motion.aside 
         initial={false}
-        animate={{ width: isCollapsed ? '80px' : '320px' }}
+        animate={{ width: isCollapsed ? 0 : 320 }}
         className="relative bg-black/60 backdrop-blur-xl border-r border-white/10 flex flex-col z-20"
+        style={{ overflow: isCollapsed ? 'hidden' : 'visible', pointerEvents: isCollapsed ? 'none' : 'auto' }}
+        aria-hidden={isCollapsed}
       >
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-10 w-6 h-6 bg-[#32de84] rounded-full flex items-center justify-center text-black z-30"
-        >
-          {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
 
         <div className="p-6 border-b border-white/5 flex items-center gap-3">
           <div className="w-8 h-8 bg-[#32de84] rounded-lg flex items-center justify-center font-bold text-black text-xs">GK</div>
@@ -196,19 +185,20 @@ const Dashboard = () => {
         </div>
 
         {!isCollapsed && (
-          <div className="flex p-4 gap-2">
-            <TabButton active={activeTab === 'style'} onClick={() => setActiveTab('style')} icon={<Layers size={14} />} label="Base" />
-            <TabButton active={activeTab === 'data'} onClick={() => setActiveTab('data')} icon={<Database size={14} />} label="Data" />
+          <div className="flex items-center gap-2 px-4 pt-4 pb-2 text-xs uppercase tracking-widest text-white/60">
+            <Database size={14} />
+            <span>Data Layers</span>
           </div>
         )}
 
         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-          {activeTab === 'style' && styleLayers.map(l => (
-            <LayerRow key={l.id} layer={l} toggle={toggleLayer} collapsed={isCollapsed} />
-          ))}
-          {activeTab === 'data' && externalLayers.map(l => (
-            <LayerRow key={l.id} layer={l} toggle={toggleLayer} collapsed={isCollapsed} />
-          ))}
+          {externalLayers.length ? (
+            externalLayers.map(l => (
+              <LayerRow key={l.id} layer={l} toggle={toggleLayer} collapsed={isCollapsed} />
+            ))
+          ) : (
+            <p className="text-xs text-white/40 text-center mt-10">No data layers available</p>
+          )}
         </div>
 
         <div className="p-4 border-t border-white/5">
@@ -225,15 +215,6 @@ const Dashboard = () => {
     </div>
   )
 }
-
-const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
-  <button 
-    onClick={onClick}
-    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-medium transition-all ${active ? 'bg-[#32de84] text-black' : 'bg-white/5 text-white/50'}`}
-  >
-    {icon} {label}
-  </button>
-)
 
 const LayerRow = ({ layer, toggle, collapsed }: LayerRowProps) => (
   <button
