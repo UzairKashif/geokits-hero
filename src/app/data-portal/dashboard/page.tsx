@@ -16,12 +16,25 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 interface MapLayer {
-  id: string;
-  name?: string;
-  type: 'style' | 'vector' | 'raster';
-  visible: boolean;
-  sourceUrl?: string;
-  center?: [number, number];
+  id: string
+  name?: string
+  type: 'style' | 'vector' | 'raster'
+  visible: boolean
+  sourceUrl?: string
+  center?: [number, number]
+}
+
+interface TabButtonProps {
+  active: boolean
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+}
+
+interface LayerRowProps {
+  layer: MapLayer
+  toggle: (layer: MapLayer) => void
+  collapsed: boolean
 }
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
@@ -213,7 +226,7 @@ const Dashboard = () => {
   )
 }
 
-const TabButton = ({ active, onClick, icon, label }: any) => (
+const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
   <button 
     onClick={onClick}
     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-medium transition-all ${active ? 'bg-[#32de84] text-black' : 'bg-white/5 text-white/50'}`}
@@ -222,7 +235,7 @@ const TabButton = ({ active, onClick, icon, label }: any) => (
   </button>
 )
 
-const LayerRow = ({ layer, toggle, collapsed }: any) => (
+const LayerRow = ({ layer, toggle, collapsed }: LayerRowProps) => (
   <button
     onClick={() => toggle(layer)}
     className={`w-full flex items-center rounded-lg mb-1 transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
