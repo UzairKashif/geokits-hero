@@ -8,7 +8,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Plus_Jakarta_Sans } from "next/font/google"
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, LogOut, Database } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Database, Layers } from 'lucide-react'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ["300", "400", "500", "600", "700"],
@@ -21,6 +21,7 @@ interface MapLayer {
   type: 'vector' | 'raster'
   visible: boolean
   sourceUrl?: string
+  sourceLayer?: string
   center?: [number, number]
 }
 
@@ -30,6 +31,95 @@ interface LayerRowProps {
   collapsed: boolean
 }
 
+interface BaseStyle {
+  id: string
+  name: string
+  styleUrl: string
+  accent: string
+  description?: string
+}
+
+const BASE_STYLES: BaseStyle[] = [
+  {
+    id: 'geokits-aurora',
+    name: 'Aurora',
+    styleUrl: 'mapbox://styles/uzairkashif27/cmeihge9s000n01s8dpym8rdv',
+    accent: '#32de84',
+    description: 'Custom brand style'
+  },
+  {
+    id: 'mapbox-light',
+    name: 'Atlas Light',
+    styleUrl: 'mapbox://styles/mapbox/light-v11',
+    accent: '#d4d4d8',
+    description: 'Minimal daylight'
+  },
+  {
+    id: 'mapbox-dark',
+    name: 'Orbit Dark',
+    styleUrl: 'mapbox://styles/mapbox/dark-v11',
+    accent: '#0f172a',
+    description: 'High-contrast night'
+  },
+  {
+    id: 'mapbox-satellite',
+    name: 'Satellite',
+    styleUrl: 'mapbox://styles/mapbox/satellite-streets-v12',
+    accent: '#3b82f6',
+    description: 'Imagery + labels'
+  }
+]
+
+type AddExternalLayerOptions = {
+  flyOnAdd?: boolean
+}
+
+const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExternalLayerOptions = {}) => {
+  if (!layer.sourceUrl) return
+
+  const { flyOnAdd = false } = options
+  const sourceId = `source-${layer.id}`
+  const layerId = `layer-${layer.id}`
+
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
+      type: layer.type === 'raster' ? 'raster' : 'vector',
+      url: layer.sourceUrl,
+      tileSize: 256
+    })
+  }
+
+  if (!map.getLayer(layerId)) {
+    if (layer.type === 'raster') {
+      map.addLayer({
+        id: layerId,
+        type: 'raster',
+        source: sourceId,
+        paint: { 'raster-opacity': 0.8 }
+      })
+    } else {
+      const sourceLayerName = layer.sourceLayer || layer.id.split('.').pop() || layer.id
+      map.addLayer({
+        id: layerId,
+        type: 'fill',
+        source: sourceId,
+        'source-layer': sourceLayerName,
+        paint: {
+          'fill-color': '#32de84',
+          'fill-opacity': 0.5,
+          'fill-outline-color': '#fff'
+        }
+      })
+    }
+  } else {
+    map.setLayoutProperty(layerId, 'visibility', 'visible')
+  }
+
+  if (flyOnAdd && layer.center) {
+    map.flyTo({ center: layer.center, zoom: 9 })
+  }
+}
+
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
 
 const Dashboard = () => {
@@ -37,10 +127,16 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
-  
+  const externalLayersRef = useRef<MapLayer[]>([])
   const [externalLayers, setExternalLayers] = useState<MapLayer[]>([])
   const [mapLoaded, setMapLoaded] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [activeBaseStyle, setActiveBaseStyle] = useState(BASE_STYLES[0].id)
+  const initialBaseStyleRef = useRef(activeBaseStyle)
+
+  useEffect(() => {
+    externalLayersRef.current = externalLayers
+  }, [externalLayers])
 
   // 1. Auth & Data Fetching
   useEffect(() => {
@@ -69,9 +165,11 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user || !mapContainerRef.current) return
 
+    const baseStyleForMount = BASE_STYLES.find(style => style.id === initialBaseStyleRef.current)
+    const initialStyle = baseStyleForMount?.styleUrl || BASE_STYLES[0].styleUrl
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/uzairkashif27/cmeihge9s000n01s8dpym8rdv",
+      style: initialStyle,
       center: [-74.006, 40.7128],
       zoom: 2,
       projection: 'globe'
@@ -83,11 +181,13 @@ const Dashboard = () => {
         'high-color': 'rgb(36, 92, 223)',
         'space-color': 'rgb(11, 11, 25)'
       });
-    });
 
-    map.on('load', () => {
-      setMapLoaded(true);
-    })
+      externalLayersRef.current
+        .filter(layer => layer.visible)
+        .forEach(layer => addExternalLayer(map, layer, { flyOnAdd: false }))
+
+      setMapLoaded(true)
+    });
 
     mapRef.current = map
     return () => map.remove()
@@ -101,55 +201,23 @@ const Dashboard = () => {
     return () => window.clearTimeout(timeoutId)
   }, [isCollapsed])
 
+  useEffect(() => {
+    if (!mapRef.current) return
+    const selected = BASE_STYLES.find(style => style.id === activeBaseStyle)
+    if (!selected) return
+    setMapLoaded(false)
+    mapRef.current.setStyle(selected.styleUrl)
+  }, [activeBaseStyle])
   // 3. Toggle Logic (The Engine)
   const toggleLayer = (layer: MapLayer) => {
     if (!mapRef.current) return;
     const map = mapRef.current;
     
     // --- External Tilesets (Data) ---
-    const sourceId = `source-${layer.id}`;
     const layerId = `layer-${layer.id}`;
 
     if (!layer.visible) {
-      // TURN ON
-      if (!map.getSource(sourceId) && layer.sourceUrl) {
-         map.addSource(sourceId, {
-           type: layer.type === 'raster' ? 'raster' : 'vector',
-           url: layer.sourceUrl,
-           tileSize: 256
-         });
-      }
-
-      if (!map.getLayer(layerId)) {
-        if (layer.type === 'raster') {
-          // RASTER / TIFF
-          map.addLayer({
-            id: layerId,
-            type: 'raster',
-            source: sourceId,
-            paint: { 'raster-opacity': 0.8 }
-          });
-        } else {
-          // VECTOR
-          // Attempt to guess the source-layer name (usually the last part of ID)
-          const sourceLayerName = layer.id.split('.').pop() || ''; 
-          map.addLayer({
-            id: layerId,
-            type: 'fill', 
-            source: sourceId,
-            'source-layer': sourceLayerName,
-            paint: { 
-              'fill-color': '#32de84', 
-              'fill-opacity': 0.5,
-              'fill-outline-color': '#fff' 
-            }
-          });
-        }
-      }
-      map.setLayoutProperty(layerId, 'visibility', 'visible');
-    
-      if (layer.center) map.flyTo({ center: layer.center, zoom: 9 });
-      
+      addExternalLayer(map, layer, { flyOnAdd: true })
     } else {
       // TURN OFF
       if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', 'none');
@@ -183,6 +251,35 @@ const Dashboard = () => {
           <div className="w-8 h-8 bg-[#32de84] rounded-lg flex items-center justify-center font-bold text-black text-xs">GK</div>
           {!isCollapsed && <span className="font-semibold">GeoKits</span>}
         </div>
+
+        {!isCollapsed && (
+          <div className="px-4 py-4 border-b border-white/5 space-y-3">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/60">
+              <Layers size={14} />
+              <span>Base map</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {BASE_STYLES.map(style => {
+                const isActive = style.id === activeBaseStyle
+                return (
+                  <button
+                    key={style.id}
+                    onClick={() => setActiveBaseStyle(style.id)}
+                    disabled={!mapLoaded && !isActive}
+                    className={`rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition ${isActive ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
+                  >
+                    <span>{style.name}</span>
+                    <span className="block text-[10px] text-white/50">{style.description}</span>
+                    <span
+                      className="mt-2 block h-1 w-full rounded-full"
+                      style={{ backgroundColor: style.accent }}
+                    />
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {!isCollapsed && (
           <div className="flex items-center gap-2 px-4 pt-4 pb-2 text-xs uppercase tracking-widest text-white/60">
