@@ -102,7 +102,7 @@ const DataPortalLogin = () => {
           {/* Form Header */}
           <div className="mb-10">
           <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10">
+            <div className="relative h-16 w-16">
               <Image
                 src="/img/only-graphics.png"
                 alt="Geokits"
