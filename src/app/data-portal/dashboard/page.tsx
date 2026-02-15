@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { onAuthStateChanged, signOut,User } from 'firebase/auth'
+import { onAuthStateChanged, signOut, User } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -32,6 +32,8 @@ interface LayerRowProps {
   collapsed: boolean
   opacity: number
   onOpacityChange: (value: number) => void
+  onDragStart?: (id: string) => void
+  onDrop?: (id: string) => void
 }
 
 interface BaseStyle {
@@ -87,6 +89,7 @@ const applyLayerOpacity = (map: mapboxgl.Map, layerId: string, layerType: MapLay
   }
 }
 
+// Updated function with the 'nearest' fix
 const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExternalLayerOptions = {}) => {
   if (!layer.sourceUrl) return
 
@@ -109,7 +112,13 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
         id: layerId,
         type: 'raster',
         source: sourceId,
-        paint: { 'raster-opacity': targetOpacity }
+        paint: {
+          'raster-opacity': targetOpacity,
+          // FIX: Force nearest neighbor for pixelated look
+          'raster-resampling': 'nearest',
+          // FIX: Remove fade for instant sharpness
+          'raster-fade-duration': 0
+        }
       })
     } else {
       const sourceLayerName = layer.sourceLayer || layer.id.split('.').pop() || layer.id
@@ -146,6 +155,7 @@ const Dashboard = () => {
   const externalLayersRef = useRef<MapLayer[]>([])
   const layerOpacityRef = useRef<Record<string, number>>({})
   const [externalLayers, setExternalLayers] = useState<MapLayer[]>([])
+  const dragSourceRef = useRef<string | null>(null)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeBaseStyle, setActiveBaseStyle] = useState(BASE_STYLES[0].id)
@@ -177,7 +187,23 @@ const Dashboard = () => {
       const res = await fetch('/api/mapbox/layers');
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setExternalLayers(data.map((l: MapLayer) => ({ ...l, visible: false })));
+      // Apply saved order from localStorage if present
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('geo_layers_order') : null
+      let layers: MapLayer[] = data.map((l: MapLayer) => ({ ...l, visible: false }))
+      if (saved) {
+        try {
+          const order: string[] = JSON.parse(saved)
+          const orderIndex = new Map(order.map((id, i) => [id, i]))
+          layers = layers.slice().sort((a, b) => {
+            const ai = orderIndex.has(a.id) ? orderIndex.get(a.id)! : Number.MAX_SAFE_INTEGER
+            const bi = orderIndex.has(b.id) ? orderIndex.get(b.id)! : Number.MAX_SAFE_INTEGER
+            return ai - bi
+          })
+        } catch (err) {
+          console.warn('Invalid saved layer order', err)
+        }
+      }
+      setExternalLayers(layers);
       setLayerOpacity(prev => {
         const next = { ...prev }
         data.forEach((l: MapLayer) => {
@@ -242,6 +268,7 @@ const Dashboard = () => {
     setMapLoaded(false)
     mapRef.current.setStyle(selected.styleUrl)
   }, [activeBaseStyle])
+
   // 3. Toggle Logic (The Engine)
   const toggleLayer = (layer: MapLayer) => {
     if (!mapRef.current) return;
@@ -270,6 +297,32 @@ const Dashboard = () => {
     setLayerOpacity(prev => ({ ...prev, [layer.id]: normalized }))
   }
 
+  // Drag & drop handlers for reordering layers
+  const handleDragStart = (id: string) => {
+    dragSourceRef.current = id
+  }
+
+  const handleDrop = (targetId: string) => {
+    const srcId = dragSourceRef.current
+    if (!srcId || srcId === targetId) return
+    setExternalLayers(prev => {
+      const next = prev.slice()
+      const srcIndex = next.findIndex(l => l.id === srcId)
+      const tgtIndex = next.findIndex(l => l.id === targetId)
+      if (srcIndex === -1 || tgtIndex === -1) return prev
+      const [moved] = next.splice(srcIndex, 1)
+      next.splice(tgtIndex, 0, moved)
+      // persist order
+      try {
+        localStorage.setItem('geo_layers_order', JSON.stringify(next.map(l => l.id)))
+      } catch (err) {
+        console.warn('Could not save layer order', err)
+      }
+      return next
+    })
+    dragSourceRef.current = null
+  }
+  
   if (!user) return null
 
   return (
@@ -347,10 +400,12 @@ const Dashboard = () => {
               <LayerRow
                 key={l.id}
                 layer={l}
-                toggle={toggleLayer}
+                toggle={() => toggleLayer(l)}
                 collapsed={isCollapsed}
                 opacity={layerOpacity[l.id] ?? getDefaultOpacity(l)}
                 onOpacityChange={(value) => handleLayerOpacityChange(l, value)}
+                onDragStart={() => handleDragStart(l.id)}
+                onDrop={() => handleDrop(l.id)}
               />
             ))
           ) : (
@@ -373,32 +428,68 @@ const Dashboard = () => {
   )
 }
 
-const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange }: LayerRowProps) => (
-  <div className="mb-2">
-    <button
-      onClick={() => toggle(layer)}
-      className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
+const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange, onDragStart, onDrop }: LayerRowProps) => {
+  // Local state to handle slider movement smoothly before committing
+  const [localOpacity, setLocalOpacity] = useState(opacity)
+
+  useEffect(() => {
+    setLocalOpacity(opacity)
+  }, [opacity])
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = parseFloat(e.target.value)
+    setLocalOpacity(newVal)
+    onOpacityChange(newVal)
+  }
+
+  return (
+    <div
+      className="mb-2"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer?.setData('text/plain', layer.id)
+        e.dataTransfer!.effectAllowed = 'move'
+        onDragStart?.(layer.id)
+      }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        e.dataTransfer!.dropEffect = 'move'
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        const targetId = layer.id
+        // prefer explicit prop handler
+        onDrop?.(targetId)
+      }}
+      onDragEnd={() => {
+        // nothing for now
+      }}
     >
-      <div className="flex items-center gap-3 overflow-hidden">
-        <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
-        {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
-      </div>
-    </button>
-    {!collapsed && layer.visible && (
-      <div className="mt-2 flex items-center gap-2 px-1 text-[11px] text-white/60">
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={opacity}
-          onChange={(e) => onOpacityChange(Number(e.target.value))}
-          className="flex-1 accent-[#32de84]"
-        />
-        <span>{Math.round(opacity * 100)}%</span>
-      </div>
-    )}
-  </div>
-)
+      <button
+        onClick={() => toggle(layer)}
+        className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
+      >
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
+          {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
+        </div>
+      </button>
+      {!collapsed && layer.visible && (
+        <div className="mt-2 flex items-center gap-2 px-1 text-[11px] text-white/60">
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={localOpacity}
+            onChange={handleSliderChange}
+            className="flex-1 accent-[#32de84]"
+          />
+          <span>{Math.round(localOpacity * 100)}%</span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default Dashboard
