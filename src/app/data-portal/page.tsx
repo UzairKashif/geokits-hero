@@ -67,7 +67,7 @@ const DataPortalLogin = () => {
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10">
               <Image
-                src="/img/GEOKITSWHITE.png"
+                src="/img/only-graphics.png"
                 alt="Geokits"
                 fill
                 className="object-contain"
