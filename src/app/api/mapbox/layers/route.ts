@@ -1,46 +1,32 @@
 import { NextResponse } from 'next/server';
 
-// Explicit display names for important layers (highest priority)
-const DISPLAY_NAMES: Record<string, string> = {
-  // Add any layers where you want exact control over the name
-  // 'uzairkashif27.some_specific_id': 'Exact Name You Want',
-};
+const formatTilesetName = (id: string): string => {
+  // 1. Remove username prefix if present (e.g., "uzairkashif27.Lasbela_DEM-4rt96j" → "Lasbela_DEM-4rt96j")
+  let name = id.includes('.') ? id.split('.').pop()! : id;
 
-// Smart formatter that handles your naming patterns
-const formatTilesetName = (id: string, originalName?: string): string => {
-  // 1. Check explicit mapping first
-  if (DISPLAY_NAMES[id]) return DISPLAY_NAMES[id];
+  // 2. Remove the Mapbox suffix (hyphen + alphanumeric at the end)
+  name = name.replace(/-[a-z0-9]+$/i, '');
 
-  // 2. Get the part after the username (e.g., "Lasbela_MangroveMask_MVI_2025-2pg...")
-  let name = id.split('.').pop() || id;
-
-  // 3. Remove the Mapbox-generated suffix (the random characters after the last hyphen)
-  //    Pattern: -[alphanumeric]{5,} at the end
-  name = name.replace(/-[a-z0-9]{5,}$/i, '');
-
-  // 4. Handle specific patterns in your data
+  // 3. Apply specific transformations for your WFP layers
   name = name
-    // MVI years: "MangroveMask_MVI_2025" → "Mangrove Cover 2025"
-    .replace(/MangroveMask_MVI_(\d{4})/, 'Mangrove Cover $1')
-    // Gain/Loss: "Mangrove_GAIN_2000_20" → "Mangrove Gain (2000-2020)"
-    .replace(/Mangrove_GAIN_(\d{4})_(\d{2})/, 'Mangrove Gain ($1-20$2)')
-    .replace(/Mangrove_LOSS_(\d{4})_(\d{2})/, 'Mangrove Loss ($1-20$2)')
-    // Proximity layers
-    .replace(/FreshwaterProximity/, 'Freshwater Proximity')
-    .replace(/MangroveProximity/, 'Mangrove Proximity')
-    // Suitability layers
-    .replace(/CalculatedSuitability/, 'Agricultural Suitability')
+    // Mangrove time series: "Lasbela_MangroveMask_MVI_2025" → "Lasbela Mangrove Cover 2025"
+    .replace(/^(.+?)_MangroveMask_MVI_(\d{4})$/, '$1 Mangrove Cover $2')
+    // Gain/Loss: "Lasbela_Mangrove_GAIN_2000_20" → "Lasbela Mangrove Gain (2000-2020)"
+    .replace(/^(.+?)_Mangrove_GAIN_(\d{4})_(\d{2})$/, '$1 Mangrove Gain ($2-20$3)')
+    .replace(/^(.+?)_Mangrove_LOSS_(\d{4})_(\d{2})$/, '$1 Mangrove Loss ($2-20$3)')
+    // Proximity layers: "FreshwaterProximity_Lasbela" → "Lasbela Freshwater Proximity"
+    .replace(/^FreshwaterProximity_(.+)$/, '$1 Freshwater Proximity')
+    .replace(/^MangroveProximity_(.+)$/, '$1 Mangrove Proximity')
+    // Suitability: "Lasbela_ClimateSuitability" → "Lasbela Climate Suitability"
     .replace(/ClimateSuitability/, 'Climate Suitability')
-    // Clean up remaining underscores and add proper spacing
-    .replace(/_/g, ' ')
-    // Add space before district names if stuck together
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    // Clean up any double spaces
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // 5. Title case any remaining words (but preserve existing caps like "MVI")
-  name = name.replace(/\b[a-z]/g, c => c.toUpperCase());
+    .replace(/TidalSuitability/, 'Tidal Suitability')
+    .replace(/^CalculatedSuitability$/, 'Agricultural Suitability Index')
+    // Technical layers
+    .replace(/JRCWaterOccurrence/, 'JRC Water Occurrence')
+    .replace(/DEM/, 'Digital Elevation Model')
+    .replace(/LST/, 'Land Surface Temperature')
+    // Clean up underscores
+    .replace(/_/g, ' ');
 
   return name;
 };
@@ -68,7 +54,7 @@ export async function GET() {
 
     const layers = data.map((tileset: { id: string; name?: string; type: string; center?: number[] }) => ({
       id: tileset.id,
-      name: formatTilesetName(tileset.id, tileset.name),
+      name: formatTilesetName(tileset.id),
       type: tileset.type,
       center: tileset.center,
       sourceUrl: `mapbox://${tileset.id}`
