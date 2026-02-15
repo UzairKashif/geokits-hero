@@ -64,54 +64,9 @@ const DataPortalLogin = () => {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10">
-              <Image
-                src="/img/only-graphics.png"
-                alt="Geokits"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-            <span className="text-white text-xl font-semibold tracking-wide">
-              Geokits
-            </span>
-          </div>
+          
 
-          {/* Hero Text */}
-          <div className="max-w-lg">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-px w-12 bg-[#32de84]" />
-              <span className="text-[#32de84] text-sm font-medium tracking-widest uppercase">
-                Data Portal
-              </span>
-            </div>
-            <h1 className="text-5xl font-bold text-white leading-tight mb-6">
-              Geospatial Intelligence,{' '}
-              <span className="text-[#32de84]">Delivered</span>
-            </h1>
-            <p className="text-white/60 text-lg leading-relaxed">
-              Access your geospatial datasets, visualize environmental insights, 
-              and explore the data powering critical decisions.
-            </p>
-          </div>
-
-          {/* Bottom Stats */}
-          <div className="flex gap-12">
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">17+</div>
-              <div className="text-white/40 text-sm">Data Layers</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">4</div>
-              <div className="text-white/40 text-sm">Base Maps</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-1">25yr</div>
-              <div className="text-white/40 text-sm">Temporal Coverage</div>
-            </div>
-          </div>
+          
         </div>
 
         {/* Decorative Elements */}
@@ -147,6 +102,20 @@ const DataPortalLogin = () => {
 
           {/* Form Header */}
           <div className="mb-10">
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10">
+              <Image
+                src="/img/only-graphics.png"
+                alt="Geokits"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <span className="text-white text-xl font-semibold tracking-wide">
+              Geokits
+            </span>
+          </div>
             <h2 className="text-3xl font-bold text-white mb-3">Welcome back</h2>
             <p className="text-white/50">Sign in to access your data portal</p>
           </div>
