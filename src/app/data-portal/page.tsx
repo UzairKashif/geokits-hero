@@ -91,13 +91,12 @@ const DataPortalLogin = () => {
           <div className="lg:hidden flex items-center gap-3 mb-12">
             <div className="relative h-8 w-8">
               <Image
-                src="/img/GEOKITSWHITE.png"
+                src="/img/only-graphics.png"
                 alt="Geokits"
                 fill
                 className="object-contain"
               />
             </div>
-            <span className="text-white text-lg font-semibold">Geokits</span>
           </div>
 
           {/* Form Header */}
@@ -112,12 +111,8 @@ const DataPortalLogin = () => {
                 priority
               />
             </div>
-            <span className="text-white text-xl font-semibold tracking-wide">
-              Geokits
-            </span>
           </div>
-            <h2 className="text-3xl font-bold text-white mb-3">Welcome back</h2>
-            <p className="text-white/50">Sign in to access your data portal</p>
+            <h2 className="text-3xl font-bold text-white mb-3">Data Portal</h2>
           </div>
 
           {/* Error Message */}
@@ -137,7 +132,7 @@ const DataPortalLogin = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
-                Email address
+                Login
               </label>
               <div className="relative">
                 <input
