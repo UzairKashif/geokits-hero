@@ -32,6 +32,8 @@ interface LayerRowProps {
   collapsed: boolean
   opacity: number
   onOpacityChange: (value: number) => void
+  onDragStart?: (id: string) => void
+  onDrop?: (id: string) => void
 }
 
 interface BaseStyle {
@@ -153,6 +155,7 @@ const Dashboard = () => {
   const externalLayersRef = useRef<MapLayer[]>([])
   const layerOpacityRef = useRef<Record<string, number>>({})
   const [externalLayers, setExternalLayers] = useState<MapLayer[]>([])
+  const dragSourceRef = useRef<string | null>(null)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeBaseStyle, setActiveBaseStyle] = useState(BASE_STYLES[0].id)
@@ -184,7 +187,23 @@ const Dashboard = () => {
       const res = await fetch('/api/mapbox/layers');
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setExternalLayers(data.map((l: MapLayer) => ({ ...l, visible: false })));
+      // Apply saved order from localStorage if present
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('geo_layers_order') : null
+      let layers: MapLayer[] = data.map((l: MapLayer) => ({ ...l, visible: false }))
+      if (saved) {
+        try {
+          const order: string[] = JSON.parse(saved)
+          const orderIndex = new Map(order.map((id, i) => [id, i]))
+          layers = layers.slice().sort((a, b) => {
+            const ai = orderIndex.has(a.id) ? orderIndex.get(a.id)! : Number.MAX_SAFE_INTEGER
+            const bi = orderIndex.has(b.id) ? orderIndex.get(b.id)! : Number.MAX_SAFE_INTEGER
+            return ai - bi
+          })
+        } catch (err) {
+          console.warn('Invalid saved layer order', err)
+        }
+      }
+      setExternalLayers(layers);
       setLayerOpacity(prev => {
         const next = { ...prev }
         data.forEach((l: MapLayer) => {
@@ -277,6 +296,32 @@ const Dashboard = () => {
     applyLayerOpacity(mapRef.current, layerId, layer.type, normalized)
     setLayerOpacity(prev => ({ ...prev, [layer.id]: normalized }))
   }
+
+  // Drag & drop handlers for reordering layers
+  const handleDragStart = (id: string) => {
+    dragSourceRef.current = id
+  }
+
+  const handleDrop = (targetId: string) => {
+    const srcId = dragSourceRef.current
+    if (!srcId || srcId === targetId) return
+    setExternalLayers(prev => {
+      const next = prev.slice()
+      const srcIndex = next.findIndex(l => l.id === srcId)
+      const tgtIndex = next.findIndex(l => l.id === targetId)
+      if (srcIndex === -1 || tgtIndex === -1) return prev
+      const [moved] = next.splice(srcIndex, 1)
+      next.splice(tgtIndex, 0, moved)
+      // persist order
+      try {
+        localStorage.setItem('geo_layers_order', JSON.stringify(next.map(l => l.id)))
+      } catch (err) {
+        console.warn('Could not save layer order', err)
+      }
+      return next
+    })
+    dragSourceRef.current = null
+  }
   
   if (!user) return null
 
@@ -359,6 +404,8 @@ const Dashboard = () => {
                 collapsed={isCollapsed}
                 opacity={layerOpacity[l.id] ?? getDefaultOpacity(l)}
                 onOpacityChange={(value) => handleLayerOpacityChange(l, value)}
+                onDragStart={() => handleDragStart(l.id)}
+                onDrop={() => handleDrop(l.id)}
               />
             ))
           ) : (
@@ -381,7 +428,7 @@ const Dashboard = () => {
   )
 }
 
-const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange }: LayerRowProps) => {
+const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange, onDragStart, onDrop }: LayerRowProps) => {
   // Local state to handle slider movement smoothly before committing
   const [localOpacity, setLocalOpacity] = useState(opacity)
 
@@ -396,7 +443,28 @@ const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange }: LayerR
   }
 
   return (
-    <div className="mb-2">
+    <div
+      className="mb-2"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer?.setData('text/plain', layer.id)
+        e.dataTransfer!.effectAllowed = 'move'
+        onDragStart?.(layer.id)
+      }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        e.dataTransfer!.dropEffect = 'move'
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        const targetId = layer.id
+        // prefer explicit prop handler
+        onDrop?.(targetId)
+      }}
+      onDragEnd={() => {
+        // nothing for now
+      }}
+    >
       <button
         onClick={() => toggle(layer)}
         className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
