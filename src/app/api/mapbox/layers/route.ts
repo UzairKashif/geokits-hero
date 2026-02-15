@@ -1,36 +1,5 @@
 import { NextResponse } from 'next/server';
 
-const formatTilesetName = (id: string): string => {
-  // 1. Remove username prefix if present (e.g., "uzairkashif27.Lasbela_DEM-4rt96j" → "Lasbela_DEM-4rt96j")
-  let name = id.includes('.') ? id.split('.').pop()! : id;
-
-  // 2. Remove the Mapbox suffix (hyphen + alphanumeric at the end)
-  name = name.replace(/-[a-z0-9]+$/i, '');
-
-  // 3. Apply specific transformations for your WFP layers
-  name = name
-    // Mangrove time series: "Lasbela_MangroveMask_MVI_2025" → "Lasbela Mangrove Cover 2025"
-    .replace(/^(.+?)_MangroveMask_MVI_(\d{4})$/, '$1 Mangrove Cover $2')
-    // Gain/Loss: "Lasbela_Mangrove_GAIN_2000_20" → "Lasbela Mangrove Gain (2000-2020)"
-    .replace(/^(.+?)_Mangrove_GAIN_(\d{4})_(\d{2})$/, '$1 Mangrove Gain ($2-20$3)')
-    .replace(/^(.+?)_Mangrove_LOSS_(\d{4})_(\d{2})$/, '$1 Mangrove Loss ($2-20$3)')
-    // Proximity layers: "FreshwaterProximity_Lasbela" → "Lasbela Freshwater Proximity"
-    .replace(/^FreshwaterProximity_(.+)$/, '$1 Freshwater Proximity')
-    .replace(/^MangroveProximity_(.+)$/, '$1 Mangrove Proximity')
-    // Suitability: "Lasbela_ClimateSuitability" → "Lasbela Climate Suitability"
-    .replace(/ClimateSuitability/, 'Climate Suitability')
-    .replace(/TidalSuitability/, 'Tidal Suitability')
-    .replace(/^CalculatedSuitability$/, 'Agricultural Suitability Index')
-    // Technical layers
-    .replace(/JRCWaterOccurrence/, 'JRC Water Occurrence')
-    .replace(/DEM/, 'Digital Elevation Model')
-    .replace(/LST/, 'Land Surface Temperature')
-    // Clean up underscores
-    .replace(/_/g, ' ');
-
-  return name;
-};
-
 export async function GET() {
   const username = process.env.NEXT_PUBLIC_MAPBOX_USERNAME;
   const secretToken = process.env.MAPBOX_SECRET_TOKEN;
@@ -52,15 +21,25 @@ export async function GET() {
 
     const data = await response.json();
 
-    const layers = data.map((tileset: { id: string; name?: string; type: string; center?: number[] }) => ({
-      id: tileset.id,
-      name: formatTilesetName(tileset.id),
-      type: tileset.type,
-      center: tileset.center,
-      sourceUrl: `mapbox://${tileset.id}`
-    }));
+    // TEMPORARY DEBUG: Return raw + transformed for first 3 items
+    const debugLayers = data.slice(0, 3).map((tileset: { id: string; name?: string; type: string; center?: number[] }) => {
+      const step1 = tileset.id;
+      const step2 = tileset.id.includes('.') ? tileset.id.split('.').pop()! : tileset.id;
+      const step3 = step2.replace(/-[a-z0-9]+$/i, '');
+      
+      return {
+        DEBUG_raw_id: step1,
+        DEBUG_after_split: step2,
+        DEBUG_after_suffix_removal: step3,
+        id: tileset.id,
+        name: step3.replace(/_/g, ' '),
+        type: tileset.type,
+        center: tileset.center,
+        sourceUrl: `mapbox://${tileset.id}`
+      };
+    });
 
-    return NextResponse.json(layers);
+    return NextResponse.json(debugLayers);
 
   } catch (error: unknown) {
     console.error('❌ Server Error:', error);
