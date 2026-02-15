@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { onAuthStateChanged, signOut,User } from 'firebase/auth'
+import { onAuthStateChanged, signOut, User } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -87,6 +87,7 @@ const applyLayerOpacity = (map: mapboxgl.Map, layerId: string, layerType: MapLay
   }
 }
 
+// Updated function with the 'nearest' fix
 const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExternalLayerOptions = {}) => {
   if (!layer.sourceUrl) return
 
@@ -109,7 +110,13 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
         id: layerId,
         type: 'raster',
         source: sourceId,
-        paint: { 'raster-opacity': targetOpacity }
+        paint: {
+          'raster-opacity': targetOpacity,
+          // FIX: Force nearest neighbor for pixelated look
+          'raster-resampling': 'nearest',
+          // FIX: Remove fade for instant sharpness
+          'raster-fade-duration': 0
+        }
       })
     } else {
       const sourceLayerName = layer.sourceLayer || layer.id.split('.').pop() || layer.id
@@ -242,6 +249,7 @@ const Dashboard = () => {
     setMapLoaded(false)
     mapRef.current.setStyle(selected.styleUrl)
   }, [activeBaseStyle])
+
   // 3. Toggle Logic (The Engine)
   const toggleLayer = (layer: MapLayer) => {
     if (!mapRef.current) return;
@@ -269,7 +277,7 @@ const Dashboard = () => {
     applyLayerOpacity(mapRef.current, layerId, layer.type, normalized)
     setLayerOpacity(prev => ({ ...prev, [layer.id]: normalized }))
   }
-
+  
   if (!user) return null
 
   return (
@@ -347,7 +355,7 @@ const Dashboard = () => {
               <LayerRow
                 key={l.id}
                 layer={l}
-                toggle={toggleLayer}
+                toggle={() => toggleLayer(l)}
                 collapsed={isCollapsed}
                 opacity={layerOpacity[l.id] ?? getDefaultOpacity(l)}
                 onOpacityChange={(value) => handleLayerOpacityChange(l, value)}
@@ -373,32 +381,47 @@ const Dashboard = () => {
   )
 }
 
-const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange }: LayerRowProps) => (
-  <div className="mb-2">
-    <button
-      onClick={() => toggle(layer)}
-      className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
-    >
-      <div className="flex items-center gap-3 overflow-hidden">
-        <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
-        {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
-      </div>
-    </button>
-    {!collapsed && layer.visible && (
-      <div className="mt-2 flex items-center gap-2 px-1 text-[11px] text-white/60">
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={opacity}
-          onChange={(e) => onOpacityChange(Number(e.target.value))}
-          className="flex-1 accent-[#32de84]"
-        />
-        <span>{Math.round(opacity * 100)}%</span>
-      </div>
-    )}
-  </div>
-)
+const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange }: LayerRowProps) => {
+  // Local state to handle slider movement smoothly before committing
+  const [localOpacity, setLocalOpacity] = useState(opacity)
+
+  useEffect(() => {
+    setLocalOpacity(opacity)
+  }, [opacity])
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = parseFloat(e.target.value)
+    setLocalOpacity(newVal)
+    onOpacityChange(newVal)
+  }
+
+  return (
+    <div className="mb-2">
+      <button
+        onClick={() => toggle(layer)}
+        className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
+      >
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
+          {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
+        </div>
+      </button>
+      {!collapsed && layer.visible && (
+        <div className="mt-2 flex items-center gap-2 px-1 text-[11px] text-white/60">
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={localOpacity}
+            onChange={handleSliderChange}
+            className="flex-1 accent-[#32de84]"
+          />
+          <span>{Math.round(localOpacity * 100)}%</span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default Dashboard
