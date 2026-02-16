@@ -17,7 +17,7 @@ You can now embed images anywhere in your blog content using this simple syntax:
 ```
 # GIS-Driven Agritech Transformation
 
-Our team at GeoKits recently conducted a large-scale GIS-driven precision agriculture pilot across 40 acres in Punjab, Pakistan.
+Our team at Geokits recently conducted a large-scale GIS-driven precision agriculture pilot across 40 acres in Punjab, Pakistan.
 
 ![GIS Agriculture Overview](/blogs/agr.png "Overview of our precision agriculture implementation in Punjab")
 

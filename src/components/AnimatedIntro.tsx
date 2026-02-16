@@ -73,7 +73,7 @@ export default function AnimatedIntro() {
           >
             <Image
               src="/eng-trans-black.png"
-              alt="GeoKits Logo"
+              alt="Geokits Logo"
               width={480}
               height={200}
               className="object-contain"

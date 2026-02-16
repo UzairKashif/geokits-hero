@@ -348,14 +348,14 @@ const Dashboard = () => {
           <div className="relative h-10 w-8 overflow-hidden">
             <Image
               src="/img/GEOKITSWHITE.png"
-              alt="GeoKits mark"
+              alt="Geokits mark"
               fill
               sizes="32px"
               className="object-contain"
               priority
             />
           </div>
-          {!isCollapsed && <span className="font-semibold tracking-wide">GeoKits</span>}
+          {!isCollapsed && <span className="font-semibold tracking-wide">Geokits</span>}
         </div>  
 
         {!isCollapsed && (

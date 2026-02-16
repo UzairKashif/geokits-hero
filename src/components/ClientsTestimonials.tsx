@@ -23,7 +23,7 @@ const defaultTestimonials = [
   {
     img: "/silhouette.png",
     quote:
-      "Director GeoKits was a team leader and took ownership for executing the project and completing it on time and within budget. We received a professionally designed, concise, and accessible community information flyer with a mapping component that turned static data points into a visual story.",
+      "Director Geokits was a team leader and took ownership for executing the project and completing it on time and within budget. We received a professionally designed, concise, and accessible community information flyer with a mapping component that turned static data points into a visual story.",
     name: "Mark Thompson",
     role: "Lead Surveyor, NSA Oman",
   },

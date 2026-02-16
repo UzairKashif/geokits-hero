@@ -103,7 +103,7 @@ const Header = () => {
   return (
     <CardNav
       logo="/img/eng-trans.png"
-      logoAlt="GeoKits - Advanced GIS Solutions"
+      logoAlt="Geokits - Advanced GIS Solutions"
       items={items}
       baseColor="#fff"
       menuColor="#000"

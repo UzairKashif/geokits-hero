@@ -74,10 +74,10 @@ The heroic actions of the local shepherd who provided early warning serve as an 
     title: "GIS-Driven Agritech Transformation",
     slug: "gis-driven-agritech-transformation",
     img_url: "/blogs/agr.png",
-    excerpt: "Discover how GeoKits' 40-acre precision agriculture pilot in Punjab, Pakistan revolutionized farming through GIS technology.",
+    excerpt: "Discover how Geokits' 40-acre precision agriculture pilot in Punjab, Pakistan revolutionized farming through GIS technology.",
     content: `# GIS-Driven Agritech Transformation
 
-Our team at GeoKits recently conducted a large-scale GIS-driven precision agriculture pilot across 40 acres in Punjab, Pakistan. This initiative, while comprehensive, relies on satellite imagery, ground sensors, and weather forecasts, and may be subject to data resolution and connectivity constraints.
+Our team at Geokits recently conducted a large-scale GIS-driven precision agriculture pilot across 40 acres in Punjab, Pakistan. This initiative, while comprehensive, relies on satellite imagery, ground sensors, and weather forecasts, and may be subject to data resolution and connectivity constraints.
 
 ## The Need for GIS-Driven Agriculture
 
@@ -345,7 +345,7 @@ The pilot demonstrated **ROI payback within 18 months** through:
 
 ## Conclusion
 
-This pilot underscores how GIS revolutionizes agritech in Pakistan—shifting farmers from reactive to proactive management. By marrying high-resolution spatial data with tailored alerts and recommendations, GeoKits helps agricultural communities boost productivity, cut input costs, and explore lucrative specialty crops.
+This pilot underscores how GIS revolutionizes agritech in Pakistan—shifting farmers from reactive to proactive management. By marrying high-resolution spatial data with tailored alerts and recommendations, Geokits helps agricultural communities boost productivity, cut input costs, and explore lucrative specialty crops.
 
 ### Key Success Metrics
 

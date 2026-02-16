@@ -62,7 +62,7 @@ const projects = [
       file: "Strategic GIS Integration.pdf",
       img: "/projects/pix4d.jpg",
       description:
-        "GeoKits delivered a GIS and photogrammetry training initiative for the National Survey Authority of Oman, with full knowledge transfer across drone‑based surveying, spatial data processing, and image analysis.",
+        "Geokits delivered a GIS and photogrammetry training initiative for the National Survey Authority of Oman, with full knowledge transfer across drone‑based surveying, spatial data processing, and image analysis.",
       category: "Training & Development",
       technologies: ["Pix4D", "GIS", "Photogrammetry", "Drone Surveying"],
     }
