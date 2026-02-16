@@ -102,7 +102,7 @@ const DataPortalLogin = () => {
           {/* Form Header */}
           <div className="mb-10">
           <div className="flex items-center gap-3">
-            <div className="relative h-16 w-16">
+            <div className="relative h-20 w-20">
               <Image
                 src="/img/only-graphics.png"
                 alt="Geokits"
@@ -140,7 +140,7 @@ const DataPortalLogin = () => {
                   type="email"
                   value={email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="Enter your email"
                   className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 
                            focus:outline-none focus:border-[#32de84]/50 focus:ring-1 focus:ring-[#32de84]/50 
                            transition-all duration-200"
