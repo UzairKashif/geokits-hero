@@ -17,7 +17,7 @@ const formatTilesetName = (name: string): string => {
     // Suitability layers
     .replace(/ClimateSuitability/, 'Climate Suitability')
     .replace(/TidalSuitability/, 'Tidal Suitability')
-    .replace(/^CalculatedSuitability$/, 'Agricultural Suitability Index')
+    .replace(/^CalculatedSuitability$/, 'Integrated Suitability Surface')
     // Technical layers
     .replace(/JRCWaterOccurrence/, 'JRC Water Occurrence')
     .replace(/_DEM$/, ' Digital Elevation Model')
