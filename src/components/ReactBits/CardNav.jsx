@@ -215,7 +215,7 @@ const CardNav = ({
     alt={logoAlt} 
     className="logo" 
     style={{ 
-      height: '37px',        // let it be taller
+      height: '35px',        // let it be taller
       width: 'auto', 
       objectFit: 'cover',    // crop instead of contain
       objectPosition: 'center bottom',
