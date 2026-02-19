@@ -8,13 +8,13 @@ export const ContactBg = () => {
             <div className="w-full h-full">
                 <PrismaticBurst
                     animationType="rotate3d"
-                    intensity={3}
-                    speed={0.3}
-                    distort={3.0}
+                    intensity={2}
+                    speed={0.5}
+                    distort={0}
                     paused={false}
-                    offset={{ x: 0, y: 0 }}
+                    offset={{ x: -500, y: 0 }}
                     hoverDampness={0.25}
-                    rayCount={50}
+                    rayCount={0}
                     mixBlendMode="lighten"
                     colors={['#029900', '#050a1e', '#2478ed', '#1aba3f']}
                 />

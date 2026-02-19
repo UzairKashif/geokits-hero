@@ -46,7 +46,7 @@ export default function Page() {
           <ContactBg/>
           <div className="relative z-10 max-w-6xl mx-auto text-left">
             <div className="mb-6">
-              <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
+              <span className="text-xs font-light tracking-[0.2em] text-white uppercase">
                 Get Started
               </span>
             </div>
