@@ -1,21 +1,13 @@
 "use client";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useLenis } from "./LenisProvider";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { Plus_Jakarta_Sans } from "next/font/google";
 
 import CompanyDescriptionSection from "./misc";
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  display: "swap",
-});
 
 // Set mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
@@ -26,10 +18,10 @@ export default function MapboxHeroGSAP() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
+  const isScrollingRef = useRef(false);
   const autoRotationRef = useRef<gsap.core.Tween | null>(null);
-  const [isStart, setIsStart] = useState(true);
-  const lenis = useLenis();
+  const isStartRef = useRef(true);
+  const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Text element refs for GSAP animations - single container approach
   const textContainerRef = useRef<HTMLDivElement>(null);
@@ -135,36 +127,26 @@ export default function MapboxHeroGSAP() {
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
 
-    const startAutoRotation = () => {
-      if (autoRotationRef.current) {
-        autoRotationRef.current.kill();
-      }
-      autoRotationRef.current = gsap.to(
-        {},
-        {
-          duration: 60, // 60 seconds for full rotation
-          repeat: -1,
-          ease: "none",
-          onUpdate: function () {
-            if (mapRef.current && !isScrolling) {
-              const rotation = (this.progress() * 360) % 360;
-              mapRef.current.setBearing(rotation);
-            }
-          },
-        },
-      );
-    };
-
-    if (!isScrolling && isStart) {
-      startAutoRotation();
+    if (autoRotationRef.current) {
+      autoRotationRef.current.kill();
     }
+    autoRotationRef.current = gsap.to({}, {
+      duration: 60,
+      repeat: -1,
+      ease: "none",
+      onUpdate: function () {
+        if (!mapRef.current || isScrollingRef.current || !isStartRef.current) return;
+        const rotation = (this.progress() * 360) % 360;
+        mapRef.current.setBearing(rotation);
+      },
+    });
 
     return () => {
       if (autoRotationRef.current) {
         autoRotationRef.current.kill();
       }
     };
-  }, [mapLoaded, isScrolling, isStart]);
+  }, [mapLoaded]);
 
   // GSAP ScrollTrigger animations
   useEffect(() => {
@@ -173,261 +155,257 @@ export default function MapboxHeroGSAP() {
     const map = mapRef.current;
     const container = containerRef.current;
 
-    // Create timeline for map animations
-    const mapTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: container,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        onUpdate: (self) => {
-          // Only set scrolling state when actually scrolling, not just on scroll events
-          const velocity = Math.abs(self.getVelocity());
-          setIsScrolling(velocity > 0.1);
-          setIsStart(false); // Set isStart to false as soon as ScrollTrigger detects any scroll
-        },
-      },
-    });
-
-    // Map zoom animation with smoother easing
-    mapTimeline.to(
-      {},
-      {
-        duration: 1,
-        ease: "power2.inOut",
-        onUpdate: function () {
-          const progress = this.progress();
-          // Use a more gradual zoom curve with easing function
-          const easedProgress = gsap.parseEase("power2.inOut")(progress);
-          // Reduce the zoom range for smoother transition
-          const zoom = gsap.utils.interpolate(0.3, 5.5, easedProgress);
-          map.setZoom(zoom);
-        },
-      },
-    );
-
-    // Map rotation animation with smoother progression
-    mapTimeline.to(
-      {},
-      {
-        duration: 1,
-        ease: "power1.inOut",
-        onUpdate: function () {
-          const progress = this.progress();
-          // Use easing for smoother rotation
-          const easedProgress = gsap.parseEase("power1.inOut")(progress);
-          const rotation = gsap.utils.interpolate(0, 270, easedProgress);
-          map.setBearing(rotation);
-        },
-      },
-      0,
-    ); // Start at same time as zoom
-
-    // Map pitch animation with smoother timing
-    mapTimeline.to(
-      {},
-      {
-        duration: 1,
-        ease: "power2.out",
-        onUpdate: function () {
-          const progress = this.progress();
-          let pitch = 0;
-          // Start pitch animation earlier and make it more gradual
-          if (progress > 0.5) {
-            const pitchProgress = (progress - 0.5) / 0.5;
-            const easedPitchProgress = gsap.parseEase("power2.out")(pitchProgress);
-            pitch = gsap.utils.interpolate(0, 45, easedPitchProgress);
-          }
-          map.setPitch(pitch);
-        },
-      },
-      0,
-    );
-
-    // Map center animation with coordinated easing
-    mapTimeline.to(
-      {},
-      {
-        duration: 1,
-        ease: "power2.inOut",
-        onUpdate: function () {
-          const progress = this.progress();
-          const easedProgress = gsap.parseEase("power2.inOut")(progress);
-          const startLng = 0;
-          const startLat = 0;
-          const endLng = -74.006;
-          const endLat = 40.7128;
-          const currentLng = gsap.utils.interpolate(startLng, endLng, easedProgress);
-          const currentLat = gsap.utils.interpolate(startLat, endLat, easedProgress);
-          map.setCenter([currentLng, currentLat]);
-        },
-      },
-      0,
-    );
-
-    // Single text animation controller
-    if (
-      textContainerRef.current &&
-      headingRef.current &&
-      subtextRef.current &&
-      finalTextRef.current
-    ) {
-      // Set initial states
-      gsap.set(headingRef.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-      });
-      gsap.set(subtextRef.current, {
-        opacity: 0,
-        y: 30,
-        scale: 0.9,
-        filter: "blur(10px)",
-      });
-      gsap.set(finalTextRef.current, {
-        opacity: 0,
-        y: 40,
-        scale: 0.8,
-        filter: "blur(8px)",
-      });
-
-      // Create a single timeline that controls all text transitions
-      const textTimeline = gsap.timeline({
+    const ctx = gsap.context(() => {
+      // Create timeline for map animations
+      const mapTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: container,
           start: "top top",
           end: "bottom top",
           scrub: 1,
+          onUpdate: (self) => {
+            const velocity = Math.abs(self.getVelocity());
+            isScrollingRef.current = velocity > 0.1;
+            isStartRef.current = false;
+          },
         },
       });
 
-      // Phase 1: Main heading visible (0% - 16.5%) - same duration as others
-      textTimeline.to(headingRef.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-        duration: 0.165,
-      });
-
-      // Phase 2: Fade out heading, fade in subtext (16.5% - 25%) - increased transition time
-      textTimeline
-        .to(headingRef.current, {
-          opacity: 0,
-          y: -50,
-          scale: 0.95,
-          filter: "blur(5px)",
-          duration: 0.085,
-        })
-        .to(
-          subtextRef.current,
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            filter: "blur(0px)",
-            duration: 0.085,
+      // Map zoom animation with smoother easing
+      mapTimeline.to(
+        {},
+        {
+          duration: 1,
+          ease: "power2.inOut",
+          onUpdate: function () {
+            const progress = this.progress();
+            // Use a more gradual zoom curve with easing function
+            const easedProgress = gsap.parseEase("power2.inOut")(progress);
+            // Reduce the zoom range for smoother transition
+            const zoom = gsap.utils.interpolate(0.3, 5.5, easedProgress);
+            map.setZoom(zoom);
           },
-          "-=0.085",
-        );
+        },
+      );
 
-      // Phase 3: Subtext visible (25% - 41.5%) - same duration as main heading (16.5%)
-      textTimeline.to(subtextRef.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-        duration: 0.165,
-      });
+      // Map rotation animation with smoother progression
+      mapTimeline.to(
+        {},
+        {
+          duration: 1,
+          ease: "power1.inOut",
+          onUpdate: function () {
+            const progress = this.progress();
+            // Use easing for smoother rotation
+            const easedProgress = gsap.parseEase("power1.inOut")(progress);
+            const rotation = gsap.utils.interpolate(0, 270, easedProgress);
+            map.setBearing(rotation);
+          },
+        },
+        0,
+      ); // Start at same time as zoom
 
-      // Phase 4: Fade out subtext, fade in final text (41.5% - 50%) - increased transition time
-      textTimeline
-        .to(subtextRef.current, {
+      // Map pitch animation with smoother timing
+      mapTimeline.to(
+        {},
+        {
+          duration: 1,
+          ease: "power2.out",
+          onUpdate: function () {
+            const progress = this.progress();
+            let pitch = 0;
+            // Start pitch animation earlier and make it more gradual
+            if (progress > 0.5) {
+              const pitchProgress = (progress - 0.5) / 0.5;
+              const easedPitchProgress = gsap.parseEase("power2.out")(pitchProgress);
+              pitch = gsap.utils.interpolate(0, 45, easedPitchProgress);
+            }
+            map.setPitch(pitch);
+          }
+        },
+        0,
+      );
+
+      // Map center animation with coordinated easing
+      mapTimeline.to(
+        {},
+        {
+          duration: 1,
+          ease: "power2.inOut",
+          onUpdate: function () {
+            const progress = this.progress();
+            const easedProgress = gsap.parseEase("power2.inOut")(progress);
+            const startLng = 0;
+            const startLat = 0;
+            const endLng = -74.006;
+            const endLat = 40.7128;
+            const currentLng = gsap.utils.interpolate(startLng, endLng, easedProgress);
+            const currentLat = gsap.utils.interpolate(startLat, endLat, easedProgress);
+            map.setCenter([currentLng, currentLat]);
+          },
+        },
+        0,
+      );
+
+      // Single text animation controller
+      if (
+        textContainerRef.current &&
+        headingRef.current &&
+        subtextRef.current &&
+        finalTextRef.current
+      ) {
+        // Set initial states
+        gsap.set(headingRef.current, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+        });
+        gsap.set(subtextRef.current, {
           opacity: 0,
-          y: -30,
+          y: 30,
           scale: 0.9,
-          filter: "blur(5px)",
-          duration: 0.085,
-        })
-        .to(
-          finalTextRef.current,
-          {
-            opacity: 1,
-            y: -10,
-            scale: 1.02,
-            filter: "blur(0px)",
-            duration: 0.085,
-          },
-          "-=0.085",
-        );
+          filter: "blur(10px)",
+        });
+        gsap.set(finalTextRef.current, {
+          opacity: 0,
+          y: 40,
+          scale: 0.8,
+          filter: "blur(8px)",
+        });
 
-      // Phase 5: Final text visible (50% - 66.5%) - same duration as others (16.5%)
-      textTimeline.to(finalTextRef.current, {
-        opacity: 1,
-        y: -10,
-        scale: 1.02,
-        filter: "blur(0px)",
-        duration: 0.165,
-      });
-
-      // Phase 6: Final fade out (66.5% - 75%) - smooth exit
-      textTimeline.to(finalTextRef.current, {
-        opacity: 0,
-        y: -20,
-        scale: 0.95,
-        filter: "blur(3px)",
-        duration: 0.085,
-      });
-
-      // Phase 7: Empty space for map focus (75% - 100%)
-      textTimeline.to({}, { duration: 0.25 });
-    }
-
-    if (scrollIndicatorRef.current) {
-      // Fade out scroll indicator early to avoid conflicts
-      gsap
-        .timeline({
+        // Create a single timeline that controls all text transitions
+        const textTimeline = gsap.timeline({
           scrollTrigger: {
             trigger: container,
             start: "top top",
-            end: "15% top", // Fade out earlier
+            end: "bottom top",
             scrub: 1,
           },
-        })
-        .to(scrollIndicatorRef.current, { opacity: 0, duration: 1 });
-    }
+        });
 
-    // Initial text animation
-    if (headingRef.current) {
-      gsap.set(headingRef.current, { opacity: 0, y: 30 });
-      gsap.to(headingRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        delay: 0.5,
-        ease: "power2.out",
-      });
-    }
+        // Phase 1: Main heading visible (0% - 16.5%) - same duration as others
+        textTimeline.to(headingRef.current, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 0.165,
+        });
 
-    return () => {
-      try {
-        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      } catch {}
-    };
+        // Phase 2: Fade out heading, fade in subtext (16.5% - 25%) - increased transition time
+        textTimeline
+          .to(headingRef.current, {
+            opacity: 0,
+            y: -50,
+            scale: 0.95,
+            filter: "blur(5px)",
+            duration: 0.085,
+          })
+          .to(
+            subtextRef.current,
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 0.085,
+            },
+            "-=0.085",
+          );
+
+        // Phase 3: Subtext visible (25% - 41.5%) - same duration as main heading (16.5%)
+        textTimeline.to(subtextRef.current, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 0.165,
+        });
+
+        // Phase 4: Fade out subtext, fade in final text (41.5% - 50%) - increased transition time
+        textTimeline
+          .to(subtextRef.current, {
+            opacity: 0,
+            y: -30,
+            scale: 0.9,
+            filter: "blur(5px)",
+            duration: 0.085,
+          })
+          .to(
+            finalTextRef.current,
+            {
+              opacity: 1,
+              y: -10,
+              scale: 1.02,
+              filter: "blur(0px)",
+              duration: 0.085,
+            },
+            "-=0.085",
+          );
+
+        // Phase 5: Final text visible (50% - 66.5%) - same duration as others (16.5%)
+        textTimeline.to(finalTextRef.current, {
+          opacity: 1,
+          y: -10,
+          scale: 1.02,
+          filter: "blur(0px)",
+          duration: 0.165,
+        });
+
+        // Phase 6: Final fade out (66.5% - 75%) - smooth exit
+        textTimeline.to(finalTextRef.current, {
+          opacity: 0,
+          y: -20,
+          scale: 0.95,
+          filter: "blur(3px)",
+          duration: 0.085,
+        });
+
+        // Phase 7: Empty space for map focus (75% - 100%)
+        textTimeline.to({}, { duration: 0.25 });
+      }
+
+      if (scrollIndicatorRef.current) {
+        // Fade out scroll indicator early to avoid conflicts
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: container,
+              start: "top top",
+              end: "15% top", // Fade out earlier
+              scrub: 1,
+            },
+          })
+          .to(scrollIndicatorRef.current, { opacity: 0, duration: 1 });
+      }
+
+      // Initial text animation
+      if (headingRef.current) {
+        gsap.set(headingRef.current, { opacity: 0, y: 30 });
+        gsap.to(headingRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          delay: 0.5,
+          ease: "power2.out",
+        });
+      }
+    }, container);
+
+    return () => ctx.revert();
   }, [mapLoaded]);
 
   // Scroll detection
   useEffect(() => {
-    let scrollTimer: NodeJS.Timeout;
-
     const handleScroll = () => {
-      setIsScrolling(true);
-      setIsStart(false); // Set isStart to false as soon as scrolling begins
-      clearTimeout(scrollTimer);
-
-      scrollTimer = setTimeout(() => {
-        setIsScrolling(false);
+      isScrollingRef.current = true;
+      isStartRef.current = false;
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+      scrollTimerRef.current = setTimeout(() => {
+        isScrollingRef.current = false;
       }, 1000);
     };
 
@@ -435,7 +413,9 @@ export default function MapboxHeroGSAP() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearTimeout(scrollTimer);
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
     };
   }, []);
 

@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { projects } from "@/data/projects";
-import { ChevronUp, ChevronDown, ArrowDown } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -424,7 +424,6 @@ export default function SolutionsShowcase() {
                   src={currentProject.img}
                   alt={currentProject.title}
                   fill
-                  priority={activeProject === 0} // Priority for first image only
                   sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover hover:filter hover:scale-105 transition-all duration-700"
                 />

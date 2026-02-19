@@ -61,9 +61,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {/* Only preload critical above-the-fold images */}
-        <link rel="preload" as="image" href="/projects/disastermgmt.PNG" />
-        
         {/* Structured Data for Organization */}
         <script
           type="application/ld+json"

@@ -1,5 +1,3 @@
-'use client'
-
 import React from 'react'
 import Image from 'next/image'
 import { Linkedin, Instagram, Mail, Phone, MapPin } from 'lucide-react'
@@ -18,7 +16,6 @@ export default function Footer() {
                 width={300}
                 height={80}
                 className="h-[300px] w-auto"
-                priority
               />
             </div>
 

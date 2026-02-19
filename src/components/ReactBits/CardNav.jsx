@@ -49,14 +49,10 @@ const CardNav = ({
       contentEl.style.position = wasPosition;
       contentEl.style.height = wasHeight;
 
-      const calculatedHeight = topBar + contentHeight + padding;
-      console.log('Calculated height:', calculatedHeight, 'Content height:', contentHeight);
-      
-      return calculatedHeight;
+      return topBar + contentHeight + padding;
     }
     
     // Fallback height for both desktop and mobile
-    console.log('Using fallback height: 260');
     return 260;
   };
 
@@ -159,8 +155,6 @@ const CardNav = ({
   const toggleMenu = () => {
     const tl = tlRef.current;
     if (!tl) return;
-    
-    console.log('Toggle menu called. Current state:', { isExpanded, isHamburgerOpen });
     
     if (!isExpanded) {
       setIsHamburgerOpen(true);

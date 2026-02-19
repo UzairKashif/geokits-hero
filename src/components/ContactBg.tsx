@@ -1,3 +1,5 @@
+"use client";
+
 import PrismaticBurst from "./ReactBits/PrismaticBurst";
 
 export const ContactBg = () => {

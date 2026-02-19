@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Services, ServicesUnit } from '@/data/services';
 import SpotlightCard from './SpotlightCard';
+import Image from "next/image";
 
 export const ServicesSection = () => {
     const [imgUrl, setImgUrl] = useState<string>(Services[0].imageUrl);
@@ -10,7 +11,6 @@ export const ServicesSection = () => {
     const [imageLoaded, setImageLoaded] = useState<{ [key: string]: boolean }>({});
     const [isTransitioning, setIsTransitioning] = useState(false);
     const sectionRef = useRef<HTMLDivElement>(null);
-    const imageRef = useRef<HTMLImageElement>(null);
 
 
 
@@ -48,20 +48,12 @@ export const ServicesSection = () => {
         if (imageUrl === imgUrl) return;
 
         setIsTransitioning(true);
-        
-        // Smooth transition
-        if (imageRef.current) {
-            imageRef.current.style.opacity = '0.5';
-        }
 
         setTimeout(() => {
             setImgUrl(imageUrl);
             setActiveService(index);
             
             setTimeout(() => {
-                if (imageRef.current) {
-                    imageRef.current.style.opacity = '1';
-                }
                 setIsTransitioning(false);
             }, 50);
         }, 150);
@@ -129,10 +121,11 @@ export const ServicesSection = () => {
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-w-2xl">
                             <div className="aspect-[4/3] bg-gray-200 overflow-hidden rounded-lg relative">
-                                <img
-                                    ref={imageRef}
+                                <Image
                                     src={imgUrl}
-                                    alt="Service"
+                                    alt={Services[activeService].serviceName}
+                                    fill
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
                                     className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
                                     style={{ 
                                         opacity: isTransitioning ? 0.5 : 1,

@@ -3,6 +3,7 @@
 import React from "react";
 import { useNavigationCleanup } from "../hooks/useNavigationCleanup";
 import { BlogPost } from "../lib/blogData";
+import Image from "next/image";
 
 interface BlogCardProps {
   post: BlogPost;
@@ -34,9 +35,11 @@ export default function BlogCard({ post, index }: BlogCardProps) {
         {/* Image Container */}
         <div className="relative h-60 overflow-hidden bg-gray-50">
           {post.img_url ? (
-            <img
+            <Image
               src={post.img_url}
               alt={post.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="w-full h-full object-cover hover:filter  transform group-hover:scale-105 transition-all duration-500"
             />
           ) : (

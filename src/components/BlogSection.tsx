@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import { blogPosts } from '@/lib/blogData'
 import BlogCard from './BlogCard'

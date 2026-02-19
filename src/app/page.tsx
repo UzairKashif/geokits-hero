@@ -1,6 +1,3 @@
-"use client";
-
-import { Suspense } from "react";
 import MapboxHeroGSAP from "@/components/MapboxHeroGSAP";
 // import LiveDataFeeds from '@/components/LiveDataFeeds'
 import SolutionsShowcase from "@/components/SolutionsShowcase";
@@ -10,27 +7,15 @@ import Footer from "@/components/Footer";
 import CommunityEngagement from "@/components/CommunityEngagement";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
-import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ContactBg } from "@/components/ContactBg";
-import ScrollToHash from "@/components/ScrollToHash";
-
-function ScrollPositionMemoryBoundary() {
-  // Isolated client component to use search params inside Suspense
-  useScrollPositionMemory();
-  return null;
-}
+import HomePageEffects from "@/components/HomePageEffects";
 
 export default function Page() {
-  // Initialize scroll position memory within a Suspense boundary
-
   return (
     <main className="relative min-h-screen w-full bg-white text-black">
       <div className="relative">
-        <Suspense fallback={null}>
-          <ScrollPositionMemoryBoundary />
-        </Suspense>
-        <ScrollToHash />
+        <HomePageEffects />
         <MapboxHeroGSAP />
         {/* <ValueProposition /> */}
         {/* <Stats /> */}

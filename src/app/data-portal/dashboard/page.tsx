@@ -6,15 +6,9 @@ import { onAuthStateChanged, signOut, User } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { Plus_Jakarta_Sans } from "next/font/google"
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, LogOut, Database, Layers } from 'lucide-react'
 import Image from 'next/image'
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  weight: ["300", "400", "500", "600", "700"],
-  subsets: ["latin"],
-});
 
 interface MapLayer {
   id: string
@@ -326,7 +320,7 @@ const Dashboard = () => {
   if (!user) return null
 
   return (
-    <div className={`relative flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden ${plusJakartaSans.className}`}>
+    <div className="relative flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden">
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute top-10 z-30 w-7 h-7 bg-[#32de84] rounded-full flex items-center justify-center text-black shadow-lg"
