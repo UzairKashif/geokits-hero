@@ -1,3 +1,6 @@
+"use client";
+
+import { Suspense } from "react";
 import MapboxHeroGSAP from "@/components/MapboxHeroGSAP";
 // import LiveDataFeeds from '@/components/LiveDataFeeds'
 import SolutionsShowcase from "@/components/SolutionsShowcase";
@@ -7,15 +10,27 @@ import Footer from "@/components/Footer";
 import CommunityEngagement from "@/components/CommunityEngagement";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
+import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ContactBg } from "@/components/ContactBg";
-import HomePageEffects from "@/components/HomePageEffects";
+import ScrollToHash from "@/components/ScrollToHash";
+
+function ScrollPositionMemoryBoundary() {
+  // Isolated client component to use search params inside Suspense
+  useScrollPositionMemory();
+  return null;
+}
 
 export default function Page() {
+  // Initialize scroll position memory within a Suspense boundary
+
   return (
     <main className="relative min-h-screen w-full bg-white text-black">
       <div className="relative">
-        <HomePageEffects />
+        <Suspense fallback={null}>
+          <ScrollPositionMemoryBoundary />
+        </Suspense>
+        <ScrollToHash />
         <MapboxHeroGSAP />
         {/* <ValueProposition /> */}
         {/* <Stats /> */}
@@ -46,7 +61,7 @@ export default function Page() {
           <ContactBg/>
           <div className="relative z-10 max-w-6xl mx-auto text-left">
             <div className="mb-6">
-              <span className="text-xs font-light tracking-[0.2em] text-white uppercase">
+              <span className="text-xs font-light tracking-[0.2em] text-gray-500 uppercase">
                 Get Started
               </span>
             </div>
@@ -56,7 +71,9 @@ export default function Page() {
               <span className="font-light">started?</span>
             </h2>
             <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide mb-12">
-            Unlock new possibilities with advanced GIS solutions. Partner with us to move your organization closer to its goals.
+              Transform your infrastructure monitoring with our cutting-edge GIS
+              solutions. Let us discuss how we can help your organization
+              achieve its goals.
             </p>
 
             {/* Contact Button */}
