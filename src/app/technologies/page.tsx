@@ -116,9 +116,7 @@ export default function TechnologiesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-16">
             <h1 className="text-5xl md:text-7xl font-extralight text-[#021400] mb-8 leading-none">
-              Our
-              <br />
-              <span className="font-light">Technologies</span>
+              <span className="font-light">Tools & Technologies</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
               Cutting-edge tools and platforms that power our geospatial solutions and drive innovation in GIS technology

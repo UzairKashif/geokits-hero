@@ -11,29 +11,23 @@ export default function Footer() {
           {/* Company Logo */}
             <div className="lg:col-span-2 flex justify-center lg:justify-start">
               <Image
-                src="/img/eng-trans.png"
+                src="/img/geoblack.png"
                 alt="Geokits Logo"
                 width={300}
                 height={80}
-                className="h-[300px] w-auto"
+                className="w-[220px] sm:w-[260px] lg:w-[300px] h-auto max-w-full object-contain"
               />
             </div>
 
           {/* Navigation columns */}
-          <div>
-            <h3 className="font-semibold text-black mb-4">Home</h3>
-            <ul className="space-y-2">
-              <li><a href="https://maps.google.com/maps?q=Daftarkhwan,+I-10/2,+Islamabad,+Pakistan" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">Locations</a></li>
-              {/* <li><a href="#" className="text-gray-600 hover:text-black">Criteria</a></li> */}
-            </ul>
-          </div>
+       
 
           <div>
             <h3 className="font-semibold text-black mb-4">Our work</h3>
             <ul className="space-y-2">
               <li>
                 <a href="#services" className="text-gray-600 hover:text-black flex items-center">
-                  The Fundamentals
+                  Services
                 </a>
               </li>
               <li>
@@ -43,7 +37,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="#solutions" className="text-gray-600 hover:text-black flex items-center">
-                  The Collective
+                  Projects
                 </a>
               </li>
             </ul>
@@ -53,7 +47,7 @@ export default function Footer() {
             <h3 className="font-semibold text-black mb-4">About</h3>
             <ul className="space-y-2">
               <li><a href="/teams" className="text-gray-600 hover:text-black">Team</a></li>
-              <li><a href="/technologies" className="text-gray-600 hover:text-black">Technologies</a></li>
+              <li><a href="/technologies" className="text-gray-600 hover:text-black">Tools & Technologies</a></li>
               {/*<li><a href="/testimonials" className="text-gray-600 hover:text-black">Testimonials</a></li>*/}
             </ul>
           </div>
@@ -97,9 +91,9 @@ export default function Footer() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-2 lg:space-y-0 text-gray-600 text-sm">
               <span className="flex items-center">
                 <MapPin className="w-4 h-4 mr-2" />
-                I10, Plot No. 94, 3 Street 7, I-10/3 sector, Islamabad, 44800
+                483 Green Lanes, London, England, N13 4BS
               </span>
-              <span>© 2025 Geokits. All rights reserved.</span>
+              <span>© 2026 Geokits. All rights reserved.</span>
             </div>
           </div>
         </div>

@@ -56,9 +56,7 @@ export default function Page() {
               <span className="font-light">started?</span>
             </h2>
             <p className="text-lg text-gray-400 max-w-xl leading-relaxed tracking-wide mb-12">
-              Transform your infrastructure monitoring with our cutting-edge GIS
-              solutions. Let us discuss how we can help your organization
-              achieve its goals.
+            Unlock new possibilities with advanced GIS solutions. Partner with us to move your organization closer to its goals.
             </p>
 
             {/* Contact Button */}
