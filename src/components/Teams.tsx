@@ -138,7 +138,7 @@ const Teams: React.FC = () => {
               Our Leadership
             </h2>
             <p className="text-base text-[#021400]/70 max-w-2xl mx-auto leading-relaxed">
-              Visionary leaders with proven track records in scaling geospatial technology companies and delivering enterprise solutions.
+              Visionary leaders with proven track records in delivering enterprise solutions.
             </p>
           </motion.div>
 
@@ -258,10 +258,7 @@ const Teams: React.FC = () => {
             <h3 className="text-5xl md:text-6xl font-light text-white mb-4 leading-tight tracking-tight">
               Ready to Work With Our Expert Team?
             </h3>
-            <p className="text-base text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Transform your geospatial challenges into competitive advantages. Our team delivers 
-              enterprise-grade solutions that scale with your business needs.
-            </p>
+           
           </motion.div>
 
           {/* Main CTA Buttons */}

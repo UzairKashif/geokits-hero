@@ -15,7 +15,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 1,
     name: "Uzair Kashif",
-    role: "Founder & CEO, GIS Engineer",
+    role: "Director",
     description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
     imageUrl: "/team/uzair.png",
     linkedIn: "https://www.linkedin.com/in/uzairkashif/",
@@ -23,8 +23,19 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 2,
+    name: "Kashif Khalil",
+    role: "Senior Partner",
+    description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
+    imageUrl: "/team/khalil.png",
+
+    
+    
+    category: "leader"
+  },
+  {
+    id: 11,
     name: "Amir Liaquat Baig",
-    role: "GIS Analyst",
+    role: "Senior Partner",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
     imageUrl: "/team/amir.png",
     
@@ -33,23 +44,13 @@ export const teamMembers: TeamMember[] = [
     {
     id: 10,
     name: "Mirza Imran Baig",
-    role: "Director Operations",
+    role: "Partner",
     description: "Visionary leader with 3+  years in GIS and geospatial technologies. Leading innovation in spatial intelligence solutions.",
     imageUrl: "/team/imran.png",
     
     category: "leader"
   },
-  {
-    id: 11,
-    name: "Kashif Khalil",
-    role: "Managing Director",
-    description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
-    imageUrl: "/team/khalil.png",
-
-    
-    
-    category: "leader"
-  },
+  
   // Team Members
   {
     id: 3,

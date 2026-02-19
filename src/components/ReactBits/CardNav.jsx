@@ -209,9 +209,21 @@ const CardNav = ({
             <div className="hamburger-line" />
           </div>
 
-          <div className="logo-container h-[100px]">
-            <img src={logo} alt={logoAlt} className="logo h-[100px]" />
-          </div>
+          <div className="logo-container flex items-center justify-center overflow-hidden" style={{ height: '60px' }}>
+  <img 
+    src={logo} 
+    alt={logoAlt} 
+    className="logo" 
+    style={{ 
+      height: '37px',        // let it be taller
+      width: 'auto', 
+      objectFit: 'cover',    // crop instead of contain
+      objectPosition: 'center bottom',
+      marginBottom: '8.5px'  // anchor to bottom to cut top whitespace
+    }} 
+
+  />
+</div>
 
 
         </div>
