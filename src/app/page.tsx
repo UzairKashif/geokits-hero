@@ -1,13 +1,14 @@
 "use client";
 
 import { Suspense } from "react";
-import MapboxHeroGSAP from "@/components/MapboxHeroGSAP";
+import { Hero7 } from "@/components/hero-7";
 // import LiveDataFeeds from '@/components/LiveDataFeeds'
 import SolutionsShowcase from "@/components/SolutionsShowcase";
 import BlogSection from "@/components/BlogSection";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import Footer from "@/components/Footer";
 import CommunityEngagement from "@/components/CommunityEngagement";
+import CompanyDescriptionSection from "@/components/misc";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
@@ -31,7 +32,8 @@ export default function Page() {
           <ScrollPositionMemoryBoundary />
         </Suspense>
         <ScrollToHash />
-        <MapboxHeroGSAP />
+        <Hero7 />
+        <CompanyDescriptionSection />
         {/* <ValueProposition /> */}
         {/* <Stats /> */}
         {/* <Workflow /> */}
