@@ -3,6 +3,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { useMemo, useRef, Suspense, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -483,6 +484,8 @@ function LoadingFallback() {
 }
 
 export function Hero7() {
+  const router = useRouter();
+
   return (
     <section className="relative w-full min-h-screen bg-neutral-950 overflow-hidden">
       <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-start sm:items-center text-left sm:text-center pt-28 sm:pt-32 md:pt-36 px-4 font-sans">
@@ -490,7 +493,7 @@ export function Hero7() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extralight text-white tracking-tight leading-[1.1] max-w-4xl"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal text-white tracking-tight leading-[1.1] max-w-4xl"
         >
           Transform Your Vision
           <br />
@@ -514,7 +517,8 @@ export function Hero7() {
           transition={{ duration: 0.6, delay: 0.3 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full sm:w-auto mt-6 sm:mt-8 px-5 sm:px-6 py-2.5 sm:py-3 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-full text-white text-sm sm:text-base font-light flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
+          onClick={() => router.push("/contact")}
+          className="w-full sm:w-auto mt-6 sm:mt-8 px-5 sm:px-6 py-2.5 sm:py-3 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-[0.75rem] text-white text-sm sm:text-base font-light flex items-center justify-center sm:justify-start gap-2 transition-colors cursor-pointer"
         >
           Get Started
           <ArrowRight className="w-4 h-4" />
