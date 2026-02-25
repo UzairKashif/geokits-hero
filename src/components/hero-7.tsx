@@ -488,7 +488,7 @@ export function Hero7() {
 
   return (
     <section className="relative w-full min-h-screen bg-neutral-950 overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-start sm:items-center text-left sm:text-center pt-28 sm:pt-32 md:pt-36 px-4 font-sans">
+      <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-start sm:items-center text-left sm:text-center pt-28 sm:pt-32 md:pt-36 pl-6 pr-4 sm:px-4 font-sans">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -506,7 +506,7 @@ export function Hero7() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-neutral-400 max-w-xl leading-relaxed font-light"
         >
-          Experience the world through geospatial intelligence
+          Experience the world through geospatial intelligence 
           <br className="hidden sm:block" />
           and innovative system design
         </motion.p>
