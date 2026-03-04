@@ -279,8 +279,8 @@ export function Hero2() {
         </div>
 
         <div className="relative">
-          <div className="absolute -left-4 sm:left-0 top-0 bottom-0 w-64 bg-linear-to-r from-neutral-950 to-transparent z-10 pointer-events-none" />
-          <div className="absolute -right-4 sm:right-0 top-0 bottom-0 w-64 bg-linear-to-l from-neutral-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute -left-4 sm:left-0 top-0 bottom-0 hidden sm:block w-64 bg-linear-to-r from-neutral-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute -right-4 sm:right-0 top-0 bottom-0 hidden sm:block w-64 bg-linear-to-l from-neutral-950 to-transparent z-10 pointer-events-none" />
 
           <div
             className="-mx-4 sm:mx-0 w-[calc(100%+2rem)] sm:w-full overflow-x-auto scrollbar-hide flex justify-center px-4 sm:px-0"
