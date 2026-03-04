@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="48" viewBox="0 0 220 48" fill="none">
+  <rect x="0" y="8" width="56" height="32" rx="16" fill="#111827"/>
+  <rect x="28" y="8" width="28" height="32" rx="14" fill="#ffffff" opacity="0.9"/>
+  <text x="68" y="33" fill="#111827" font-size="26" font-family="Arial, sans-serif" font-weight="700">CAPSULE</text>
+</svg>

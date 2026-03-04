@@ -1,24 +1,24 @@
 "use client";
 
-import PrismaticBurst from "./ReactBits/PrismaticBurst";
+import ColorBends from "./color-bends";
 
 export const ContactBg = () => {
-    return (
-        <div className="absolute inset-0 w-full h-full">
-            <div className="w-full h-full">
-                <PrismaticBurst
-                    animationType="rotate3d"
-                    intensity={2}
-                    speed={0.5}
-                    distort={0}
-                    paused={false}
-                    offset={{ x: -500, y: 0 }}
-                    hoverDampness={0.25}
-                    rayCount={0}
-                    mixBlendMode="lighten"
-                    colors={['#029900', '#050a1e', '#2478ed', '#1aba3f']}
-                />
-            </div>
-        </div>
-    )
-}
+  return (
+    <div className="absolute inset-0 h-full w-full">
+      <ColorBends
+        colors={["#ff0000", "#0000ff", "#00ff00"]}
+        rotation={0}
+        speed={0.2}
+        scale={1}
+        frequency={1}
+        warpStrength={1}
+        mouseInfluence={1}
+        parallax={0.5}
+        noise={0.1}
+        transparent
+        autoRotate={0}
+        color=""
+      />
+    </div>
+  );
+};

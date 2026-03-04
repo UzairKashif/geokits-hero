@@ -87,7 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       {/* Use arbitrary values for your dark background and white text */}
-      <body className="bg-white text-black antialiased scrollbar-hide">
+      <body suppressHydrationWarning className="bg-white text-black antialiased scrollbar-hide">
         <AnimatedIntro />
         <ConditionalHeader />
         <LenisProvider>

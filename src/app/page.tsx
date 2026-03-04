@@ -1,14 +1,15 @@
 "use client";
 
 import { Suspense } from "react";
-import { Hero7 } from "@/components/hero-7";
+import { Hero2 } from "@/components/hero-2";
 // import LiveDataFeeds from '@/components/LiveDataFeeds'
 import SolutionsShowcase from "@/components/SolutionsShowcase";
-import BlogSection from "@/components/BlogSection";
+import SocialProof1 from "@/components/social-proof-1";
+// import BlogSection from "@/components/BlogSection";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import Footer from "@/components/Footer";
 import CommunityEngagement from "@/components/CommunityEngagement";
-import CompanyDescriptionSection from "@/components/misc";
+// import CompanyDescriptionSection from "@/components/misc";
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
@@ -32,28 +33,29 @@ export default function Page() {
           <ScrollPositionMemoryBoundary />
         </Suspense>
         <ScrollToHash />
-        <Hero7 />
-        <CompanyDescriptionSection />
+        <Hero2 />
+        {/* <CompanyDescriptionSection /> */}
         {/* <ValueProposition /> */}
         {/* <Stats /> */}
         {/* <Workflow /> */}
         {/* <LiveDataFeeds /> */}
-        <div id="about">
-          <CommunityEngagement />
+        <div id="services">
+          <ServicesSection/>
+        </div>
+        <div id="timeline">
+          <ProjectTimeline />
         </div>
         <div id="solutions">
           <SolutionsShowcase />
         </div>
-        <div id="services">
-          <ServicesSection/>
-        </div>
-        <div id="blog">
+        {/* <SocialProof1 /> */}
+        {/* <div id="blog">
           <BlogSection />
-        </div>
+        </div> */}
         {/* <DataFlowVisual /> */}
         {/* <ParabolaScrollPage /> */}
-        <div id="timeline">
-          <ProjectTimeline />
+        <div id="about">
+          <CommunityEngagement />
         </div>
         {/* <EngagementModels /> */}
         {/* <Faq /> */}
