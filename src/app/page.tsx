@@ -48,7 +48,7 @@ export default function Page() {
         <div id="solutions">
           <SolutionsShowcase />
         </div>
-        {/* <SocialProof1 /> */}
+        <SocialProof1 />
         {/* <div id="blog">
           <BlogSection />
         </div> */}
