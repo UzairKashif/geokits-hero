@@ -5,16 +5,6 @@ import { motion } from "framer-motion";
 export default function SocialProof1() {
   const companies = [
     {
-      name: "IFAD",
-      logo: "/img/geokits%20clients%20images/IFAD.png",
-      logoClassName: "max-w-[86%] max-h-[82%]",
-    },
-    {
-      name: "NSA",
-      logo: "/img/geokits%20clients%20images/NSA.png",
-      logoClassName: "max-w-[100%] max-h-[100%] scale-[1.2]",
-    },
-    {
       name: "Planning",
       logo: "/img/geokits%20clients%20images/Planning.png",
       logoClassName: "max-w-[100%] max-h-[98%]",
@@ -22,11 +12,21 @@ export default function SocialProof1() {
     {
       name: "WFP",
       logo: "/img/geokits%20clients%20images/WFPnewlogo_english_standard_BLUE_RGB.png",
-      logoClassName: "max-w-[110%] max-h-[110%]",
+      logoClassName: "max-w-[110%] max-h-[110%] scale-[1.2]",
+    },
+    {
+      name: "IFAD",
+      logo: "/img/geokits%20clients%20images/IFAD.png",
+      logoClassName: "max-w-[86%] max-h-[82%]",
+    },
+    {
+      name: "NSA",
+      logo: "/img/geokits%20clients%20images/NSA.png",
+      logoClassName: "max-w-[100%] max-h-[100%]",
     },
     {
       name: "Texas",
-      logo: "/img/geokits%20clients%20images/texas.webp",
+      logo: "/img/geokits%20clients%20images/texas.png",
       logoClassName: "max-w-[82%] max-h-[100%]",
     },
   ];
