@@ -39,6 +39,7 @@ const milestones = [
 export default function ProjectTimeline() {
   const timelineRef = useRef<HTMLDivElement>(null);
   const animatedPathRef = useRef<SVGPathElement>(null);
+  const lineBoundsRef = useRef({ startY: 0, endY: 0 });
 
   const [lineProgress, setLineProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -50,7 +51,7 @@ export default function ProjectTimeline() {
 
   // Responsive dimensions
   const mobileContainerWidth = 340;
-  const mobileVerticalSpacing = 190;
+  const mobileVerticalSpacing = 210;
   const mobileHorizontalAmplitude = 82;
 
   const pathData = useMemo(() => {
@@ -68,7 +69,7 @@ export default function ProjectTimeline() {
     const wavelength = currentVerticalSpacing * milestonesPerCycle;
     const centreX = currentContainerWidth / 2;
     const startOffset = isMobile ? 42 : 250;
-    const bottomPadding = isMobile ? 140 : 150;
+    const bottomPadding = isMobile ? 170 : 150;
 
     const points = milestones.map((_, i) => {
       const y = i * currentVerticalSpacing + startOffset;
@@ -78,11 +79,39 @@ export default function ProjectTimeline() {
       return { x, y, index: i };
     });
 
-    let path = `M ${points[0].x} ${points[0].y}`;
+    const curvePoints = isMobile
+      ? [
+          {
+            x:
+              centreX +
+              Math.sin(
+                (2 * Math.PI * (points[0].y - currentVerticalSpacing * 0.4)) /
+                  wavelength,
+              ) *
+                currentHorizontalAmplitude,
+            y: points[0].y - currentVerticalSpacing * 0.4,
+          },
+          ...points.map((p) => ({ x: p.x, y: p.y })),
+          {
+            x:
+              centreX +
+              Math.sin(
+                (2 *
+                  Math.PI *
+                  (points[points.length - 1].y + currentVerticalSpacing * 0.4)) /
+                  wavelength,
+              ) *
+                currentHorizontalAmplitude,
+            y: points[points.length - 1].y + currentVerticalSpacing * 0.4,
+          },
+        ]
+      : points.map((p) => ({ x: p.x, y: p.y }));
 
-    for (let i = 1; i < points.length; i += 1) {
-      const prev = points[i - 1];
-      const curr = points[i];
+    let path = `M ${curvePoints[0].x} ${curvePoints[0].y}`;
+
+    for (let i = 1; i < curvePoints.length; i += 1) {
+      const prev = curvePoints[i - 1];
+      const curr = curvePoints[i];
       const midY = (prev.y + curr.y) / 2;
       path += ` C ${prev.x} ${midY}, ${curr.x} ${midY}, ${curr.x} ${curr.y}`;
     }
@@ -90,20 +119,25 @@ export default function ProjectTimeline() {
     return {
       path,
       points,
+      lineStartY: curvePoints[0].y,
+      lineEndY: curvePoints[curvePoints.length - 1].y,
       containerWidth: currentContainerWidth,
-      totalHeight:
-        startOffset +
-        (milestones.length - 1) * currentVerticalSpacing +
-        bottomPadding,
+      totalHeight: curvePoints[curvePoints.length - 1].y + bottomPadding,
     };
   }, [isMobile]);
 
   const {
     path,
     points,
+    lineStartY,
+    lineEndY,
     containerWidth: currentContainerWidth,
     totalHeight: currentTotalHeight,
   } = pathData;
+
+  useEffect(() => {
+    lineBoundsRef.current = { startY: lineStartY, endY: lineEndY };
+  }, [lineStartY, lineEndY]);
 
   // Measure path length and map each milestone to exact draw progress.
   useEffect(() => {
@@ -172,25 +206,39 @@ export default function ProjectTimeline() {
 
       const rect = timelineRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const elementTop = rect.top;
-      const elementHeight = rect.height;
-
-      const startThreshold = isMobile
-        ? windowHeight * 0.42
-        : windowHeight * 0.34;
-      const endThreshold = isMobile ? windowHeight * 0.82 : windowHeight * 1;
-
-      const adjustedTop = elementTop + startThreshold;
-      const viewportProgress = Math.max(
-        0,
-        Math.min(
-          1,
-          (windowHeight - adjustedTop) /
-            (windowHeight + elementHeight - endThreshold),
-        ),
-      );
-
-      setLineProgress(viewportProgress);
+      if (isMobile) {
+        // Mobile: map a viewport anchor to the real path range, then speed it up slightly.
+        const { startY, endY } = lineBoundsRef.current;
+        const containerTopDoc = window.scrollY + rect.top;
+        const viewportAnchorDoc = window.scrollY + windowHeight * 0.46;
+        const startDoc = containerTopDoc + startY;
+        const endDoc = containerTopDoc + endY;
+        const raw =
+          endDoc > startDoc
+            ? (viewportAnchorDoc - startDoc) / (endDoc - startDoc)
+            : 0;
+        const mobileSpeedFactor = 1.2;
+        const mobileProgress = Math.max(
+          0,
+          Math.min(1, raw * mobileSpeedFactor),
+        );
+        setLineProgress(mobileProgress);
+      } else {
+        const elementTop = rect.top;
+        const elementHeight = rect.height;
+        const startThreshold = windowHeight * 0.34;
+        const endThreshold = windowHeight * 1;
+        const adjustedTop = elementTop + startThreshold;
+        const desktopProgress = Math.max(
+          0,
+          Math.min(
+            1,
+            (windowHeight - adjustedTop) /
+              (windowHeight + elementHeight - endThreshold),
+          ),
+        );
+        setLineProgress(desktopProgress);
+      }
     };
 
     const handleScroll = () => {
