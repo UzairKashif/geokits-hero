@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { onAuthStateChanged, signOut, User } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
@@ -37,29 +37,6 @@ interface BaseStyle {
   accent: string
   description?: string
 }
-
-type CropSymbologyField = 'Primary_Crop' | 'Secondary_Crop' | 'Kharif_Recommendation' | 'Rabi_Recommendation'
-
-type CropProperties = Record<string, string | number>
-type CropFeature = GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon, CropProperties>
-type CropFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, CropProperties>
-
-interface CropsApiResponse extends CropFeatureCollection {
-  cropValues?: string[]
-  availableSymbologyFields?: CropSymbologyField[]
-}
-
-const CROP_SOURCE_ID = 'crops-assessment-source'
-const CROP_FILL_LAYER_ID = 'crops-assessment-fill'
-const CROP_OUTLINE_LAYER_ID = 'crops-assessment-outline'
-const CROP_ICON_FALLBACK = '/crop-icons/default.svg'
-
-const CROP_SYMBOLOGY_OPTIONS: { value: CropSymbologyField; label: string }[] = [
-  { value: 'Primary_Crop', label: 'Primary Crop' },
-  { value: 'Secondary_Crop', label: 'Secondary Crop' },
-  { value: 'Kharif_Recommendation', label: 'Kharif Recommendation' },
-  { value: 'Rabi_Recommendation', label: 'Rabi Recommendation' }
-]
 
 const BASE_STYLES: BaseStyle[] = [
   {
@@ -162,96 +139,6 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
   }
 }
 
-const slugifyCropName = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-
-const getCropIconPath = (cropName: string) => {
-  const slug = slugifyCropName(cropName)
-  return slug ? `/crop-icons/${slug}.svg` : CROP_ICON_FALLBACK
-}
-
-const toFiniteNumber = (value: unknown): number | null => {
-  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : Number.NaN
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-const getMarkerCoordinates = (feature: CropFeature): [number, number] | null => {
-  const markerLng = toFiniteNumber(feature.properties?.marker_lng)
-  const markerLat = toFiniteNumber(feature.properties?.marker_lat)
-  if (markerLng !== null && markerLat !== null) {
-    return [markerLng, markerLat]
-  }
-
-  if (feature.geometry.type === 'Polygon') {
-    const outerRing = feature.geometry.coordinates[0]
-    if (!outerRing?.length) return null
-    const lngValues = outerRing.map(coord => coord[0])
-    const latValues = outerRing.map(coord => coord[1])
-    const minLng = Math.min(...lngValues)
-    const maxLng = Math.max(...lngValues)
-    const minLat = Math.min(...latValues)
-    const maxLat = Math.max(...latValues)
-    return [(minLng + maxLng) / 2, (minLat + maxLat) / 2]
-  }
-
-  const outerRing = feature.geometry.coordinates[0]?.[0]
-  if (!outerRing?.length) return null
-  const lngValues = outerRing.map(coord => coord[0])
-  const latValues = outerRing.map(coord => coord[1])
-  const minLng = Math.min(...lngValues)
-  const maxLng = Math.max(...lngValues)
-  const minLat = Math.min(...latValues)
-  const maxLat = Math.max(...latValues)
-  return [(minLng + maxLng) / 2, (minLat + maxLat) / 2]
-}
-
-const ensureCropsSourceAndLayers = (map: mapboxgl.Map, data: CropFeatureCollection) => {
-  const existingSource = map.getSource(CROP_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
-  if (existingSource) {
-    existingSource.setData(data)
-  } else {
-    map.addSource(CROP_SOURCE_ID, {
-      type: 'geojson',
-      data
-    })
-  }
-
-  if (!map.getLayer(CROP_FILL_LAYER_ID)) {
-    map.addLayer({
-      id: CROP_FILL_LAYER_ID,
-      type: 'fill',
-      source: CROP_SOURCE_ID,
-      paint: {
-        'fill-color': '#32de84',
-        'fill-opacity': 0.2
-      }
-    })
-  }
-
-  if (!map.getLayer(CROP_OUTLINE_LAYER_ID)) {
-    map.addLayer({
-      id: CROP_OUTLINE_LAYER_ID,
-      type: 'line',
-      source: CROP_SOURCE_ID,
-      paint: {
-        'line-color': '#d1fae5',
-        'line-width': 1,
-        'line-opacity': 0.75
-      }
-    })
-  }
-}
-
-const setCropsLayerVisibility = (map: mapboxgl.Map, visible: boolean) => {
-  const visibility = visible ? 'visible' : 'none'
-  if (map.getLayer(CROP_FILL_LAYER_ID)) map.setLayoutProperty(CROP_FILL_LAYER_ID, 'visibility', visibility)
-  if (map.getLayer(CROP_OUTLINE_LAYER_ID)) map.setLayoutProperty(CROP_OUTLINE_LAYER_ID, 'visibility', visibility)
-}
-
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
 
 const Dashboard = () => {
@@ -268,16 +155,6 @@ const Dashboard = () => {
   const [activeBaseStyle, setActiveBaseStyle] = useState(BASE_STYLES[0].id)
   const [layerOpacity, setLayerOpacity] = useState<Record<string, number>>({})
   const initialBaseStyleRef = useRef(activeBaseStyle)
-  const cropMarkersRef = useRef<mapboxgl.Marker[]>([])
-  const [cropsData, setCropsData] = useState<CropFeatureCollection | null>(null)
-  const cropsDataRef = useRef<CropFeatureCollection | null>(null)
-  const [cropsVisible, setCropsVisible] = useState(false)
-  const cropsVisibleRef = useRef(false)
-  const [cropsLoading, setCropsLoading] = useState(false)
-  const [cropsError, setCropsError] = useState<string | null>(null)
-  const [availableCropValues, setAvailableCropValues] = useState<string[]>([])
-  const [cropSymbologyField, setCropSymbologyField] = useState<CropSymbologyField>('Primary_Crop')
-  const cropSymbologyFieldRef = useRef<CropSymbologyField>('Primary_Crop')
 
   useEffect(() => {
     externalLayersRef.current = externalLayers
@@ -286,18 +163,6 @@ const Dashboard = () => {
   useEffect(() => {
     layerOpacityRef.current = layerOpacity
   }, [layerOpacity])
-
-  useEffect(() => {
-    cropsDataRef.current = cropsData
-  }, [cropsData])
-
-  useEffect(() => {
-    cropsVisibleRef.current = cropsVisible
-  }, [cropsVisible])
-
-  useEffect(() => {
-    cropSymbologyFieldRef.current = cropSymbologyField
-  }, [cropSymbologyField])
 
   // 1. Auth & Data Fetching
   useEffect(() => {
@@ -347,84 +212,6 @@ const Dashboard = () => {
     }
   };
 
-  const fetchCropsAssessment = async () => {
-    try {
-      setCropsLoading(true)
-      setCropsError(null)
-      const res = await fetch('/api/crops-assessment')
-      if (!res.ok) throw new Error('Failed to fetch crops assessment data')
-      const data = (await res.json()) as CropsApiResponse
-      const featureCollection: CropFeatureCollection = {
-        type: 'FeatureCollection',
-        features: data.features || []
-      }
-      setCropsData(featureCollection)
-      setAvailableCropValues(Array.isArray(data.cropValues) ? data.cropValues : [])
-      return featureCollection
-    } catch (err) {
-      console.error('Crops assessment fetch error:', err)
-      setCropsError('Could not load crops assessment data')
-      return null
-    } finally {
-      setCropsLoading(false)
-    }
-  }
-
-  const clearCropMarkers = useCallback(() => {
-    cropMarkersRef.current.forEach(marker => marker.remove())
-    cropMarkersRef.current = []
-  }, [])
-
-  const renderCropMarkers = useCallback((map: mapboxgl.Map, data: CropFeatureCollection, field: CropSymbologyField) => {
-    clearCropMarkers()
-    if (!cropsVisibleRef.current) return
-
-    const markers: mapboxgl.Marker[] = []
-    data.features.forEach(feature => {
-      const rawCropValue = feature.properties?.[field]
-      if (typeof rawCropValue !== 'string' || !rawCropValue.trim()) return
-
-      const markerCoords = getMarkerCoordinates(feature)
-      if (!markerCoords) return
-
-      const iconPath = getCropIconPath(rawCropValue)
-      const wrapper = document.createElement('div')
-      wrapper.style.width = '26px'
-      wrapper.style.height = '26px'
-      wrapper.style.display = 'flex'
-      wrapper.style.alignItems = 'center'
-      wrapper.style.justifyContent = 'center'
-      wrapper.style.filter = 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6))'
-
-      const iconImg = document.createElement('img')
-      iconImg.src = iconPath
-      iconImg.alt = rawCropValue
-      iconImg.width = 24
-      iconImg.height = 24
-      iconImg.style.width = '24px'
-      iconImg.style.height = '24px'
-      iconImg.style.objectFit = 'contain'
-      iconImg.title = rawCropValue
-      iconImg.onerror = () => {
-        if (!iconImg.src.includes('/crop-icons/default.svg')) {
-          iconImg.src = CROP_ICON_FALLBACK
-        }
-      }
-      wrapper.appendChild(iconImg)
-
-      const marker = new mapboxgl.Marker({
-        element: wrapper,
-        anchor: 'center'
-      })
-        .setLngLat(markerCoords)
-        .addTo(map)
-
-      markers.push(marker)
-    })
-
-    cropMarkersRef.current = markers
-  }, [clearCropMarkers])
-
   // 2. Map Initialization
   useEffect(() => {
     if (!user || !mapContainerRef.current) return
@@ -453,26 +240,12 @@ const Dashboard = () => {
           addExternalLayer(map, layer, { flyOnAdd: false, opacity: opacityValue })
         })
 
-      const cropsSnapshot = cropsDataRef.current
-      if (cropsSnapshot) {
-        ensureCropsSourceAndLayers(map, cropsSnapshot)
-        setCropsLayerVisibility(map, cropsVisibleRef.current)
-      }
-      if (cropsSnapshot && cropsVisibleRef.current) {
-        renderCropMarkers(map, cropsSnapshot, cropSymbologyFieldRef.current)
-      } else {
-        clearCropMarkers()
-      }
-
       setMapLoaded(true)
     });
 
     mapRef.current = map
-    return () => {
-      clearCropMarkers()
-      map.remove()
-    }
-  }, [clearCropMarkers, renderCropMarkers, user])
+    return () => map.remove()
+  }, [user])
 
   useEffect(() => {
     if (!mapRef.current) return
@@ -516,39 +289,6 @@ const Dashboard = () => {
     const layerId = `layer-${layer.id}`
     applyLayerOpacity(mapRef.current, layerId, layer.type, normalized)
     setLayerOpacity(prev => ({ ...prev, [layer.id]: normalized }))
-  }
-
-  const toggleCropsAssessment = async () => {
-    if (!mapRef.current) return
-    const map = mapRef.current
-    const nextVisible = !cropsVisibleRef.current
-
-    if (nextVisible) {
-      let cropsSnapshot = cropsDataRef.current
-      if (!cropsSnapshot) {
-        cropsSnapshot = await fetchCropsAssessment()
-      }
-      if (!cropsSnapshot) return
-
-      ensureCropsSourceAndLayers(map, cropsSnapshot)
-      setCropsLayerVisibility(map, true)
-      cropsVisibleRef.current = true
-      renderCropMarkers(map, cropsSnapshot, cropSymbologyFieldRef.current)
-      setCropsVisible(true)
-      return
-    }
-
-    cropsVisibleRef.current = false
-    setCropsVisible(false)
-    setCropsLayerVisibility(map, false)
-    clearCropMarkers()
-  }
-
-  const handleCropSymbologyChange = (field: CropSymbologyField) => {
-    setCropSymbologyField(field)
-    cropSymbologyFieldRef.current = field
-    if (!mapRef.current || !cropsVisibleRef.current || !cropsDataRef.current) return
-    renderCropMarkers(mapRef.current, cropsDataRef.current, field)
   }
 
   // Drag & drop handlers for reordering layers
@@ -664,53 +404,6 @@ const Dashboard = () => {
             ))
           ) : (
             <p className="text-xs text-white/40 text-center mt-10">No data layers available</p>
-          )}
-
-          {!isCollapsed && (
-            <div className="mt-5 border-t border-white/10 pt-4">
-              <div className="flex items-center gap-2 px-1 text-[11px] uppercase tracking-[0.18em] text-white/60">
-                <Layers size={13} />
-                <span>Crops Assessment</span>
-              </div>
-
-              <button
-                onClick={toggleCropsAssessment}
-                disabled={cropsLoading}
-                className={`mt-2 w-full flex items-center justify-between rounded-lg p-3 text-left text-xs transition ${
-                  cropsVisible ? 'bg-white/10 text-white' : 'bg-white/5 text-white/80 hover:bg-white/10'
-                } ${cropsLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-              >
-                <span>{cropsLoading ? 'Loading...' : 'Field Recommendations'}</span>
-                <span className={`inline-block w-2 h-2 rounded-full ${cropsVisible ? 'bg-[#32de84]' : 'bg-white/20'}`} />
-              </button>
-
-              {cropsVisible && (
-                <div className="mt-3 px-1">
-                  <label htmlFor="crop-symbology" className="block text-[11px] text-white/60 mb-2">
-                    Symbology by
-                  </label>
-                  <select
-                    id="crop-symbology"
-                    value={cropSymbologyField}
-                    onChange={(e) => handleCropSymbologyChange(e.target.value as CropSymbologyField)}
-                    className="w-full rounded-md border border-white/20 bg-black/40 px-2 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#32de84]"
-                  >
-                    {CROP_SYMBOLOGY_OPTIONS.map(option => (
-                      <option key={option.value} value={option.value} className="bg-[#0f0f0f]">
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  {availableCropValues.length > 0 && (
-                    <p className="mt-2 text-[10px] text-white/45">
-                      {availableCropValues.length} crop classes loaded
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {cropsError && <p className="mt-2 px-1 text-[11px] text-red-300">{cropsError}</p>}
-            </div>
           )}
         </div>
 
