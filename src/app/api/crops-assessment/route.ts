@@ -16,10 +16,13 @@ type MultiPolygonGeometry = {
 
 type CropGeometry = PolygonGeometry | MultiPolygonGeometry
 
+type CropProperties = Record<string, string | number>
+
 type CropFeature = {
   type: 'Feature'
+  id?: string | number
   geometry: CropGeometry
-  properties: Record<string, string | number>
+  properties: CropProperties
 }
 
 type CropFeatureCollection = {
@@ -27,7 +30,27 @@ type CropFeatureCollection = {
   features: CropFeature[]
 }
 
-const CSV_PATH = path.join(process.cwd(), 'src/app/data-portal/Field_Crop_Recommendations.csv')
+type CropSuitabilityRow = {
+  crop: string
+  score: number | null
+  classification: string
+}
+
+type RecommendationRow = {
+  label: string
+  crop: string
+  score: number | null
+}
+
+type SeasonalRecommendationRow = {
+  season: string
+  best: string
+  bestScore: number | null
+  second: string
+  secondScore: number | null
+}
+
+const CSV_PATH = path.join(process.cwd(), 'src/app/data-portal/Field_Crop_Suitability_v3_with_wkt.csv')
 
 const parseCSV = (csvText: string): string[][] => {
   const rows: string[][] = []
@@ -48,6 +71,7 @@ const parseCSV = (csvText: string): string[][] => {
         inQuotes = false
         continue
       }
+
       field += ch
       continue
     }
@@ -91,6 +115,7 @@ const extractGroupsByDepth = (input: string, targetDepth: number): string[] => {
 
   for (let i = 0; i < input.length; i += 1) {
     const ch = input[i]
+
     if (ch === '(') {
       depth += 1
       if (depth === targetDepth) {
@@ -169,85 +194,162 @@ const parseWKT = (wktValue: string): CropGeometry | null => {
   return null
 }
 
-const getMarkerPoint = (geometry: CropGeometry): Position | null => {
-  const outerRing =
-    geometry.type === 'Polygon'
-      ? geometry.coordinates[0]
-      : geometry.coordinates[0]?.[0]
+const toNumber = (value: string): number | null => {
+  const trimmed = value.trim()
+  if (!trimmed) return null
 
-  if (!outerRing || !outerRing.length) return null
-
-  let minLng = Number.POSITIVE_INFINITY
-  let minLat = Number.POSITIVE_INFINITY
-  let maxLng = Number.NEGATIVE_INFINITY
-  let maxLat = Number.NEGATIVE_INFINITY
-
-  outerRing.forEach(([lng, lat]) => {
-    minLng = Math.min(minLng, lng)
-    minLat = Math.min(minLat, lat)
-    maxLng = Math.max(maxLng, lng)
-    maxLat = Math.max(maxLat, lat)
-  })
-
-  if (![minLng, minLat, maxLng, maxLat].every(Number.isFinite)) return null
-  return [(minLng + maxLng) / 2, (minLat + maxLat) / 2]
+  const parsed = Number(trimmed)
+  return Number.isFinite(parsed) ? parsed : null
 }
+
+const humanizeCropName = (value: string) =>
+  value
+    .replace(/^Suit_/, '')
+    .replace(/^Class_/, '')
+    .replace(/_/g, ' ')
+    .trim()
+
+const getValue = (rowMap: Record<string, string>, key: string) => (rowMap[key] || '').trim()
+
+const stringify = (value: unknown) => JSON.stringify(value)
+
+const buildCropSuitability = (headers: string[], rowMap: Record<string, string>): CropSuitabilityRow[] =>
+  headers
+    .filter(header => header.startsWith('Suit_'))
+    .map(header => {
+      const crop = humanizeCropName(header)
+      const classKey = `Class_${header.replace(/^Suit_/, '')}`
+      return {
+        crop,
+        score: toNumber(getValue(rowMap, header)),
+        classification: getValue(rowMap, classKey)
+      }
+    })
+    .sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity))
+
+const buildRankedRecommendations = (rowMap: Record<string, string>, prefix: string): RecommendationRow[] =>
+  [1, 2, 3]
+    .map(rank => ({
+      label: `Rank ${rank}`,
+      crop: getValue(rowMap, `${prefix}_${rank}`),
+      score: toNumber(getValue(rowMap, `${prefix}_${rank}_Score`))
+    }))
+    .filter(item => item.crop)
+
+const buildRawRecommendations = (rowMap: Record<string, string>): RecommendationRow[] =>
+  [1, 2, 3]
+    .map(rank => ({
+      label: `Rank ${rank}`,
+      crop: getValue(rowMap, `Rec_Crop_${rank}`),
+      score: toNumber(getValue(rowMap, `Rec_Score_${rank}`))
+    }))
+    .filter(item => item.crop)
+
+const buildSeasonalRecommendations = (rowMap: Record<string, string>): SeasonalRecommendationRow[] => [
+  {
+    season: 'Rabi',
+    best: getValue(rowMap, 'Best_Rabi'),
+    bestScore: toNumber(getValue(rowMap, 'Best_Rabi_Score')),
+    second: getValue(rowMap, 'Second_Rabi'),
+    secondScore: toNumber(getValue(rowMap, 'Second_Rabi_Score'))
+  },
+  {
+    season: 'Kharif',
+    best: getValue(rowMap, 'Best_Kharif'),
+    bestScore: toNumber(getValue(rowMap, 'Best_Kharif_Score')),
+    second: getValue(rowMap, 'Second_Kharif'),
+    secondScore: toNumber(getValue(rowMap, 'Second_Kharif_Score'))
+  },
+  {
+    season: 'Perennial',
+    best: getValue(rowMap, 'Best_Perennial'),
+    bestScore: toNumber(getValue(rowMap, 'Best_Perennial_Score')),
+    second: getValue(rowMap, 'Second_Perennial'),
+    secondScore: toNumber(getValue(rowMap, 'Second_Perennial_Score'))
+  }
+]
 
 export async function GET() {
   try {
     const rawCsv = await fs.readFile(CSV_PATH, 'utf8')
     const rows = parseCSV(rawCsv.replace(/^\uFEFF/, ''))
-    if (!rows.length) return NextResponse.json({ type: 'FeatureCollection', features: [] })
+    if (!rows.length) {
+      return NextResponse.json({ type: 'FeatureCollection', features: [], topTierCrops: [] })
+    }
 
-    const header = rows[0]
-    const rowValues = rows.slice(1)
-    const wktIndex = header.indexOf('WKT')
-
+    const headers = rows[0]
+    const valuesRows = rows.slice(1)
+    const topTierCrops = new Set<string>()
     const features: CropFeature[] = []
-    const cropValues = new Set<string>()
 
-    rowValues.forEach(values => {
-      if (!values.length || !header.length) return
+    valuesRows.forEach(values => {
+      if (!values.length) return
 
-      const properties: Record<string, string | number> = {}
-      header.forEach((col, index) => {
-        if (!col || col === 'WKT') return
-        const value = (values[index] || '').trim()
-        properties[col] = value
-      })
+      const rowMap = headers.reduce<Record<string, string>>((acc, header, index) => {
+        acc[header] = values[index] || ''
+        return acc
+      }, {})
 
-      const wkt = values[wktIndex] || ''
-      const geometry = parseWKT(wkt)
+      const geometry = parseWKT(getValue(rowMap, 'geometry_wkt'))
       if (!geometry) return
 
-      const markerPoint = getMarkerPoint(geometry)
-      if (markerPoint) {
-        properties.marker_lng = markerPoint[0]
-        properties.marker_lat = markerPoint[1]
+      const fieldId = getValue(rowMap, 'fid') || getValue(rowMap, 'system:inde') || String(features.length + 1)
+      const fieldUid = getValue(rowMap, 'system:inde')
+      const areaM2 = toNumber(getValue(rowMap, 'Field_Area_m2')) ?? toNumber(getValue(rowMap, 'Area_m2'))
+      const topRecommendations = buildRankedRecommendations(rowMap, 'TierRec')
+      const rawRecommendations = buildRawRecommendations(rowMap)
+      const seasonalRecommendations = buildSeasonalRecommendations(rowMap)
+      const cropSuitability = buildCropSuitability(headers, rowMap)
+      const topCrop = topRecommendations[0]?.crop || rawRecommendations[0]?.crop || cropSuitability[0]?.crop || ''
+      const topCropScore = topRecommendations[0]?.score ?? rawRecommendations[0]?.score ?? cropSuitability[0]?.score
+
+      if (topCrop) {
+        topTierCrops.add(topCrop)
       }
 
-      ;['Primary_Crop', 'Secondary_Crop', 'Kharif_Recommendation', 'Rabi_Recommendation'].forEach(key => {
-        const cropValue = properties[key]
-        if (typeof cropValue === 'string' && cropValue.trim()) {
-          cropValues.add(cropValue.trim())
-        }
-      })
+      const properties: CropProperties = {
+        field_id: fieldId,
+        field_uid: fieldUid,
+        area_m2: areaM2 ?? '',
+        area_ha: areaM2 ? Number((areaM2 / 10000).toFixed(2)) : '',
+        top_crop: topCrop,
+        top_crop_score: topCropScore ?? '',
+        water_tier: getValue(rowMap, 'Water_Tier'),
+        limiting_factor: getValue(rowMap, 'Limiting_Factor'),
+        limiting_score: toNumber(getValue(rowMap, 'Limiting_Score')) ?? '',
+        tier_limiting_crop: getValue(rowMap, 'Tier_Limiting_Crop'),
+        tier_limiting_score: toNumber(getValue(rowMap, 'Tier_Limiting_Score')) ?? '',
+        best_rabi: getValue(rowMap, 'Best_Rabi'),
+        best_rabi_score: toNumber(getValue(rowMap, 'Best_Rabi_Score')) ?? '',
+        second_rabi: getValue(rowMap, 'Second_Rabi'),
+        second_rabi_score: toNumber(getValue(rowMap, 'Second_Rabi_Score')) ?? '',
+        best_kharif: getValue(rowMap, 'Best_Kharif'),
+        best_kharif_score: toNumber(getValue(rowMap, 'Best_Kharif_Score')) ?? '',
+        second_kharif: getValue(rowMap, 'Second_Kharif'),
+        second_kharif_score: toNumber(getValue(rowMap, 'Second_Kharif_Score')) ?? '',
+        best_perennial: getValue(rowMap, 'Best_Perennial'),
+        best_perennial_score: toNumber(getValue(rowMap, 'Best_Perennial_Score')) ?? '',
+        second_perennial: getValue(rowMap, 'Second_Perennial'),
+        second_perennial_score: toNumber(getValue(rowMap, 'Second_Perennial_Score')) ?? '',
+        rotation_strategy: getValue(rowMap, 'Rotation_Strategy'),
+        tier_recommendations_json: stringify(topRecommendations),
+        raw_recommendations_json: stringify(rawRecommendations),
+        seasonal_recommendations_json: stringify(seasonalRecommendations),
+        crop_suitability_json: stringify(cropSuitability)
+      }
 
       features.push({
         type: 'Feature',
+        id: fieldId,
         geometry,
         properties
       })
     })
 
-    const payload: CropFeatureCollection & {
-      cropValues: string[]
-      availableSymbologyFields: string[]
-    } = {
+    const payload: CropFeatureCollection & { topTierCrops: string[] } = {
       type: 'FeatureCollection',
       features,
-      cropValues: Array.from(cropValues).sort((a, b) => a.localeCompare(b)),
-      availableSymbologyFields: ['Primary_Crop', 'Secondary_Crop', 'Kharif_Recommendation', 'Rabi_Recommendation']
+      topTierCrops: Array.from(topTierCrops).sort((a, b) => a.localeCompare(b))
     }
 
     return NextResponse.json(payload)

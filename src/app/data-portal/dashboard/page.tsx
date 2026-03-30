@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { onAuthStateChanged, signOut, User } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
@@ -36,6 +36,33 @@ interface BaseStyle {
   styleUrl: string
   accent: string
   description?: string
+}
+
+type CropFeatureProperties = Record<string, string | number | boolean | null | undefined>
+type CropFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, CropFeatureProperties>
+
+interface CropLayerApiResponse extends CropFeatureCollection {
+  topTierCrops?: string[]
+}
+
+type PopupRecommendation = {
+  label: string
+  crop: string
+  score: number | null
+}
+
+type PopupSeasonalRecommendation = {
+  season: string
+  best: string
+  bestScore: number | null
+  second: string
+  secondScore: number | null
+}
+
+type PopupSuitability = {
+  crop: string
+  score: number | null
+  classification: string
 }
 
 const BASE_STYLES: BaseStyle[] = [
@@ -74,6 +101,19 @@ type AddExternalLayerOptions = {
   opacity?: number
 }
 
+const CROP_SOURCE_ID = 'crop-suitability-source'
+const CROP_FILL_LAYER_ID = 'crop-suitability-fill'
+const CROP_OUTLINE_LAYER_ID = 'crop-suitability-outline'
+const CROP_POPUP_CLASS = 'crop-suitability-popup'
+
+const CROP_COLOR_OVERRIDES: Record<string, string> = {
+  'Henna': '#f97316',
+  'Jojoba': '#14b8a6',
+  'Aloe Vera': '#84cc16'
+}
+
+const CROP_COLOR_FALLBACKS = ['#38bdf8', '#a855f7', '#ef4444', '#eab308', '#06b6d4', '#fb7185']
+
 const getDefaultOpacity = (layer: MapLayer) => (layer.type === 'raster' ? 0.85 : 0.6)
 
 const applyLayerOpacity = (map: mapboxgl.Map, layerId: string, layerType: MapLayer['type'], value: number) => {
@@ -83,7 +123,6 @@ const applyLayerOpacity = (map: mapboxgl.Map, layerId: string, layerType: MapLay
   }
 }
 
-// Updated function with the 'nearest' fix
 const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExternalLayerOptions = {}) => {
   if (!layer.sourceUrl) return
 
@@ -108,9 +147,7 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
         source: sourceId,
         paint: {
           'raster-opacity': targetOpacity,
-          // FIX: Force nearest neighbor for pixelated look
           'raster-resampling': 'nearest',
-          // FIX: Remove fade for instant sharpness
           'raster-fade-duration': 0
         }
       })
@@ -139,6 +176,306 @@ const addExternalLayer = (map: mapboxgl.Map, layer: MapLayer, options: AddExtern
   }
 }
 
+const toFiniteNumber = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  return null
+}
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+const parseJsonProperty = <T,>(value: unknown, fallback: T): T => {
+  if (typeof value !== 'string' || !value.trim()) return fallback
+
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return fallback
+  }
+}
+
+const formatScore = (value: number | null) => (value === null ? 'NA' : value.toFixed(1))
+
+const formatArea = (areaM2: number | null) => {
+  if (areaM2 === null) return ''
+  const areaHa = areaM2 / 10000
+  return `${areaHa.toFixed(2)} ha`
+}
+
+const getCropColor = (cropName: string) => {
+  if (!cropName) return '#64748b'
+  if (CROP_COLOR_OVERRIDES[cropName]) return CROP_COLOR_OVERRIDES[cropName]
+
+  let hash = 0
+  for (let i = 0; i < cropName.length; i += 1) {
+    hash = (hash << 5) - hash + cropName.charCodeAt(i)
+    hash |= 0
+  }
+
+  return CROP_COLOR_FALLBACKS[Math.abs(hash) % CROP_COLOR_FALLBACKS.length]
+}
+
+const buildCropColorExpression = (data: CropFeatureCollection) => {
+  const uniqueTopCrops = Array.from(
+    new Set(
+      data.features
+        .map(feature => String(feature.properties?.top_crop || '').trim())
+        .filter(Boolean)
+    )
+  )
+
+  const expression: unknown[] = ['match', ['coalesce', ['get', 'top_crop'], '']]
+  uniqueTopCrops.forEach(crop => {
+    expression.push(crop, getCropColor(crop))
+  })
+  expression.push('#64748b')
+
+  return expression
+}
+
+const ensureCropSuitabilityLayer = (map: mapboxgl.Map, data: CropFeatureCollection) => {
+  const existingSource = map.getSource(CROP_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+  if (existingSource) {
+    existingSource.setData(data as GeoJSON.FeatureCollection)
+  } else {
+    map.addSource(CROP_SOURCE_ID, {
+      type: 'geojson',
+      data
+    })
+  }
+
+  const fillColorExpression = buildCropColorExpression(data)
+
+  if (!map.getLayer(CROP_FILL_LAYER_ID)) {
+    map.addLayer({
+      id: CROP_FILL_LAYER_ID,
+      type: 'fill',
+      source: CROP_SOURCE_ID,
+      paint: {
+        'fill-color': fillColorExpression as never,
+        'fill-opacity': 0.42
+      }
+    })
+  } else {
+    map.setPaintProperty(CROP_FILL_LAYER_ID, 'fill-color', fillColorExpression as never)
+  }
+
+  if (!map.getLayer(CROP_OUTLINE_LAYER_ID)) {
+    map.addLayer({
+      id: CROP_OUTLINE_LAYER_ID,
+      type: 'line',
+      source: CROP_SOURCE_ID,
+      paint: {
+        'line-color': '#f8fafc',
+        'line-width': 1.15,
+        'line-opacity': 0.85
+      }
+    })
+  }
+}
+
+const setCropSuitabilityVisibility = (map: mapboxgl.Map, visible: boolean) => {
+  const visibility = visible ? 'visible' : 'none'
+  if (map.getLayer(CROP_FILL_LAYER_ID)) {
+    map.setLayoutProperty(CROP_FILL_LAYER_ID, 'visibility', visibility)
+  }
+  if (map.getLayer(CROP_OUTLINE_LAYER_ID)) {
+    map.setLayoutProperty(CROP_OUTLINE_LAYER_ID, 'visibility', visibility)
+  }
+}
+
+const extendBoundsFromCoordinates = (bounds: mapboxgl.LngLatBounds, coordinates: unknown): void => {
+  if (!Array.isArray(coordinates)) return
+
+  const [first] = coordinates
+  if (typeof first === 'number' && typeof coordinates[1] === 'number') {
+    bounds.extend(coordinates as [number, number])
+    return
+  }
+
+  coordinates.forEach(entry => extendBoundsFromCoordinates(bounds, entry))
+}
+
+const fitMapToCropFeatures = (map: mapboxgl.Map, data: CropFeatureCollection) => {
+  const bounds = new mapboxgl.LngLatBounds()
+
+  data.features.forEach(feature => {
+    extendBoundsFromCoordinates(bounds, feature.geometry.coordinates)
+  })
+
+  if (!bounds.isEmpty()) {
+    map.fitBounds(bounds, {
+      padding: 64,
+      duration: 1400,
+      maxZoom: 15
+    })
+  }
+}
+
+const buildCropPopupContent = (properties: Record<string, unknown>) => {
+  const fieldId = String(properties.field_id || 'Unknown')
+  const fieldUid = String(properties.field_uid || '').trim()
+  const areaM2 = toFiniteNumber(properties.area_m2)
+  const topCrop = String(properties.top_crop || 'Crop Suitability').trim()
+  const topCropScore = toFiniteNumber(properties.top_crop_score)
+  const waterTier = String(properties.water_tier || '').trim()
+  const limitingFactor = String(properties.limiting_factor || '').trim()
+  const tierLimitingCrop = String(properties.tier_limiting_crop || '').trim()
+  const tierLimitingScore = toFiniteNumber(properties.tier_limiting_score)
+  const rotationStrategy = String(properties.rotation_strategy || '').trim()
+  const tierRecommendations = parseJsonProperty<PopupRecommendation[]>(properties.tier_recommendations_json, [])
+  const seasonalRecommendations = parseJsonProperty<PopupSeasonalRecommendation[]>(
+    properties.seasonal_recommendations_json,
+    []
+  )
+  const cropSuitability = parseJsonProperty<PopupSuitability[]>(properties.crop_suitability_json, [])
+  const accentColor = getCropColor(topCrop)
+
+  const meta: string[] = []
+  if (fieldUid) meta.push(`UID ${fieldUid}`)
+  const formattedArea = formatArea(areaM2)
+  if (formattedArea) meta.push(formattedArea)
+
+  const summaryChips = [
+    waterTier ? `<span class="crop-popup__chip">${escapeHtml(waterTier)}</span>` : '',
+    tierLimitingCrop ? `<span class="crop-popup__chip">Constraint Crop: ${escapeHtml(tierLimitingCrop)}</span>` : '',
+    limitingFactor ? `<span class="crop-popup__chip">${escapeHtml(limitingFactor)}</span>` : ''
+  ]
+    .filter(Boolean)
+    .join('')
+
+  const tierCardsMarkup = tierRecommendations.length
+    ? tierRecommendations
+        .map(
+          recommendation => `
+            <article class="crop-popup__mini-card">
+              <p class="crop-popup__mini-label">${escapeHtml(recommendation.label)}</p>
+              <h4>${escapeHtml(recommendation.crop || 'NA')}</h4>
+              <span class="crop-popup__mini-score">${formatScore(recommendation.score)}</span>
+            </article>
+          `
+        )
+        .join('')
+    : '<div class="crop-popup__empty">No ranked recommendations available for this field.</div>'
+
+  const seasonalCardsMarkup = seasonalRecommendations.length
+    ? seasonalRecommendations
+        .map(
+          recommendation => `
+            <article class="crop-popup__season-card">
+              <p class="crop-popup__mini-label">${escapeHtml(recommendation.season)}</p>
+              <div class="crop-popup__season-row">
+                <span>Best</span>
+                <strong>${escapeHtml(recommendation.best || 'NA')}</strong>
+                <span>${formatScore(recommendation.bestScore)}</span>
+              </div>
+              <div class="crop-popup__season-row">
+                <span>Second</span>
+                <strong>${escapeHtml(recommendation.second || 'NA')}</strong>
+                <span>${formatScore(recommendation.secondScore)}</span>
+              </div>
+            </article>
+          `
+        )
+        .join('')
+    : '<div class="crop-popup__empty">No seasonal recommendation data available.</div>'
+
+  const suitabilityRowsMarkup = cropSuitability.length
+    ? cropSuitability
+        .map(
+          item => `
+            <div class="crop-popup__suitability-row">
+              <div class="crop-popup__suitability-copy">
+                <strong>${escapeHtml(item.crop)}</strong>
+                <span>${escapeHtml(item.classification || 'No class provided')}</span>
+              </div>
+              <span class="crop-popup__score-pill">${formatScore(item.score)}</span>
+            </div>
+          `
+        )
+        .join('')
+    : '<div class="crop-popup__empty">No crop suitability scores available.</div>'
+
+  const wrapper = document.createElement('div')
+  wrapper.className = 'crop-popup'
+  wrapper.style.setProperty('--crop-accent', accentColor)
+  wrapper.innerHTML = `
+    <div class="crop-popup__card">
+      <div class="crop-popup__hero">
+        <div class="crop-popup__hero-copy">
+          <p class="crop-popup__eyebrow">Field ${escapeHtml(fieldId)}</p>
+          <h3>${escapeHtml(topCrop)}</h3>
+          <p class="crop-popup__meta">${escapeHtml(meta.join(' • ') || 'Crop suitability summary')}</p>
+        </div>
+        <div class="crop-popup__hero-score">
+          <span>Top Match</span>
+          <strong>${formatScore(topCropScore)}</strong>
+        </div>
+      </div>
+
+      ${summaryChips ? `<div class="crop-popup__chip-row">${summaryChips}</div>` : ''}
+
+      ${
+        rotationStrategy
+          ? `
+            <section class="crop-popup__section">
+              <p class="crop-popup__section-label">Rotation Strategy</p>
+              <div class="crop-popup__strategy">${escapeHtml(rotationStrategy)}</div>
+            </section>
+          `
+          : ''
+      }
+
+      <section class="crop-popup__section">
+        <p class="crop-popup__section-label">Tier Recommendations</p>
+        <div class="crop-popup__mini-grid">${tierCardsMarkup}</div>
+      </section>
+
+      <section class="crop-popup__section">
+        <p class="crop-popup__section-label">Seasonal Picks</p>
+        <div class="crop-popup__season-grid">${seasonalCardsMarkup}</div>
+      </section>
+
+      ${
+        tierLimitingCrop || limitingFactor
+          ? `
+            <section class="crop-popup__section">
+              <p class="crop-popup__section-label">Constraints</p>
+              <div class="crop-popup__constraint">
+                <div>
+                  <strong>${escapeHtml(tierLimitingCrop || 'Primary constraint')}</strong>
+                  <span>${escapeHtml(limitingFactor || 'No limiting factor provided')}</span>
+                </div>
+                <span class="crop-popup__score-pill">${formatScore(tierLimitingScore)}</span>
+              </div>
+            </section>
+          `
+          : ''
+      }
+
+      <section class="crop-popup__section">
+        <p class="crop-popup__section-label">All Crop Suitability</p>
+        <div class="crop-popup__suitability-list">${suitabilityRowsMarkup}</div>
+      </section>
+    </div>
+  `
+
+  return wrapper
+}
+
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
 
 const Dashboard = () => {
@@ -155,6 +492,15 @@ const Dashboard = () => {
   const [activeBaseStyle, setActiveBaseStyle] = useState(BASE_STYLES[0].id)
   const [layerOpacity, setLayerOpacity] = useState<Record<string, number>>({})
   const initialBaseStyleRef = useRef(activeBaseStyle)
+  const [cropLayerData, setCropLayerData] = useState<CropFeatureCollection | null>(null)
+  const cropLayerDataRef = useRef<CropFeatureCollection | null>(null)
+  const [cropLayerVisible, setCropLayerVisible] = useState(false)
+  const cropLayerVisibleRef = useRef(false)
+  const [cropLayerLoading, setCropLayerLoading] = useState(false)
+  const [cropLayerError, setCropLayerError] = useState<string | null>(null)
+  const [cropLegendCrops, setCropLegendCrops] = useState<string[]>([])
+  const cropPopupRef = useRef<mapboxgl.Popup | null>(null)
+  const cropLayerFittedRef = useRef(false)
 
   useEffect(() => {
     externalLayersRef.current = externalLayers
@@ -164,55 +510,98 @@ const Dashboard = () => {
     layerOpacityRef.current = layerOpacity
   }, [layerOpacity])
 
-  // 1. Auth & Data Fetching
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      if (!u) router.push('/data-portal');
-      else {
-        setUser(u);
-        fetchLayers();
+    cropLayerDataRef.current = cropLayerData
+  }, [cropLayerData])
+
+  useEffect(() => {
+    cropLayerVisibleRef.current = cropLayerVisible
+  }, [cropLayerVisible])
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, currentUser => {
+      if (!currentUser) {
+        router.push('/data-portal')
+        return
       }
+
+      setUser(currentUser)
+      fetchLayers()
     })
+
     return () => unsub()
   }, [router])
 
   const fetchLayers = async () => {
     try {
-      const res = await fetch('/api/mapbox/layers');
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
-      // Apply saved order from localStorage if present
+      const res = await fetch('/api/mapbox/layers')
+      if (!res.ok) throw new Error('Failed to fetch')
+
+      const data = await res.json()
       const saved = typeof window !== 'undefined' ? localStorage.getItem('geo_layers_order') : null
-      let layers: MapLayer[] = data.map((l: MapLayer) => ({ ...l, visible: false }))
+      let layers: MapLayer[] = data.map((layer: MapLayer) => ({ ...layer, visible: false }))
+
       if (saved) {
         try {
           const order: string[] = JSON.parse(saved)
-          const orderIndex = new Map(order.map((id, i) => [id, i]))
+          const orderIndex = new Map(order.map((id, index) => [id, index]))
           layers = layers.slice().sort((a, b) => {
-            const ai = orderIndex.has(a.id) ? orderIndex.get(a.id)! : Number.MAX_SAFE_INTEGER
-            const bi = orderIndex.has(b.id) ? orderIndex.get(b.id)! : Number.MAX_SAFE_INTEGER
-            return ai - bi
+            const aIndex = orderIndex.has(a.id) ? orderIndex.get(a.id)! : Number.MAX_SAFE_INTEGER
+            const bIndex = orderIndex.has(b.id) ? orderIndex.get(b.id)! : Number.MAX_SAFE_INTEGER
+            return aIndex - bIndex
           })
-        } catch (err) {
-          console.warn('Invalid saved layer order', err)
+        } catch (error) {
+          console.warn('Invalid saved layer order', error)
         }
       }
-      setExternalLayers(layers);
-      setLayerOpacity(prev => {
-        const next = { ...prev }
-        data.forEach((l: MapLayer) => {
-          if (next[l.id] === undefined) {
-            next[l.id] = getDefaultOpacity(l)
+
+      setExternalLayers(layers)
+      setLayerOpacity(previous => {
+        const next = { ...previous }
+        data.forEach((layer: MapLayer) => {
+          if (next[layer.id] === undefined) {
+            next[layer.id] = getDefaultOpacity(layer)
           }
         })
         return next
       })
-    } catch (err) {
-      console.error("Layer fetch error:", err);
+    } catch (error) {
+      console.error('Layer fetch error:', error)
     }
-  };
+  }
 
-  // 2. Map Initialization
+  const fetchCropSuitabilityData = async () => {
+    try {
+      setCropLayerLoading(true)
+      setCropLayerError(null)
+
+      const response = await fetch('/api/crops-assessment')
+      if (!response.ok) throw new Error('Failed to fetch crop suitability data')
+
+      const data = (await response.json()) as CropLayerApiResponse
+      const featureCollection: CropFeatureCollection = {
+        type: 'FeatureCollection',
+        features: data.features || []
+      }
+
+      const legendCrops = Array.isArray(data.topTierCrops) ? data.topTierCrops : []
+
+      setCropLayerData(featureCollection)
+      setCropLegendCrops(legendCrops)
+
+      return {
+        featureCollection,
+        legendCrops
+      }
+    } catch (error) {
+      console.error('Crop suitability fetch error:', error)
+      setCropLayerError('Could not load crop suitability results.')
+      return null
+    } finally {
+      setCropLayerLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (!user || !mapContainerRef.current) return
 
@@ -226,12 +615,61 @@ const Dashboard = () => {
       projection: 'globe'
     })
 
+    const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
+      if (!map.getLayer(CROP_FILL_LAYER_ID)) {
+        cropPopupRef.current?.remove()
+        cropPopupRef.current = null
+        return
+      }
+
+      const features = map.queryRenderedFeatures(event.point, {
+        layers: [CROP_FILL_LAYER_ID]
+      }) as mapboxgl.MapboxGeoJSONFeature[]
+
+      if (!features.length) {
+        cropPopupRef.current?.remove()
+        cropPopupRef.current = null
+        return
+      }
+
+      const targetFeature = features[0]
+      const popupProperties = (targetFeature.properties || {}) as Record<string, unknown>
+
+      cropPopupRef.current?.remove()
+      cropPopupRef.current = new mapboxgl.Popup({
+        closeButton: true,
+        closeOnClick: false,
+        maxWidth: '420px',
+        offset: 18,
+        className: CROP_POPUP_CLASS
+      })
+        .setLngLat(event.lngLat)
+        .setDOMContent(buildCropPopupContent(popupProperties))
+        .addTo(map)
+    }
+
+    const handleMapMouseMove = (event: mapboxgl.MapMouseEvent) => {
+      if (!map.getLayer(CROP_FILL_LAYER_ID)) {
+        map.getCanvas().style.cursor = ''
+        return
+      }
+
+      const hasFeature = map.queryRenderedFeatures(event.point, {
+        layers: [CROP_FILL_LAYER_ID]
+      }).length > 0
+
+      map.getCanvas().style.cursor = hasFeature ? 'pointer' : ''
+    }
+
+    map.on('click', handleMapClick)
+    map.on('mousemove', handleMapMouseMove)
+
     map.on('style.load', () => {
       map.setFog({
-        'color': 'rgb(186, 210, 235)',
+        color: 'rgb(186, 210, 235)',
         'high-color': 'rgb(36, 92, 223)',
         'space-color': 'rgb(11, 11, 25)'
-      });
+      })
 
       externalLayersRef.current
         .filter(layer => layer.visible)
@@ -240,105 +678,159 @@ const Dashboard = () => {
           addExternalLayer(map, layer, { flyOnAdd: false, opacity: opacityValue })
         })
 
+      if (cropLayerDataRef.current && cropLayerVisibleRef.current) {
+        ensureCropSuitabilityLayer(map, cropLayerDataRef.current)
+        setCropSuitabilityVisibility(map, true)
+      }
+
       setMapLoaded(true)
-    });
+    })
 
     mapRef.current = map
-    return () => map.remove()
+
+    return () => {
+      cropPopupRef.current?.remove()
+      cropPopupRef.current = null
+      map.getCanvas().style.cursor = ''
+      map.off('click', handleMapClick)
+      map.off('mousemove', handleMapMouseMove)
+      map.remove()
+    }
   }, [user])
 
   useEffect(() => {
     if (!mapRef.current) return
+
     const timeoutId = window.setTimeout(() => {
       mapRef.current?.resize()
     }, 350)
+
     return () => window.clearTimeout(timeoutId)
   }, [isCollapsed])
 
   useEffect(() => {
     if (!mapRef.current) return
+
     const selected = BASE_STYLES.find(style => style.id === activeBaseStyle)
     if (!selected) return
+
+    cropPopupRef.current?.remove()
+    cropPopupRef.current = null
     setMapLoaded(false)
     mapRef.current.setStyle(selected.styleUrl)
   }, [activeBaseStyle])
 
-  // 3. Toggle Logic (The Engine)
   const toggleLayer = (layer: MapLayer) => {
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-    
-    // --- External Tilesets (Data) ---
-    const layerId = `layer-${layer.id}`;
+    if (!mapRef.current) return
+
+    const map = mapRef.current
+    const layerId = `layer-${layer.id}`
 
     if (!layer.visible) {
       const currentOpacity = layerOpacity[layer.id] ?? getDefaultOpacity(layer)
       addExternalLayer(map, layer, { flyOnAdd: true, opacity: currentOpacity })
-      setLayerOpacity(prev => ({ ...prev, [layer.id]: currentOpacity }))
-    } else {
-      // TURN OFF
-      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', 'none');
+      setLayerOpacity(previous => ({ ...previous, [layer.id]: currentOpacity }))
+    } else if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', 'none')
     }
 
-    setExternalLayers(prev => prev.map(l => l.id === layer.id ? { ...l, visible: !l.visible } : l));
+    setExternalLayers(previous =>
+      previous.map(item => (item.id === layer.id ? { ...item, visible: !item.visible } : item))
+    )
   }
 
   const handleLayerOpacityChange = (layer: MapLayer, value: number) => {
     if (!mapRef.current) return
+
     const normalized = Math.min(1, Math.max(0, value))
     const layerId = `layer-${layer.id}`
     applyLayerOpacity(mapRef.current, layerId, layer.type, normalized)
-    setLayerOpacity(prev => ({ ...prev, [layer.id]: normalized }))
+    setLayerOpacity(previous => ({ ...previous, [layer.id]: normalized }))
   }
 
-  // Drag & drop handlers for reordering layers
+  const toggleCropSuitabilityLayer = async () => {
+    if (!mapRef.current) return
+
+    const map = mapRef.current
+    const nextVisible = !cropLayerVisibleRef.current
+
+    if (!nextVisible) {
+      cropLayerVisibleRef.current = false
+      setCropLayerVisible(false)
+      setCropSuitabilityVisibility(map, false)
+      cropPopupRef.current?.remove()
+      cropPopupRef.current = null
+      return
+    }
+
+    let cropData = cropLayerDataRef.current
+    if (!cropData) {
+      const result = await fetchCropSuitabilityData()
+      if (!result) return
+      cropData = result.featureCollection
+    }
+
+    ensureCropSuitabilityLayer(map, cropData)
+    setCropSuitabilityVisibility(map, true)
+    cropLayerVisibleRef.current = true
+    setCropLayerVisible(true)
+
+    if (!cropLayerFittedRef.current) {
+      fitMapToCropFeatures(map, cropData)
+      cropLayerFittedRef.current = true
+    }
+  }
+
   const handleDragStart = (id: string) => {
     dragSourceRef.current = id
   }
 
   const handleDrop = (targetId: string) => {
-    const srcId = dragSourceRef.current
-    if (!srcId || srcId === targetId) return
-    setExternalLayers(prev => {
-      const next = prev.slice()
-      const srcIndex = next.findIndex(l => l.id === srcId)
-      const tgtIndex = next.findIndex(l => l.id === targetId)
-      if (srcIndex === -1 || tgtIndex === -1) return prev
-      const [moved] = next.splice(srcIndex, 1)
-      next.splice(tgtIndex, 0, moved)
-      // persist order
+    const sourceId = dragSourceRef.current
+    if (!sourceId || sourceId === targetId) return
+
+    setExternalLayers(previous => {
+      const next = previous.slice()
+      const sourceIndex = next.findIndex(layer => layer.id === sourceId)
+      const targetIndex = next.findIndex(layer => layer.id === targetId)
+      if (sourceIndex === -1 || targetIndex === -1) return previous
+
+      const [moved] = next.splice(sourceIndex, 1)
+      next.splice(targetIndex, 0, moved)
+
       try {
-        localStorage.setItem('geo_layers_order', JSON.stringify(next.map(l => l.id)))
-      } catch (err) {
-        console.warn('Could not save layer order', err)
+        localStorage.setItem('geo_layers_order', JSON.stringify(next.map(layer => layer.id)))
+      } catch (error) {
+        console.warn('Could not save layer order', error)
       }
+
       return next
     })
+
     dragSourceRef.current = null
   }
-  
+
   if (!user) return null
 
   return (
-    <div className="relative flex h-screen w-full bg-[#0a0a0a] text-white overflow-hidden">
+    <div className="relative flex h-screen w-full overflow-hidden bg-[#0a0a0a] text-white">
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-10 z-30 w-7 h-7 bg-[#32de84] rounded-full flex items-center justify-center text-black shadow-lg"
+        className="absolute top-10 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-[#32de84] text-black shadow-lg"
         style={{ left: isCollapsed ? 16 : 304 }}
         aria-label={isCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
 
-      <motion.aside 
+      <motion.aside
         initial={false}
         animate={{ width: isCollapsed ? 0 : 320 }}
-        className="relative bg-black/60 backdrop-blur-xl border-r border-white/10 flex flex-col z-20"
+        className="relative z-20 flex flex-col border-r border-white/10 bg-black/60 backdrop-blur-xl"
         style={{ overflow: isCollapsed ? 'hidden' : 'visible', pointerEvents: isCollapsed ? 'none' : 'auto' }}
         aria-hidden={isCollapsed}
       >
-
-        <div className="p-6 border-b border-white/5 flex items-center gap-3">
+        <div className="flex items-center gap-3 border-b border-white/5 p-6">
           <div className="relative h-10 w-8 overflow-hidden">
             <Image
               src="/img/GEOKITSWHITE.png"
@@ -350,10 +842,10 @@ const Dashboard = () => {
             />
           </div>
           {!isCollapsed && <span className="font-semibold tracking-wide">Geokits</span>}
-        </div>  
+        </div>
 
         {!isCollapsed && (
-          <div className="px-4 py-4 border-b border-white/5 space-y-3">
+          <div className="space-y-3 border-b border-white/5 px-4 py-4">
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/60">
               <Layers size={14} />
               <span>Base map</span>
@@ -366,14 +858,15 @@ const Dashboard = () => {
                     key={style.id}
                     onClick={() => setActiveBaseStyle(style.id)}
                     disabled={!mapLoaded && !isActive}
-                    className={`rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition ${isActive ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
+                    className={`rounded-lg border px-3 py-2 text-left text-[11px] font-medium transition ${
+                      isActive
+                        ? 'border-white bg-white text-black'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:border-white/30'
+                    }`}
                   >
                     <span>{style.name}</span>
                     <span className="block text-[10px] text-white/50">{style.description}</span>
-                    <span
-                      className="mt-2 block h-1 w-full rounded-full"
-                      style={{ backgroundColor: style.accent }}
-                    />
+                    <span className="mt-2 block h-1 w-full rounded-full" style={{ backgroundColor: style.accent }} />
                   </button>
                 )
               })}
@@ -382,92 +875,151 @@ const Dashboard = () => {
         )}
 
         {!isCollapsed && (
-          <div className="flex items-center gap-2 px-4 pt-4 pb-2 text-xs uppercase tracking-widest text-white/60">
+          <div className="flex items-center gap-2 px-4 pb-2 pt-4 text-xs uppercase tracking-widest text-white/60">
             <Database size={14} />
             <span>Data Layers</span>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" data-lenis-prevent data-lenis-prevent-wheel>
+        <div className="custom-scrollbar flex-1 overflow-y-auto p-4" data-lenis-prevent data-lenis-prevent-wheel>
           {externalLayers.length ? (
-            externalLayers.map(l => (
+            externalLayers.map(layer => (
               <LayerRow
-                key={l.id}
-                layer={l}
-                toggle={() => toggleLayer(l)}
+                key={layer.id}
+                layer={layer}
+                toggle={() => toggleLayer(layer)}
                 collapsed={isCollapsed}
-                opacity={layerOpacity[l.id] ?? getDefaultOpacity(l)}
-                onOpacityChange={(value) => handleLayerOpacityChange(l, value)}
-                onDragStart={() => handleDragStart(l.id)}
-                onDrop={() => handleDrop(l.id)}
+                opacity={layerOpacity[layer.id] ?? getDefaultOpacity(layer)}
+                onOpacityChange={value => handleLayerOpacityChange(layer, value)}
+                onDragStart={() => handleDragStart(layer.id)}
+                onDrop={() => handleDrop(layer.id)}
               />
             ))
           ) : (
-            <p className="text-xs text-white/40 text-center mt-10">No data layers available</p>
+            <p className="mt-10 text-center text-xs text-white/40">No data layers available</p>
+          )}
+
+          {!isCollapsed && (
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="flex items-center gap-2 px-1 text-[11px] uppercase tracking-[0.18em] text-white/60">
+                <Layers size={13} />
+                <span>Crop Suitability</span>
+              </div>
+
+              <button
+                onClick={toggleCropSuitabilityLayer}
+                disabled={cropLayerLoading}
+                className={`mt-2 w-full rounded-xl border p-3 text-left transition ${
+                  cropLayerVisible
+                    ? 'border-white/20 bg-white/10 text-white'
+                    : 'border-white/10 bg-white/5 text-white/80 hover:bg-white/10'
+                } ${cropLayerLoading ? 'cursor-not-allowed opacity-60' : ''}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="block text-xs font-medium">
+                      {cropLayerLoading ? 'Loading crop fields...' : 'Field Crop Results'}
+                    </span>
+                    <span className="mt-1 block text-[10px] leading-relaxed text-white/50">
+                      Click any field to open recommendations, seasonal picks, rotation strategy, and all crop
+                      suitability scores.
+                    </span>
+                  </div>
+                  <span className={`mt-1 inline-block h-2.5 w-2.5 rounded-full ${cropLayerVisible ? 'bg-[#32de84]' : 'bg-white/20'}`} />
+                </div>
+              </button>
+
+              {cropLayerVisible && (
+                <div className="mt-3 space-y-3 px-1">
+                  <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">Display</p>
+                    <p className="mt-1 text-xs text-white/75">
+                      Polygons are colored by the top tier recommendation. {cropLayerData?.features.length || 0} fields loaded.
+                    </p>
+                  </div>
+
+                  {cropLegendCrops.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {cropLegendCrops.map(crop => (
+                        <span
+                          key={crop}
+                          className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-medium text-white"
+                          style={{ backgroundColor: `${getCropColor(crop)}33` }}
+                        >
+                          {crop}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {cropLayerError && <p className="mt-2 px-1 text-[11px] text-red-300">{cropLayerError}</p>}
+            </div>
           )}
         </div>
 
-        <div className="p-4 border-t border-white/5">
-           <button onClick={() => signOut(auth)} className="flex items-center gap-3 text-white/50 hover:text-red-400 p-2 text-sm">
-             <LogOut size={16} /> {!isCollapsed && "Sign Out"}
-           </button>
+        <div className="border-t border-white/5 p-4">
+          <button
+            onClick={() => signOut(auth)}
+            className="flex items-center gap-3 p-2 text-sm text-white/50 hover:text-red-400"
+          >
+            <LogOut size={16} /> {!isCollapsed && 'Sign Out'}
+          </button>
         </div>
       </motion.aside>
 
-      <main className="flex-1 relative">
-        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
-        {!mapLoaded && <div className="absolute inset-0 flex items-center justify-center bg-black z-50">Loading Map...</div>}
+      <main className="relative flex-1">
+        <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
+        {!mapLoaded && <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">Loading Map...</div>}
       </main>
     </div>
   )
 }
 
 const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange, onDragStart, onDrop }: LayerRowProps) => {
-  // Local state to handle slider movement smoothly before committing
   const [localOpacity, setLocalOpacity] = useState(opacity)
 
   useEffect(() => {
     setLocalOpacity(opacity)
   }, [opacity])
 
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = parseFloat(e.target.value)
-    setLocalOpacity(newVal)
-    onOpacityChange(newVal)
+  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseFloat(event.target.value)
+    setLocalOpacity(newValue)
+    onOpacityChange(newValue)
   }
 
   return (
     <div
       className="mb-2"
       draggable
-      onDragStart={(e) => {
-        e.dataTransfer?.setData('text/plain', layer.id)
-        e.dataTransfer!.effectAllowed = 'move'
+      onDragStart={event => {
+        event.dataTransfer?.setData('text/plain', layer.id)
+        event.dataTransfer!.effectAllowed = 'move'
         onDragStart?.(layer.id)
       }}
-      onDragOver={(e) => {
-        e.preventDefault()
-        e.dataTransfer!.dropEffect = 'move'
+      onDragOver={event => {
+        event.preventDefault()
+        event.dataTransfer!.dropEffect = 'move'
       }}
-      onDrop={(e) => {
-        e.preventDefault()
-        const targetId = layer.id
-        // prefer explicit prop handler
-        onDrop?.(targetId)
-      }}
-      onDragEnd={() => {
-        // nothing for now
+      onDrop={event => {
+        event.preventDefault()
+        onDrop?.(layer.id)
       }}
     >
       <button
         onClick={() => toggle(layer)}
-        className={`w-full flex items-center rounded-lg transition-all ${collapsed ? 'justify-center p-2' : 'justify-between p-3 hover:bg-white/5'} ${layer.visible ? 'bg-white/5' : ''}`}
+        className={`w-full rounded-lg transition-all ${
+          collapsed ? 'flex justify-center p-2' : 'flex justify-between p-3 hover:bg-white/5'
+        } ${layer.visible ? 'bg-white/5' : ''}`}
       >
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
-          {!collapsed && <span className="text-xs truncate text-white/80">{layer.name || layer.id}</span>}
+          <div className={`h-2 w-2 rounded-full ${layer.visible ? 'bg-[#32de84]' : 'bg-white/10'}`} />
+          {!collapsed && <span className="truncate text-xs text-white/80">{layer.name || layer.id}</span>}
         </div>
       </button>
+
       {!collapsed && layer.visible && (
         <div className="mt-2 flex items-center gap-2 px-1 text-[11px] text-white/60">
           <input
