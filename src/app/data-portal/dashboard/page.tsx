@@ -43,6 +43,14 @@ type CropFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON
 type StudyContextLayerId = 'villagesArea' | 'trees' | 'streams'
 type StudyContextFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>
 type StudyContextLayerState<T> = Record<StudyContextLayerId, T>
+type StudyContextRawFeatureCollection = StudyContextFeatureCollection & {
+  crs?: {
+    type?: string
+    properties?: {
+      name?: string
+    }
+  }
+}
 
 interface CropLayerApiResponse extends CropFeatureCollection {
   topTierCrops?: string[]
@@ -279,6 +287,165 @@ const parseJsonProperty = <T,>(value: unknown, fallback: T): T => {
   }
 }
 
+const getFirstCoordinate = (coordinates: unknown): [number, number] | null => {
+  if (!Array.isArray(coordinates)) return null
+
+  const [first] = coordinates
+  if (typeof first === 'number' && typeof coordinates[1] === 'number') {
+    return [first, coordinates[1] as number]
+  }
+
+  for (const entry of coordinates) {
+    const nested = getFirstCoordinate(entry)
+    if (nested) return nested
+  }
+
+  return null
+}
+
+const extractEpsgCode = (data: StudyContextRawFeatureCollection): number | null => {
+  const crsName = data.crs?.properties?.name
+  if (typeof crsName !== 'string') return null
+
+  const match = crsName.match(/EPSG::(\d+)/i)
+  if (!match) return null
+
+  const epsgCode = Number(match[1])
+  return Number.isFinite(epsgCode) ? epsgCode : null
+}
+
+const utmToLngLat = (easting: number, northing: number, zoneNumber: number): [number, number] => {
+  const semiMajorAxis = 6378137
+  const eccentricitySquared = 0.00669438
+  const scaleFactor = 0.9996
+  const adjustedX = easting - 500000
+  const adjustedY = northing > 10000000 ? northing - 10000000 : northing
+  const longOrigin = (zoneNumber - 1) * 6 - 180 + 3
+  const eccPrimeSquared = eccentricitySquared / (1 - eccentricitySquared)
+  const meridionalArc = adjustedY / scaleFactor
+  const mu =
+    meridionalArc /
+    (semiMajorAxis *
+      (1 -
+        eccentricitySquared / 4 -
+        (3 * eccentricitySquared * eccentricitySquared) / 64 -
+        (5 * eccentricitySquared ** 3) / 256))
+  const e1 = (1 - Math.sqrt(1 - eccentricitySquared)) / (1 + Math.sqrt(1 - eccentricitySquared))
+  const footprintLatitude =
+    mu +
+    (3 * e1 / 2 - (27 * e1 ** 3) / 32) * Math.sin(2 * mu) +
+    ((21 * e1 * e1) / 16 - (55 * e1 ** 4) / 32) * Math.sin(4 * mu) +
+    ((151 * e1 ** 3) / 96) * Math.sin(6 * mu)
+  const sinFootprint = Math.sin(footprintLatitude)
+  const cosFootprint = Math.cos(footprintLatitude)
+  const tanFootprint = Math.tan(footprintLatitude)
+  const radiusN = semiMajorAxis / Math.sqrt(1 - eccentricitySquared * sinFootprint * sinFootprint)
+  const radiusR =
+    (semiMajorAxis * (1 - eccentricitySquared)) /
+    Math.pow(1 - eccentricitySquared * sinFootprint * sinFootprint, 1.5)
+  const tangentSquared = tanFootprint * tanFootprint
+  const curvature = eccPrimeSquared * cosFootprint * cosFootprint
+  const delta = adjustedX / (radiusN * scaleFactor)
+  const latitude =
+    footprintLatitude -
+    ((radiusN * tanFootprint) / radiusR) *
+      (delta * delta / 2 -
+        ((5 + 3 * tangentSquared + 10 * curvature - 4 * curvature * curvature - 9 * eccPrimeSquared) *
+          delta ** 4) /
+          24 +
+        ((61 +
+          90 * tangentSquared +
+          298 * curvature +
+          45 * tangentSquared * tangentSquared -
+          252 * eccPrimeSquared -
+          3 * curvature * curvature) *
+          delta ** 6) /
+          720)
+  const longitude =
+    ((delta -
+      ((1 + 2 * tangentSquared + curvature) * delta ** 3) / 6 +
+      ((5 -
+        2 * curvature +
+        28 * tangentSquared -
+        3 * curvature * curvature +
+        8 * eccPrimeSquared +
+        24 * tangentSquared * tangentSquared) *
+        delta ** 5) /
+        120) /
+      cosFootprint) *
+      (180 / Math.PI) +
+    longOrigin
+
+  return [longitude, (latitude * 180) / Math.PI]
+}
+
+const transformCoordinateArray = (
+  coordinates: unknown,
+  transformer: (x: number, y: number) => [number, number]
+): unknown => {
+  if (!Array.isArray(coordinates)) return coordinates
+
+  const [first] = coordinates
+  if (typeof first === 'number' && typeof coordinates[1] === 'number') {
+    return transformer(first, coordinates[1] as number)
+  }
+
+  return coordinates.map(entry => transformCoordinateArray(entry, transformer))
+}
+
+const transformGeometryCoordinates = (
+  geometry: GeoJSON.Geometry | null,
+  transformer: (x: number, y: number) => [number, number]
+): GeoJSON.Geometry | null => {
+  if (!geometry) return geometry
+
+  if (geometry.type === 'GeometryCollection') {
+    return {
+      ...geometry,
+      geometries: geometry.geometries.map(entry => transformGeometryCoordinates(entry, transformer) as GeoJSON.Geometry)
+    }
+  }
+
+  return {
+    ...geometry,
+    coordinates: transformCoordinateArray(geometry.coordinates, transformer) as never
+  }
+}
+
+const normalizeStudyContextData = (data: StudyContextRawFeatureCollection): StudyContextFeatureCollection => {
+  const normalized: StudyContextFeatureCollection = {
+    type: 'FeatureCollection',
+    features: data.features || []
+  }
+
+  const firstFeature = normalized.features.find(feature => feature.geometry)
+  const firstCoordinate = firstFeature ? getFirstCoordinate(firstFeature.geometry?.coordinates) : null
+
+  if (firstCoordinate && Math.abs(firstCoordinate[0]) <= 180 && Math.abs(firstCoordinate[1]) <= 90) {
+    return normalized
+  }
+
+  const epsgCode = extractEpsgCode(data)
+  const isSupportedUtm =
+    typeof epsgCode === 'number' &&
+    ((epsgCode >= 32601 && epsgCode <= 32660) || (epsgCode >= 32701 && epsgCode <= 32760))
+
+  if (!isSupportedUtm) {
+    return normalized
+  }
+
+  const zoneNumber = epsgCode % 100
+  const transformer = (x: number, y: number) => utmToLngLat(x, y, zoneNumber)
+
+  return {
+    type: 'FeatureCollection',
+    features: normalized.features.map(feature => ({
+      ...feature,
+      geometry: transformGeometryCoordinates(feature.geometry, transformer)
+    }))
+  }
+}
+
 const formatScore = (value: number | null) => (value === null ? 'NA' : value.toFixed(1))
 
 const formatArea = (areaM2: number | null) => {
@@ -447,10 +614,10 @@ const ensureStudyContextLayer = (
         source: TREES_SOURCE_ID,
         paint: {
           'circle-color': '#86efac',
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 1.2, 11, 2.2, 14, 3.6],
-          'circle-stroke-width': 0.8,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 1.8, 11, 3.1, 14, 4.8],
+          'circle-stroke-width': 1,
           'circle-stroke-color': '#14532d',
-          'circle-opacity': 0.82
+          'circle-opacity': 0.9
         }
       })
     }
@@ -482,8 +649,8 @@ const ensureStudyContextLayer = (
         },
         paint: {
           'line-color': '#7dd3fc',
-          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 1.1, 11, 1.9, 14, 2.8],
-          'line-opacity': 0.88
+          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 1.6, 11, 2.7, 14, 4],
+          'line-opacity': 0.94
         }
       },
       beforeId
@@ -763,7 +930,8 @@ const Dashboard = () => {
       const response = await fetch(config.filePath)
       if (!response.ok) throw new Error(`Failed to fetch ${config.label}`)
 
-      const data = (await response.json()) as StudyContextFeatureCollection
+      const rawData = (await response.json()) as StudyContextRawFeatureCollection
+      const data = normalizeStudyContextData(rawData)
 
       setStudyContextLayerData(previous => ({ ...previous, [layerId]: data }))
 
