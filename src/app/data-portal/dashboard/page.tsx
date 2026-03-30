@@ -7,7 +7,7 @@ import { auth } from '@/lib/firebaseClient'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, LogOut, Database, Layers } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Database, Layers, X } from 'lucide-react'
 import Image from 'next/image'
 
 interface MapLayer {
@@ -65,6 +65,23 @@ type PopupSuitability = {
   classification: string
 }
 
+type CropFieldPanelData = {
+  fieldId: string
+  fieldUid: string
+  areaText: string
+  topCrop: string
+  topCropScore: number | null
+  waterTier: string
+  limitingFactor: string
+  tierLimitingCrop: string
+  tierLimitingScore: number | null
+  rotationStrategy: string
+  tierRecommendations: PopupRecommendation[]
+  seasonalRecommendations: PopupSeasonalRecommendation[]
+  cropSuitability: PopupSuitability[]
+  accentColor: string
+}
+
 const BASE_STYLES: BaseStyle[] = [
   {
     id: 'geokits-aurora',
@@ -104,7 +121,6 @@ type AddExternalLayerOptions = {
 const CROP_SOURCE_ID = 'crop-suitability-source'
 const CROP_FILL_LAYER_ID = 'crop-suitability-fill'
 const CROP_OUTLINE_LAYER_ID = 'crop-suitability-outline'
-const CROP_POPUP_CLASS = 'crop-suitability-popup'
 
 const CROP_COLOR_OVERRIDES: Record<string, string> = {
   'Henna': '#f97316',
@@ -188,14 +204,6 @@ const toFiniteNumber = (value: unknown): number | null => {
 
   return null
 }
-
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
 
 const parseJsonProperty = <T,>(value: unknown, fallback: T): T => {
   if (typeof value !== 'string' || !value.trim()) return fallback
@@ -325,7 +333,7 @@ const fitMapToCropFeatures = (map: mapboxgl.Map, data: CropFeatureCollection) =>
   }
 }
 
-const buildCropPopupContent = (properties: Record<string, unknown>) => {
+const buildCropPopupData = (properties: Record<string, unknown>): CropFieldPanelData => {
   const fieldId = String(properties.field_id || 'Unknown')
   const fieldUid = String(properties.field_uid || '').trim()
   const areaM2 = toFiniteNumber(properties.area_m2)
@@ -343,137 +351,22 @@ const buildCropPopupContent = (properties: Record<string, unknown>) => {
   )
   const cropSuitability = parseJsonProperty<PopupSuitability[]>(properties.crop_suitability_json, [])
   const accentColor = getCropColor(topCrop)
-
-  const meta: string[] = []
-  if (fieldUid) meta.push(`UID ${fieldUid}`)
-  const formattedArea = formatArea(areaM2)
-  if (formattedArea) meta.push(formattedArea)
-
-  const summaryChips = [
-    waterTier ? `<span class="crop-popup__chip">${escapeHtml(waterTier)}</span>` : '',
-    tierLimitingCrop ? `<span class="crop-popup__chip">Constraint Crop: ${escapeHtml(tierLimitingCrop)}</span>` : '',
-    limitingFactor ? `<span class="crop-popup__chip">${escapeHtml(limitingFactor)}</span>` : ''
-  ]
-    .filter(Boolean)
-    .join('')
-
-  const tierCardsMarkup = tierRecommendations.length
-    ? tierRecommendations
-        .map(
-          recommendation => `
-            <article class="crop-popup__mini-card">
-              <p class="crop-popup__mini-label">${escapeHtml(recommendation.label)}</p>
-              <h4>${escapeHtml(recommendation.crop || 'NA')}</h4>
-              <span class="crop-popup__mini-score">${formatScore(recommendation.score)}</span>
-            </article>
-          `
-        )
-        .join('')
-    : '<div class="crop-popup__empty">No ranked recommendations available for this field.</div>'
-
-  const seasonalCardsMarkup = seasonalRecommendations.length
-    ? seasonalRecommendations
-        .map(
-          recommendation => `
-            <article class="crop-popup__season-card">
-              <p class="crop-popup__mini-label">${escapeHtml(recommendation.season)}</p>
-              <div class="crop-popup__season-row">
-                <span>Best</span>
-                <strong>${escapeHtml(recommendation.best || 'NA')}</strong>
-                <span>${formatScore(recommendation.bestScore)}</span>
-              </div>
-              <div class="crop-popup__season-row">
-                <span>Second</span>
-                <strong>${escapeHtml(recommendation.second || 'NA')}</strong>
-                <span>${formatScore(recommendation.secondScore)}</span>
-              </div>
-            </article>
-          `
-        )
-        .join('')
-    : '<div class="crop-popup__empty">No seasonal recommendation data available.</div>'
-
-  const suitabilityRowsMarkup = cropSuitability.length
-    ? cropSuitability
-        .map(
-          item => `
-            <div class="crop-popup__suitability-row">
-              <div class="crop-popup__suitability-copy">
-                <strong>${escapeHtml(item.crop)}</strong>
-                <span>${escapeHtml(item.classification || 'No class provided')}</span>
-              </div>
-              <span class="crop-popup__score-pill">${formatScore(item.score)}</span>
-            </div>
-          `
-        )
-        .join('')
-    : '<div class="crop-popup__empty">No crop suitability scores available.</div>'
-
-  const wrapper = document.createElement('div')
-  wrapper.className = 'crop-popup'
-  wrapper.style.setProperty('--crop-accent', accentColor)
-  wrapper.innerHTML = `
-    <div class="crop-popup__card">
-      <div class="crop-popup__hero">
-        <div class="crop-popup__hero-copy">
-          <p class="crop-popup__eyebrow">Field ${escapeHtml(fieldId)}</p>
-          <h3>${escapeHtml(topCrop)}</h3>
-          <p class="crop-popup__meta">${escapeHtml(meta.join(' • ') || 'Crop suitability summary')}</p>
-        </div>
-        <div class="crop-popup__hero-score">
-          <span>Top Match</span>
-          <strong>${formatScore(topCropScore)}</strong>
-        </div>
-      </div>
-
-      ${summaryChips ? `<div class="crop-popup__chip-row">${summaryChips}</div>` : ''}
-
-      ${
-        rotationStrategy
-          ? `
-            <section class="crop-popup__section">
-              <p class="crop-popup__section-label">Rotation Strategy</p>
-              <div class="crop-popup__strategy">${escapeHtml(rotationStrategy)}</div>
-            </section>
-          `
-          : ''
-      }
-
-      <section class="crop-popup__section">
-        <p class="crop-popup__section-label">Tier Recommendations</p>
-        <div class="crop-popup__mini-grid">${tierCardsMarkup}</div>
-      </section>
-
-      <section class="crop-popup__section">
-        <p class="crop-popup__section-label">Seasonal Picks</p>
-        <div class="crop-popup__season-grid">${seasonalCardsMarkup}</div>
-      </section>
-
-      ${
-        tierLimitingCrop || limitingFactor
-          ? `
-            <section class="crop-popup__section">
-              <p class="crop-popup__section-label">Constraints</p>
-              <div class="crop-popup__constraint">
-                <div>
-                  <strong>${escapeHtml(tierLimitingCrop || 'Primary constraint')}</strong>
-                  <span>${escapeHtml(limitingFactor || 'No limiting factor provided')}</span>
-                </div>
-                <span class="crop-popup__score-pill">${formatScore(tierLimitingScore)}</span>
-              </div>
-            </section>
-          `
-          : ''
-      }
-
-      <section class="crop-popup__section">
-        <p class="crop-popup__section-label">All Crop Suitability</p>
-        <div class="crop-popup__suitability-list">${suitabilityRowsMarkup}</div>
-      </section>
-    </div>
-  `
-
-  return wrapper
+  return {
+    fieldId,
+    fieldUid,
+    areaText: formatArea(areaM2),
+    topCrop,
+    topCropScore,
+    waterTier,
+    limitingFactor,
+    tierLimitingCrop,
+    tierLimitingScore,
+    rotationStrategy,
+    tierRecommendations,
+    seasonalRecommendations,
+    cropSuitability,
+    accentColor
+  }
 }
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
@@ -499,7 +392,7 @@ const Dashboard = () => {
   const [cropLayerLoading, setCropLayerLoading] = useState(false)
   const [cropLayerError, setCropLayerError] = useState<string | null>(null)
   const [cropLegendCrops, setCropLegendCrops] = useState<string[]>([])
-  const cropPopupRef = useRef<mapboxgl.Popup | null>(null)
+  const [selectedCropField, setSelectedCropField] = useState<CropFieldPanelData | null>(null)
   const cropLayerFittedRef = useRef(false)
 
   useEffect(() => {
@@ -617,8 +510,7 @@ const Dashboard = () => {
 
     const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
       if (!map.getLayer(CROP_FILL_LAYER_ID)) {
-        cropPopupRef.current?.remove()
-        cropPopupRef.current = null
+        setSelectedCropField(null)
         return
       }
 
@@ -627,25 +519,13 @@ const Dashboard = () => {
       }) as mapboxgl.MapboxGeoJSONFeature[]
 
       if (!features.length) {
-        cropPopupRef.current?.remove()
-        cropPopupRef.current = null
+        setSelectedCropField(null)
         return
       }
 
       const targetFeature = features[0]
       const popupProperties = (targetFeature.properties || {}) as Record<string, unknown>
-
-      cropPopupRef.current?.remove()
-      cropPopupRef.current = new mapboxgl.Popup({
-        closeButton: true,
-        closeOnClick: false,
-        maxWidth: '420px',
-        offset: 18,
-        className: CROP_POPUP_CLASS
-      })
-        .setLngLat(event.lngLat)
-        .setDOMContent(buildCropPopupContent(popupProperties))
-        .addTo(map)
+      setSelectedCropField(buildCropPopupData(popupProperties))
     }
 
     const handleMapMouseMove = (event: mapboxgl.MapMouseEvent) => {
@@ -689,8 +569,6 @@ const Dashboard = () => {
     mapRef.current = map
 
     return () => {
-      cropPopupRef.current?.remove()
-      cropPopupRef.current = null
       map.getCanvas().style.cursor = ''
       map.off('click', handleMapClick)
       map.off('mousemove', handleMapMouseMove)
@@ -714,8 +592,7 @@ const Dashboard = () => {
     const selected = BASE_STYLES.find(style => style.id === activeBaseStyle)
     if (!selected) return
 
-    cropPopupRef.current?.remove()
-    cropPopupRef.current = null
+    setSelectedCropField(null)
     setMapLoaded(false)
     mapRef.current.setStyle(selected.styleUrl)
   }, [activeBaseStyle])
@@ -758,8 +635,7 @@ const Dashboard = () => {
       cropLayerVisibleRef.current = false
       setCropLayerVisible(false)
       setCropSuitabilityVisibility(map, false)
-      cropPopupRef.current?.remove()
-      cropPopupRef.current = null
+      setSelectedCropField(null)
       return
     }
 
@@ -971,8 +847,134 @@ const Dashboard = () => {
 
       <main className="relative flex-1">
         <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
+        {selectedCropField && (
+          <div className="pointer-events-none absolute inset-0 z-30 p-3 sm:p-4">
+            <div className="ml-auto h-full w-full max-w-[340px] sm:max-w-[360px] pointer-events-auto">
+              <CropFieldPanel data={selectedCropField} onClose={() => setSelectedCropField(null)} />
+            </div>
+          </div>
+        )}
         {!mapLoaded && <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">Loading Map...</div>}
       </main>
+    </div>
+  )
+}
+
+const CropFieldPanel = ({ data, onClose }: { data: CropFieldPanelData; onClose: () => void }) => {
+  const meta: string[] = []
+  if (data.fieldUid) meta.push(`UID ${data.fieldUid}`)
+  if (data.areaText) meta.push(data.areaText)
+
+  return (
+    <div className="crop-popup h-full" style={{ ['--crop-accent' as string]: data.accentColor }}>
+      <div className="crop-popup__card crop-popup__card--panel">
+        <button type="button" onClick={onClose} className="crop-popup__close" aria-label="Close field details">
+          <X size={16} />
+        </button>
+
+        <div className="crop-popup__hero">
+          <div className="crop-popup__hero-copy">
+            <p className="crop-popup__eyebrow">Field {data.fieldId}</p>
+            <h3>{data.topCrop}</h3>
+            <p className="crop-popup__meta">{meta.join(' • ') || 'Crop suitability summary'}</p>
+          </div>
+          <div className="crop-popup__hero-score">
+            <span>Top Match</span>
+            <strong>{formatScore(data.topCropScore)}</strong>
+          </div>
+        </div>
+
+        {(data.waterTier || data.tierLimitingCrop || data.limitingFactor) && (
+          <div className="crop-popup__chip-row">
+            {data.waterTier && <span className="crop-popup__chip">{data.waterTier}</span>}
+            {data.tierLimitingCrop && (
+              <span className="crop-popup__chip">Constraint Crop: {data.tierLimitingCrop}</span>
+            )}
+            {data.limitingFactor && <span className="crop-popup__chip">{data.limitingFactor}</span>}
+          </div>
+        )}
+
+        {data.rotationStrategy && (
+          <section className="crop-popup__section">
+            <p className="crop-popup__section-label">Rotation Strategy</p>
+            <div className="crop-popup__strategy">{data.rotationStrategy}</div>
+          </section>
+        )}
+
+        <section className="crop-popup__section">
+          <p className="crop-popup__section-label">Tier Recommendations</p>
+          <div className="crop-popup__mini-grid">
+            {data.tierRecommendations.length ? (
+              data.tierRecommendations.map(recommendation => (
+                <article key={`${recommendation.label}-${recommendation.crop}`} className="crop-popup__mini-card">
+                  <p className="crop-popup__mini-label">{recommendation.label}</p>
+                  <h4>{recommendation.crop || 'NA'}</h4>
+                  <span className="crop-popup__mini-score">{formatScore(recommendation.score)}</span>
+                </article>
+              ))
+            ) : (
+              <div className="crop-popup__empty">No ranked recommendations available for this field.</div>
+            )}
+          </div>
+        </section>
+
+        <section className="crop-popup__section">
+          <p className="crop-popup__section-label">Seasonal Picks</p>
+          <div className="crop-popup__season-grid">
+            {data.seasonalRecommendations.length ? (
+              data.seasonalRecommendations.map(recommendation => (
+                <article key={recommendation.season} className="crop-popup__season-card">
+                  <p className="crop-popup__mini-label">{recommendation.season}</p>
+                  <div className="crop-popup__season-row">
+                    <span>Best</span>
+                    <strong>{recommendation.best || 'NA'}</strong>
+                    <span>{formatScore(recommendation.bestScore)}</span>
+                  </div>
+                  <div className="crop-popup__season-row">
+                    <span>Second</span>
+                    <strong>{recommendation.second || 'NA'}</strong>
+                    <span>{formatScore(recommendation.secondScore)}</span>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="crop-popup__empty">No seasonal recommendation data available.</div>
+            )}
+          </div>
+        </section>
+
+        {(data.tierLimitingCrop || data.limitingFactor) && (
+          <section className="crop-popup__section">
+            <p className="crop-popup__section-label">Constraints</p>
+            <div className="crop-popup__constraint">
+              <div>
+                <strong>{data.tierLimitingCrop || 'Primary constraint'}</strong>
+                <span>{data.limitingFactor || 'No limiting factor provided'}</span>
+              </div>
+              <span className="crop-popup__score-pill">{formatScore(data.tierLimitingScore)}</span>
+            </div>
+          </section>
+        )}
+
+        <section className="crop-popup__section">
+          <p className="crop-popup__section-label">All Crop Suitability</p>
+          <div className="crop-popup__suitability-list">
+            {data.cropSuitability.length ? (
+              data.cropSuitability.map(item => (
+                <div key={item.crop} className="crop-popup__suitability-row">
+                  <div className="crop-popup__suitability-copy">
+                    <strong>{item.crop}</strong>
+                    <span>{item.classification || 'No class provided'}</span>
+                  </div>
+                  <span className="crop-popup__score-pill">{formatScore(item.score)}</span>
+                </div>
+              ))
+            ) : (
+              <div className="crop-popup__empty">No crop suitability scores available.</div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }
