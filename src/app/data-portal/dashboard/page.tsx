@@ -40,9 +40,19 @@ interface BaseStyle {
 
 type CropFeatureProperties = Record<string, string | number | boolean | null | undefined>
 type CropFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, CropFeatureProperties>
+type StudyContextLayerId = 'villagesArea' | 'trees' | 'streams'
+type StudyContextFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>
+type StudyContextLayerState<T> = Record<StudyContextLayerId, T>
 
 interface CropLayerApiResponse extends CropFeatureCollection {
   topTierCrops?: string[]
+}
+
+interface StudyContextLayerConfig {
+  label: string
+  description: string
+  filePath: string
+  defaultVisible: boolean
 }
 
 type PopupRecommendation = {
@@ -121,6 +131,60 @@ type AddExternalLayerOptions = {
 const CROP_SOURCE_ID = 'crop-suitability-source'
 const CROP_FILL_LAYER_ID = 'crop-suitability-fill'
 const CROP_OUTLINE_LAYER_ID = 'crop-suitability-outline'
+const VILLAGES_AREA_SOURCE_ID = 'villages-area-source'
+const VILLAGES_AREA_FILL_LAYER_ID = 'villages-area-fill'
+const VILLAGES_AREA_OUTLINE_LAYER_ID = 'villages-area-outline'
+const TREES_SOURCE_ID = 'trees-source'
+const TREES_LAYER_ID = 'trees-layer'
+const STREAMS_SOURCE_ID = 'streams-source'
+const STREAMS_LAYER_ID = 'streams-layer'
+
+const STUDY_CONTEXT_LAYER_ORDER: StudyContextLayerId[] = ['villagesArea', 'trees', 'streams']
+
+const STUDY_CONTEXT_LAYER_CONFIGS: StudyContextLayerState<StudyContextLayerConfig> = {
+  villagesArea: {
+    label: 'Villages Area',
+    description: 'Study area polygon. This stays on by default.',
+    filePath: '/data-portal/villages-area.geojson',
+    defaultVisible: true
+  },
+  trees: {
+    label: 'Trees',
+    description: 'Point layer showing the tree inventory across the study area.',
+    filePath: '/data-portal/trees.geojson',
+    defaultVisible: false
+  },
+  streams: {
+    label: 'Streams',
+    description: 'Line layer showing stream corridors and drainage paths.',
+    filePath: '/data-portal/stream.geojson',
+    defaultVisible: false
+  }
+}
+
+const DEFAULT_STUDY_CONTEXT_VISIBILITY: StudyContextLayerState<boolean> = {
+  villagesArea: true,
+  trees: false,
+  streams: false
+}
+
+const EMPTY_STUDY_CONTEXT_DATA: StudyContextLayerState<StudyContextFeatureCollection | null> = {
+  villagesArea: null,
+  trees: null,
+  streams: null
+}
+
+const EMPTY_STUDY_CONTEXT_LOADING: StudyContextLayerState<boolean> = {
+  villagesArea: false,
+  trees: false,
+  streams: false
+}
+
+const EMPTY_STUDY_CONTEXT_ERRORS: StudyContextLayerState<string | null> = {
+  villagesArea: null,
+  trees: null,
+  streams: null
+}
 
 const CROP_COLOR_OVERRIDES: Record<string, string> = {
   'Henna': '#f97316',
@@ -305,6 +369,153 @@ const setCropSuitabilityVisibility = (map: mapboxgl.Map, visible: boolean) => {
   }
 }
 
+const getStudyContextInsertBeforeId = (map: mapboxgl.Map) => {
+  if (map.getLayer(CROP_FILL_LAYER_ID)) return CROP_FILL_LAYER_ID
+  if (map.getLayer(STREAMS_LAYER_ID)) return STREAMS_LAYER_ID
+  if (map.getLayer(TREES_LAYER_ID)) return TREES_LAYER_ID
+  return undefined
+}
+
+const ensureStudyContextLayer = (
+  map: mapboxgl.Map,
+  layerId: StudyContextLayerId,
+  data: StudyContextFeatureCollection
+) => {
+  if (layerId === 'villagesArea') {
+    const existingSource = map.getSource(VILLAGES_AREA_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+    if (existingSource) {
+      existingSource.setData(data)
+    } else {
+      map.addSource(VILLAGES_AREA_SOURCE_ID, {
+        type: 'geojson',
+        data
+      })
+    }
+
+    const beforeId = getStudyContextInsertBeforeId(map)
+
+    if (!map.getLayer(VILLAGES_AREA_FILL_LAYER_ID)) {
+      map.addLayer(
+        {
+          id: VILLAGES_AREA_FILL_LAYER_ID,
+          type: 'fill',
+          source: VILLAGES_AREA_SOURCE_ID,
+          paint: {
+            'fill-color': '#f59e0b',
+            'fill-opacity': 0.08
+          }
+        },
+        beforeId
+      )
+    }
+
+    if (!map.getLayer(VILLAGES_AREA_OUTLINE_LAYER_ID)) {
+      map.addLayer(
+        {
+          id: VILLAGES_AREA_OUTLINE_LAYER_ID,
+          type: 'line',
+          source: VILLAGES_AREA_SOURCE_ID,
+          paint: {
+            'line-color': '#fdba74',
+            'line-width': 1.4,
+            'line-opacity': 0.82,
+            'line-dasharray': [2, 1.4]
+          }
+        },
+        beforeId
+      )
+    }
+
+    return
+  }
+
+  if (layerId === 'trees') {
+    const existingSource = map.getSource(TREES_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+    if (existingSource) {
+      existingSource.setData(data)
+    } else {
+      map.addSource(TREES_SOURCE_ID, {
+        type: 'geojson',
+        data
+      })
+    }
+
+    if (!map.getLayer(TREES_LAYER_ID)) {
+      map.addLayer({
+        id: TREES_LAYER_ID,
+        type: 'circle',
+        source: TREES_SOURCE_ID,
+        paint: {
+          'circle-color': '#86efac',
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 1.2, 11, 2.2, 14, 3.6],
+          'circle-stroke-width': 0.8,
+          'circle-stroke-color': '#14532d',
+          'circle-opacity': 0.82
+        }
+      })
+    }
+
+    return
+  }
+
+  const existingSource = map.getSource(STREAMS_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+  if (existingSource) {
+    existingSource.setData(data)
+  } else {
+    map.addSource(STREAMS_SOURCE_ID, {
+      type: 'geojson',
+      data
+    })
+  }
+
+  const beforeId = map.getLayer(TREES_LAYER_ID) ? TREES_LAYER_ID : undefined
+
+  if (!map.getLayer(STREAMS_LAYER_ID)) {
+    map.addLayer(
+      {
+        id: STREAMS_LAYER_ID,
+        type: 'line',
+        source: STREAMS_SOURCE_ID,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#7dd3fc',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 1.1, 11, 1.9, 14, 2.8],
+          'line-opacity': 0.88
+        }
+      },
+      beforeId
+    )
+  }
+}
+
+const setStudyContextMapVisibility = (map: mapboxgl.Map, layerId: StudyContextLayerId, visible: boolean) => {
+  const visibility = visible ? 'visible' : 'none'
+
+  if (layerId === 'villagesArea') {
+    if (map.getLayer(VILLAGES_AREA_FILL_LAYER_ID)) {
+      map.setLayoutProperty(VILLAGES_AREA_FILL_LAYER_ID, 'visibility', visibility)
+    }
+    if (map.getLayer(VILLAGES_AREA_OUTLINE_LAYER_ID)) {
+      map.setLayoutProperty(VILLAGES_AREA_OUTLINE_LAYER_ID, 'visibility', visibility)
+    }
+    return
+  }
+
+  if (layerId === 'trees') {
+    if (map.getLayer(TREES_LAYER_ID)) {
+      map.setLayoutProperty(TREES_LAYER_ID, 'visibility', visibility)
+    }
+    return
+  }
+
+  if (map.getLayer(STREAMS_LAYER_ID)) {
+    map.setLayoutProperty(STREAMS_LAYER_ID, 'visibility', visibility)
+  }
+}
+
 const extendBoundsFromCoordinates = (bounds: mapboxgl.LngLatBounds, coordinates: unknown): void => {
   if (!Array.isArray(coordinates)) return
 
@@ -317,11 +528,22 @@ const extendBoundsFromCoordinates = (bounds: mapboxgl.LngLatBounds, coordinates:
   coordinates.forEach(entry => extendBoundsFromCoordinates(bounds, entry))
 }
 
-const fitMapToCropFeatures = (map: mapboxgl.Map, data: CropFeatureCollection) => {
+const extendBoundsFromGeometry = (bounds: mapboxgl.LngLatBounds, geometry: GeoJSON.Geometry | null | undefined): void => {
+  if (!geometry) return
+
+  if (geometry.type === 'GeometryCollection') {
+    geometry.geometries.forEach(entry => extendBoundsFromGeometry(bounds, entry))
+    return
+  }
+
+  extendBoundsFromCoordinates(bounds, geometry.coordinates)
+}
+
+const fitMapToFeatureCollection = (map: mapboxgl.Map, data: GeoJSON.FeatureCollection) => {
   const bounds = new mapboxgl.LngLatBounds()
 
   data.features.forEach(feature => {
-    extendBoundsFromCoordinates(bounds, feature.geometry.coordinates)
+    extendBoundsFromGeometry(bounds, feature.geometry)
   })
 
   if (!bounds.isEmpty()) {
@@ -394,6 +616,21 @@ const Dashboard = () => {
   const [cropLegendCrops, setCropLegendCrops] = useState<string[]>([])
   const [selectedCropField, setSelectedCropField] = useState<CropFieldPanelData | null>(null)
   const cropLayerFittedRef = useRef(false)
+  const [studyContextLayerData, setStudyContextLayerData] =
+    useState<StudyContextLayerState<StudyContextFeatureCollection | null>>(EMPTY_STUDY_CONTEXT_DATA)
+  const studyContextLayerDataRef = useRef<StudyContextLayerState<StudyContextFeatureCollection | null>>(
+    EMPTY_STUDY_CONTEXT_DATA
+  )
+  const [studyContextLayerVisibility, setStudyContextLayerVisibility] = useState<StudyContextLayerState<boolean>>(
+    DEFAULT_STUDY_CONTEXT_VISIBILITY
+  )
+  const studyContextLayerVisibilityRef = useRef<StudyContextLayerState<boolean>>(DEFAULT_STUDY_CONTEXT_VISIBILITY)
+  const [studyContextLayerLoading, setStudyContextLayerLoading] =
+    useState<StudyContextLayerState<boolean>>(EMPTY_STUDY_CONTEXT_LOADING)
+  const studyContextLayerLoadingRef = useRef<StudyContextLayerState<boolean>>(EMPTY_STUDY_CONTEXT_LOADING)
+  const [studyContextLayerErrors, setStudyContextLayerErrors] =
+    useState<StudyContextLayerState<string | null>>(EMPTY_STUDY_CONTEXT_ERRORS)
+  const studyContextLayerFittedRef = useRef(false)
 
   useEffect(() => {
     externalLayersRef.current = externalLayers
@@ -410,6 +647,18 @@ const Dashboard = () => {
   useEffect(() => {
     cropLayerVisibleRef.current = cropLayerVisible
   }, [cropLayerVisible])
+
+  useEffect(() => {
+    studyContextLayerDataRef.current = studyContextLayerData
+  }, [studyContextLayerData])
+
+  useEffect(() => {
+    studyContextLayerVisibilityRef.current = studyContextLayerVisibility
+  }, [studyContextLayerVisibility])
+
+  useEffect(() => {
+    studyContextLayerLoadingRef.current = studyContextLayerLoading
+  }, [studyContextLayerLoading])
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, currentUser => {
@@ -495,6 +744,49 @@ const Dashboard = () => {
     }
   }
 
+  const fetchStudyContextLayerData = async (layerId: StudyContextLayerId) => {
+    if (studyContextLayerDataRef.current[layerId]) {
+      return studyContextLayerDataRef.current[layerId]
+    }
+
+    if (studyContextLayerLoadingRef.current[layerId]) {
+      return null
+    }
+
+    const config = STUDY_CONTEXT_LAYER_CONFIGS[layerId]
+
+    try {
+      studyContextLayerLoadingRef.current = { ...studyContextLayerLoadingRef.current, [layerId]: true }
+      setStudyContextLayerLoading(previous => ({ ...previous, [layerId]: true }))
+      setStudyContextLayerErrors(previous => ({ ...previous, [layerId]: null }))
+
+      const response = await fetch(config.filePath)
+      if (!response.ok) throw new Error(`Failed to fetch ${config.label}`)
+
+      const data = (await response.json()) as StudyContextFeatureCollection
+
+      setStudyContextLayerData(previous => ({ ...previous, [layerId]: data }))
+
+      const map = mapRef.current
+      if (map && map.isStyleLoaded() && studyContextLayerVisibilityRef.current[layerId]) {
+        ensureStudyContextLayer(map, layerId, data)
+        setStudyContextMapVisibility(map, layerId, true)
+      }
+
+      return data
+    } catch (error) {
+      console.error(`${config.label} fetch error:`, error)
+      setStudyContextLayerErrors(previous => ({
+        ...previous,
+        [layerId]: `Could not load ${config.label.toLowerCase()}.`
+      }))
+      return null
+    } finally {
+      studyContextLayerLoadingRef.current = { ...studyContextLayerLoadingRef.current, [layerId]: false }
+      setStudyContextLayerLoading(previous => ({ ...previous, [layerId]: false }))
+    }
+  }
+
   useEffect(() => {
     if (!user || !mapContainerRef.current) return
 
@@ -558,9 +850,24 @@ const Dashboard = () => {
           addExternalLayer(map, layer, { flyOnAdd: false, opacity: opacityValue })
         })
 
+      if (studyContextLayerDataRef.current.villagesArea && studyContextLayerVisibilityRef.current.villagesArea) {
+        ensureStudyContextLayer(map, 'villagesArea', studyContextLayerDataRef.current.villagesArea)
+        setStudyContextMapVisibility(map, 'villagesArea', true)
+      }
+
       if (cropLayerDataRef.current && cropLayerVisibleRef.current) {
         ensureCropSuitabilityLayer(map, cropLayerDataRef.current)
         setCropSuitabilityVisibility(map, true)
+      }
+
+      if (studyContextLayerDataRef.current.streams && studyContextLayerVisibilityRef.current.streams) {
+        ensureStudyContextLayer(map, 'streams', studyContextLayerDataRef.current.streams)
+        setStudyContextMapVisibility(map, 'streams', true)
+      }
+
+      if (studyContextLayerDataRef.current.trees && studyContextLayerVisibilityRef.current.trees) {
+        ensureStudyContextLayer(map, 'trees', studyContextLayerDataRef.current.trees)
+        setStudyContextMapVisibility(map, 'trees', true)
       }
 
       setMapLoaded(true)
@@ -596,6 +903,33 @@ const Dashboard = () => {
     setMapLoaded(false)
     mapRef.current.setStyle(selected.styleUrl)
   }, [activeBaseStyle])
+
+  useEffect(() => {
+    if (!user) return
+
+    void fetchStudyContextLayerData('villagesArea')
+  }, [user])
+
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return
+
+    STUDY_CONTEXT_LAYER_ORDER.forEach(layerId => {
+      const layerData = studyContextLayerData[layerId]
+      if (!layerData || !studyContextLayerVisibility[layerId]) return
+
+      ensureStudyContextLayer(mapRef.current!, layerId, layerData)
+      setStudyContextMapVisibility(mapRef.current!, layerId, true)
+    })
+  }, [mapLoaded, studyContextLayerData, studyContextLayerVisibility])
+
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return
+    if (studyContextLayerFittedRef.current) return
+    if (!studyContextLayerVisibility.villagesArea || !studyContextLayerData.villagesArea) return
+
+    fitMapToFeatureCollection(mapRef.current, studyContextLayerData.villagesArea)
+    studyContextLayerFittedRef.current = true
+  }, [mapLoaded, studyContextLayerData.villagesArea, studyContextLayerVisibility.villagesArea])
 
   const toggleLayer = (layer: MapLayer) => {
     if (!mapRef.current) return
@@ -652,8 +986,44 @@ const Dashboard = () => {
     setCropLayerVisible(true)
 
     if (!cropLayerFittedRef.current) {
-      fitMapToCropFeatures(map, cropData)
+      fitMapToFeatureCollection(map, cropData)
       cropLayerFittedRef.current = true
+    }
+  }
+
+  const toggleStudyContextLayer = async (layerId: StudyContextLayerId) => {
+    if (!mapRef.current) return
+
+    const map = mapRef.current
+    const nextVisible = !studyContextLayerVisibilityRef.current[layerId]
+
+    if (!nextVisible) {
+      const nextState = { ...studyContextLayerVisibilityRef.current, [layerId]: false }
+      studyContextLayerVisibilityRef.current = nextState
+      setStudyContextLayerVisibility(nextState)
+      setStudyContextMapVisibility(map, layerId, false)
+      return
+    }
+
+    let layerData = studyContextLayerDataRef.current[layerId]
+    if (!layerData) {
+      const result = await fetchStudyContextLayerData(layerId)
+      if (!result) return
+      layerData = result
+    }
+
+    if (map.isStyleLoaded()) {
+      ensureStudyContextLayer(map, layerId, layerData)
+      setStudyContextMapVisibility(map, layerId, true)
+    }
+
+    const nextState = { ...studyContextLayerVisibilityRef.current, [layerId]: true }
+    studyContextLayerVisibilityRef.current = nextState
+    setStudyContextLayerVisibility(nextState)
+
+    if (layerId === 'villagesArea' && !studyContextLayerFittedRef.current) {
+      fitMapToFeatureCollection(map, layerData)
+      studyContextLayerFittedRef.current = true
     }
   }
 
@@ -773,6 +1143,68 @@ const Dashboard = () => {
             ))
           ) : (
             <p className="mt-10 text-center text-xs text-white/40">No data layers available</p>
+          )}
+
+          {!isCollapsed && (
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="flex items-center gap-2 px-1 text-[11px] uppercase tracking-[0.18em] text-white/60">
+                <Layers size={13} />
+                <span>Study Context</span>
+              </div>
+
+              <div className="mt-2 space-y-2">
+                {STUDY_CONTEXT_LAYER_ORDER.map(layerId => {
+                  const config = STUDY_CONTEXT_LAYER_CONFIGS[layerId]
+                  const isVisible = studyContextLayerVisibility[layerId]
+                  const isLoading = studyContextLayerLoading[layerId]
+                  const error = studyContextLayerErrors[layerId]
+                  const featureCount = studyContextLayerData[layerId]?.features.length
+
+                  return (
+                    <div key={layerId}>
+                      <button
+                        onClick={() => toggleStudyContextLayer(layerId)}
+                        disabled={isLoading}
+                        className={`w-full rounded-xl border p-3 text-left transition ${
+                          isVisible
+                            ? 'border-white/20 bg-white/10 text-white'
+                            : 'border-white/10 bg-white/5 text-white/80 hover:bg-white/10'
+                        } ${isLoading ? 'cursor-not-allowed opacity-60' : ''}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="block text-xs font-medium">
+                                {isLoading ? `Loading ${config.label}...` : config.label}
+                              </span>
+                              {config.defaultVisible && (
+                                <span className="rounded-full border border-[#32de84]/30 bg-[#32de84]/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#86efac]">
+                                  Default On
+                                </span>
+                              )}
+                            </div>
+                            <span className="mt-1 block text-[10px] leading-relaxed text-white/50">
+                              {config.description}
+                            </span>
+                            {featureCount ? (
+                              <span className="mt-2 block text-[10px] font-medium text-white/35">
+                                {featureCount.toLocaleString()} features loaded
+                              </span>
+                            ) : null}
+                          </div>
+                          <span
+                            className={`mt-1 inline-block h-2.5 w-2.5 rounded-full ${
+                              isVisible ? 'bg-[#32de84]' : 'bg-white/20'
+                            }`}
+                          />
+                        </div>
+                      </button>
+                      {error && <p className="mt-2 px-1 text-[11px] text-red-300">{error}</p>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           )}
 
           {!isCollapsed && (
