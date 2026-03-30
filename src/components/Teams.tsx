@@ -49,6 +49,7 @@ const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member
               className={`object-cover transition-all duration-300 group-hover:scale-110 ${
                 showFallback ? 'hidden' : 'block'
               }`}
+              style={{ objectPosition: member.imagePosition ?? 'center' }}
               onError={handleImageError}
               onLoad={handleImageLoad}
             />

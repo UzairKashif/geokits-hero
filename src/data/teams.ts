@@ -4,6 +4,7 @@ export interface TeamMember {
   role: string
   description: string
   imageUrl?: string
+  imagePosition?: string
   linkedIn?: string
   
   category: 'leader' | 'team'
@@ -38,6 +39,7 @@ export const teamMembers: TeamMember[] = [
     role: "Senior Partner",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
     imageUrl: "/team/adnan_malik.png",
+    imagePosition: "center top",
 
     category: "leader"
   },
