@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import CommunityEngagement from "@/components/CommunityEngagement";
 // import CompanyDescriptionSection from "@/components/misc";
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Phone } from "lucide-react";
 import { useScrollPositionMemory } from "@/hooks/useScrollPositionMemory";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ContactBg } from "@/components/ContactBg";
@@ -81,7 +81,7 @@ export default function Page() {
             </p>
 
             {/* Contact Button */}
-            <div className="flex items-center gap-12">
+            <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-12">
               <Link
                 href="/contact"
                 className="btn-soft-curve btn-secondary group inline-flex items-center gap-3 px-10 py-4 font-light tracking-wide"
@@ -90,12 +90,21 @@ export default function Page() {
                 Contact us today
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
-              <a
-                href="mailto:contact@geokits.com"
-                className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
-              >
-                Send direct email →
-              </a>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="mailto:contact@geokits.com"
+                  className="text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
+                >
+                  Send direct email →
+                </a>
+                <a
+                  href="tel:+447958351564"
+                  className="inline-flex items-center gap-2 text-gray-400 font-light tracking-wide hover:text-white transition-colors duration-300"
+                >
+                  <Phone className="w-4 h-4" />
+                  +44 7958 351564
+                </a>
+              </div>
             </div>
           </div>
         </section>

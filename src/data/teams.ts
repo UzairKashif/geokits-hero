@@ -32,15 +32,17 @@ export const teamMembers: TeamMember[] = [
     
     category: "leader"
   },
+  /*
   {
     id: 11,
     name: "Amir Liaquat Baig",
     role: "Senior Partner",
     description: "Technical architect specializing in large-scale geospatial systems and data infrastructure solutions.",
     imageUrl: "/team/amir.png",
-    
+
     category: "leader"
   },
+  */
     {
     id: 10,
     name: "Mirza Imran Baig",
