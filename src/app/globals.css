@@ -294,6 +294,8 @@
   max-height: min(calc(100vh - 32px), 560px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(248, 250, 252, 0.22) transparent;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 22px;
   background:
@@ -305,7 +307,25 @@
 
 .crop-popup__card--panel {
   max-height: 100%;
-  height: auto;
+  height: 100%;
+}
+
+.crop-popup__card::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.crop-popup__card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.crop-popup__card::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(248, 250, 252, 0.18);
+}
+
+.crop-popup__card::-webkit-scrollbar-thumb:hover {
+  background: rgba(248, 250, 252, 0.28);
 }
 
 .crop-popup__close {
@@ -464,7 +484,7 @@
 }
 
 .crop-popup__season-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .crop-popup__mini-card,
@@ -505,23 +525,35 @@
 
 .crop-popup__season-card {
   padding: 0.72rem 0.78rem;
+  display: grid;
+  gap: 0.6rem;
 }
 
 .crop-popup__season-row {
   display: grid;
-  grid-template-columns: 38px 1fr auto;
-  gap: 0.45rem;
-  align-items: center;
-  margin-top: 0.55rem;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
   font-size: 0.76rem;
 }
 
-.crop-popup__season-row span {
+.crop-popup__season-key {
   color: rgba(248, 250, 252, 0.62);
 }
 
-.crop-popup__season-row strong {
+.crop-popup__season-value {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.crop-popup__season-value strong {
+  min-width: 0;
   font-size: 0.8rem;
+  line-height: 1.25;
+  word-break: break-word;
   color: #fff;
 }
 
@@ -555,6 +587,12 @@
   font-weight: 700;
   text-align: center;
   color: #fff;
+}
+
+.crop-popup__score-pill--compact {
+  min-width: 46px;
+  padding: 0.24rem 0.48rem;
+  font-size: 0.68rem;
 }
 
 .crop-popup__empty {

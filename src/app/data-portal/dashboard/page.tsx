@@ -849,7 +849,11 @@ const Dashboard = () => {
         <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
         {selectedCropField && (
           <div className="pointer-events-none absolute inset-0 z-30 p-3 sm:p-4">
-            <div className="ml-auto h-full w-full max-w-[340px] sm:max-w-[360px] pointer-events-auto">
+            <div
+              className="pointer-events-auto ml-auto h-full w-full max-w-[340px] sm:max-w-[360px]"
+              data-lenis-prevent
+              data-lenis-prevent-wheel
+            >
               <CropFieldPanel data={selectedCropField} onClose={() => setSelectedCropField(null)} />
             </div>
           </div>
@@ -867,7 +871,7 @@ const CropFieldPanel = ({ data, onClose }: { data: CropFieldPanelData; onClose: 
 
   return (
     <div className="crop-popup h-full" style={{ ['--crop-accent' as string]: data.accentColor }}>
-      <div className="crop-popup__card crop-popup__card--panel">
+      <div className="crop-popup__card crop-popup__card--panel" data-lenis-prevent data-lenis-prevent-wheel>
         <button type="button" onClick={onClose} className="crop-popup__close" aria-label="Close field details">
           <X size={16} />
         </button>
@@ -926,14 +930,22 @@ const CropFieldPanel = ({ data, onClose }: { data: CropFieldPanelData; onClose: 
                 <article key={recommendation.season} className="crop-popup__season-card">
                   <p className="crop-popup__mini-label">{recommendation.season}</p>
                   <div className="crop-popup__season-row">
-                    <span>Best</span>
-                    <strong>{recommendation.best || 'NA'}</strong>
-                    <span>{formatScore(recommendation.bestScore)}</span>
+                    <span className="crop-popup__season-key">Best</span>
+                    <div className="crop-popup__season-value">
+                      <strong>{recommendation.best || 'NA'}</strong>
+                      <span className="crop-popup__score-pill crop-popup__score-pill--compact">
+                        {formatScore(recommendation.bestScore)}
+                      </span>
+                    </div>
                   </div>
                   <div className="crop-popup__season-row">
-                    <span>Second</span>
-                    <strong>{recommendation.second || 'NA'}</strong>
-                    <span>{formatScore(recommendation.secondScore)}</span>
+                    <span className="crop-popup__season-key">Second</span>
+                    <div className="crop-popup__season-value">
+                      <strong>{recommendation.second || 'NA'}</strong>
+                      <span className="crop-popup__score-pill crop-popup__score-pill--compact">
+                        {formatScore(recommendation.secondScore)}
+                      </span>
+                    </div>
                   </div>
                 </article>
               ))
