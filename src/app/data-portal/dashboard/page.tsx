@@ -98,6 +98,12 @@ type CropFieldPanelData = {
   accentColor: string
 }
 
+type MangroveSitePanelData = {
+  name: string
+  latitude: number
+  longitude: number
+}
+
 const BASE_STYLES: BaseStyle[] = [
   {
     id: 'geokits-aurora',
@@ -332,6 +338,8 @@ const parseJsonProperty = <T,>(value: unknown, fallback: T): T => {
     return fallback
   }
 }
+
+const formatCoordinate = (value: number) => value.toFixed(6)
 
 const formatScore = (value: number | null) => (value === null ? 'NA' : value.toFixed(1))
 
@@ -818,6 +826,22 @@ const buildCropPopupData = (properties: Record<string, unknown>): CropFieldPanel
   }
 }
 
+const buildMangroveSitePanelData = (feature: mapboxgl.MapboxGeoJSONFeature): MangroveSitePanelData | null => {
+  if (feature.geometry.type !== 'Point') return null
+
+  const [longitude, latitude] = feature.geometry.coordinates
+  if (typeof longitude !== 'number' || typeof latitude !== 'number') return null
+
+  const properties = (feature.properties || {}) as Record<string, unknown>
+  const name = String(properties.Name || properties.name || properties.id || 'Recommended Site').trim()
+
+  return {
+    name: name || 'Recommended Site',
+    latitude,
+    longitude
+  }
+}
+
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
 
 const Dashboard = () => {
@@ -842,6 +866,7 @@ const Dashboard = () => {
   const [cropLayerError, setCropLayerError] = useState<string | null>(null)
   const [cropLegendCrops, setCropLegendCrops] = useState<string[]>([])
   const [selectedCropField, setSelectedCropField] = useState<CropFieldPanelData | null>(null)
+  const [selectedMangroveSite, setSelectedMangroveSite] = useState<MangroveSitePanelData | null>(null)
   const cropLayerFittedRef = useRef(false)
   const [studyContextLayerData, setStudyContextLayerData] =
     useState<StudyContextLayerState<StudyContextFeatureCollection | null>>(EMPTY_STUDY_CONTEXT_DATA)
@@ -1029,8 +1054,25 @@ const Dashboard = () => {
     })
 
     const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
+      const mangroveLayers = map.getLayer(MANGROVE_RECOMMENDED_SITES_LAYER_ID)
+        ? [MANGROVE_RECOMMENDED_SITES_LAYER_ID]
+        : []
+      const mangroveFeatures = mangroveLayers.length
+        ? (map.queryRenderedFeatures(event.point, {
+            layers: mangroveLayers
+          }) as mapboxgl.MapboxGeoJSONFeature[])
+        : []
+
+      if (mangroveFeatures.length) {
+        const mangroveSiteData = buildMangroveSitePanelData(mangroveFeatures[0])
+        setSelectedCropField(null)
+        setSelectedMangroveSite(mangroveSiteData)
+        return
+      }
+
       if (!map.getLayer(CROP_FILL_LAYER_ID)) {
         setSelectedCropField(null)
+        setSelectedMangroveSite(null)
         return
       }
 
@@ -1040,22 +1082,28 @@ const Dashboard = () => {
 
       if (!features.length) {
         setSelectedCropField(null)
+        setSelectedMangroveSite(null)
         return
       }
 
       const targetFeature = features[0]
       const popupProperties = (targetFeature.properties || {}) as Record<string, unknown>
+      setSelectedMangroveSite(null)
       setSelectedCropField(buildCropPopupData(popupProperties))
     }
 
     const handleMapMouseMove = (event: mapboxgl.MapMouseEvent) => {
-      if (!map.getLayer(CROP_FILL_LAYER_ID)) {
+      const interactiveLayers = [MANGROVE_RECOMMENDED_SITES_LAYER_ID, CROP_FILL_LAYER_ID].filter(layerId =>
+        Boolean(map.getLayer(layerId))
+      )
+
+      if (!interactiveLayers.length) {
         map.getCanvas().style.cursor = ''
         return
       }
 
       const hasFeature = map.queryRenderedFeatures(event.point, {
-        layers: [CROP_FILL_LAYER_ID]
+        layers: interactiveLayers
       }).length > 0
 
       map.getCanvas().style.cursor = hasFeature ? 'pointer' : ''
@@ -1126,6 +1174,7 @@ const Dashboard = () => {
     if (!selected) return
 
     setSelectedCropField(null)
+    setSelectedMangroveSite(null)
     setMapLoaded(false)
     mapRef.current.setStyle(selected.styleUrl)
   }, [activeBaseStyle])
@@ -1228,6 +1277,9 @@ const Dashboard = () => {
       studyContextLayerVisibilityRef.current = nextState
       setStudyContextLayerVisibility(nextState)
       setStudyContextMapVisibility(map, layerId, false)
+      if (layerId === 'mangroveRecommendedSites') {
+        setSelectedMangroveSite(null)
+      }
       return
     }
 
@@ -1631,6 +1683,13 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+        {selectedMangroveSite && (
+          <div className="pointer-events-none absolute inset-0 z-30 p-3 sm:p-4">
+            <div className="pointer-events-auto mt-auto w-full max-w-[300px]">
+              <MangroveSitePanel data={selectedMangroveSite} onClose={() => setSelectedMangroveSite(null)} />
+            </div>
+          </div>
+        )}
         {!mapLoaded && <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">Loading Map...</div>}
       </main>
     </div>
@@ -1763,6 +1822,37 @@ const CropFieldPanel = ({ data, onClose }: { data: CropFieldPanelData; onClose: 
     </div>
   )
 }
+
+const MangroveSitePanel = ({ data, onClose }: { data: MangroveSitePanelData; onClose: () => void }) => (
+  <div className="overflow-hidden rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,15,23,0.96),rgba(4,10,16,0.96))] p-4 text-white shadow-[0_24px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.22em] text-[#86efac]">Mangroves</p>
+        <h3 className="mt-2 text-lg font-semibold leading-tight">{data.name}</h3>
+        <p className="mt-1 text-xs text-white/55">Recommended plantation site</p>
+      </div>
+      <button
+        type="button"
+        onClick={onClose}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
+        aria-label="Close site details"
+      >
+        <X size={16} />
+      </button>
+    </div>
+
+    <div className="mt-4 grid grid-cols-2 gap-2.5">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+        <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Latitude</span>
+        <strong className="mt-2 block text-sm font-semibold">{formatCoordinate(data.latitude)}</strong>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+        <span className="text-[10px] uppercase tracking-[0.18em] text-white/45">Longitude</span>
+        <strong className="mt-2 block text-sm font-semibold">{formatCoordinate(data.longitude)}</strong>
+      </div>
+    </div>
+  </div>
+)
 
 const LayerRow = ({ layer, toggle, collapsed, opacity, onOpacityChange, onDragStart, onDrop }: LayerRowProps) => {
   const [localOpacity, setLocalOpacity] = useState(opacity)
