@@ -40,7 +40,13 @@ interface BaseStyle {
 
 type CropFeatureProperties = Record<string, string | number | boolean | null | undefined>
 type CropFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, CropFeatureProperties>
-type StudyContextLayerId = 'villagesArea' | 'trees' | 'streams' | 'heatRefugiaGaps' | 'riparianGaps'
+type StudyContextLayerId =
+  | 'villagesArea'
+  | 'trees'
+  | 'streams'
+  | 'heatRefugiaGaps'
+  | 'riparianGaps'
+  | 'mangroveRecommendedSites'
 type StudyContextFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>
 type StudyContextLayerState<T> = Record<StudyContextLayerId, T>
 
@@ -144,15 +150,19 @@ const HEAT_REFUGIA_GAPS_OUTLINE_LAYER_ID = 'heat-refugia-gaps-outline'
 const RIPARIAN_GAPS_SOURCE_ID = 'riparian-gaps-source'
 const RIPARIAN_GAPS_FILL_LAYER_ID = 'riparian-gaps-fill'
 const RIPARIAN_GAPS_OUTLINE_LAYER_ID = 'riparian-gaps-outline'
+const MANGROVE_RECOMMENDED_SITES_SOURCE_ID = 'mangrove-recommended-sites-source'
+const MANGROVE_RECOMMENDED_SITES_LAYER_ID = 'mangrove-recommended-sites-layer'
 
 const STUDY_CONTEXT_LAYER_ORDER: StudyContextLayerId[] = ['villagesArea', 'trees', 'streams']
 const GREEN_SPACE_LAYER_ORDER: StudyContextLayerId[] = ['heatRefugiaGaps', 'riparianGaps']
+const MANGROVE_LAYER_ORDER: StudyContextLayerId[] = ['mangroveRecommendedSites']
 const LOCAL_ANALYSIS_LAYER_RENDER_ORDER: StudyContextLayerId[] = [
   'villagesArea',
   'heatRefugiaGaps',
   'riparianGaps',
   'streams',
-  'trees'
+  'trees',
+  'mangroveRecommendedSites'
 ]
 
 const STUDY_CONTEXT_LAYER_CONFIGS: StudyContextLayerState<StudyContextLayerConfig> = {
@@ -185,6 +195,12 @@ const STUDY_CONTEXT_LAYER_CONFIGS: StudyContextLayerState<StudyContextLayerConfi
     description: 'Plantation gap polygons for riparian restoration and corridor continuity.',
     filePath: '/data-portal/riparian-gaps.geojson',
     defaultVisible: false
+  },
+  mangroveRecommendedSites: {
+    label: 'Recommended Sites',
+    description: 'Plantation sites recommended by the mangroves suitability analysis.',
+    filePath: '/data-portal/recommended-sites.geojson',
+    defaultVisible: false
   }
 }
 
@@ -193,7 +209,8 @@ const DEFAULT_STUDY_CONTEXT_VISIBILITY: StudyContextLayerState<boolean> = {
   trees: false,
   streams: false,
   heatRefugiaGaps: false,
-  riparianGaps: false
+  riparianGaps: false,
+  mangroveRecommendedSites: false
 }
 
 const EMPTY_STUDY_CONTEXT_DATA: StudyContextLayerState<StudyContextFeatureCollection | null> = {
@@ -201,7 +218,8 @@ const EMPTY_STUDY_CONTEXT_DATA: StudyContextLayerState<StudyContextFeatureCollec
   trees: null,
   streams: null,
   heatRefugiaGaps: null,
-  riparianGaps: null
+  riparianGaps: null,
+  mangroveRecommendedSites: null
 }
 
 const EMPTY_STUDY_CONTEXT_LOADING: StudyContextLayerState<boolean> = {
@@ -209,7 +227,8 @@ const EMPTY_STUDY_CONTEXT_LOADING: StudyContextLayerState<boolean> = {
   trees: false,
   streams: false,
   heatRefugiaGaps: false,
-  riparianGaps: false
+  riparianGaps: false,
+  mangroveRecommendedSites: false
 }
 
 const EMPTY_STUDY_CONTEXT_ERRORS: StudyContextLayerState<string | null> = {
@@ -217,7 +236,8 @@ const EMPTY_STUDY_CONTEXT_ERRORS: StudyContextLayerState<string | null> = {
   trees: null,
   streams: null,
   heatRefugiaGaps: null,
-  riparianGaps: null
+  riparianGaps: null,
+  mangroveRecommendedSites: null
 }
 
 const CROP_COLOR_OVERRIDES: Record<string, string> = {
@@ -369,6 +389,7 @@ const ensureCropSuitabilityLayer = (map: mapboxgl.Map, data: CropFeatureCollecti
     (map.getLayer(RIPARIAN_GAPS_FILL_LAYER_ID) && RIPARIAN_GAPS_FILL_LAYER_ID) ||
     (map.getLayer(STREAMS_LAYER_ID) && STREAMS_LAYER_ID) ||
     (map.getLayer(TREES_LAYER_ID) && TREES_LAYER_ID) ||
+    (map.getLayer(MANGROVE_RECOMMENDED_SITES_LAYER_ID) && MANGROVE_RECOMMENDED_SITES_LAYER_ID) ||
     undefined
 
   if (!map.getLayer(CROP_FILL_LAYER_ID)) {
@@ -421,12 +442,14 @@ const getStudyContextInsertBeforeId = (map: mapboxgl.Map) => {
   if (map.getLayer(RIPARIAN_GAPS_FILL_LAYER_ID)) return RIPARIAN_GAPS_FILL_LAYER_ID
   if (map.getLayer(STREAMS_LAYER_ID)) return STREAMS_LAYER_ID
   if (map.getLayer(TREES_LAYER_ID)) return TREES_LAYER_ID
+  if (map.getLayer(MANGROVE_RECOMMENDED_SITES_LAYER_ID)) return MANGROVE_RECOMMENDED_SITES_LAYER_ID
   return undefined
 }
 
 const getGreenSpaceInsertBeforeId = (map: mapboxgl.Map) => {
   if (map.getLayer(STREAMS_LAYER_ID)) return STREAMS_LAYER_ID
   if (map.getLayer(TREES_LAYER_ID)) return TREES_LAYER_ID
+  if (map.getLayer(MANGROVE_RECOMMENDED_SITES_LAYER_ID)) return MANGROVE_RECOMMENDED_SITES_LAYER_ID
   return undefined
 }
 
@@ -606,6 +629,35 @@ const ensureStudyContextLayer = (
     return
   }
 
+  if (layerId === 'mangroveRecommendedSites') {
+    const existingSource = map.getSource(MANGROVE_RECOMMENDED_SITES_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+    if (existingSource) {
+      existingSource.setData(data)
+    } else {
+      map.addSource(MANGROVE_RECOMMENDED_SITES_SOURCE_ID, {
+        type: 'geojson',
+        data
+      })
+    }
+
+    if (!map.getLayer(MANGROVE_RECOMMENDED_SITES_LAYER_ID)) {
+      map.addLayer({
+        id: MANGROVE_RECOMMENDED_SITES_LAYER_ID,
+        type: 'circle',
+        source: MANGROVE_RECOMMENDED_SITES_SOURCE_ID,
+        paint: {
+          'circle-color': '#16a34a',
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4.5, 9, 6, 12, 7.5],
+          'circle-stroke-width': 1.4,
+          'circle-stroke-color': '#dcfce7',
+          'circle-opacity': 0.94
+        }
+      })
+    }
+
+    return
+  }
+
   const existingSource = map.getSource(STREAMS_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
   if (existingSource) {
     existingSource.setData(data)
@@ -675,6 +727,13 @@ const setStudyContextMapVisibility = (map: mapboxgl.Map, layerId: StudyContextLa
     }
     if (map.getLayer(RIPARIAN_GAPS_OUTLINE_LAYER_ID)) {
       map.setLayoutProperty(RIPARIAN_GAPS_OUTLINE_LAYER_ID, 'visibility', visibility)
+    }
+    return
+  }
+
+  if (layerId === 'mangroveRecommendedSites') {
+    if (map.getLayer(MANGROVE_RECOMMENDED_SITES_LAYER_ID)) {
+      map.setLayoutProperty(MANGROVE_RECOMMENDED_SITES_LAYER_ID, 'visibility', visibility)
     }
     return
   }
@@ -799,6 +858,7 @@ const Dashboard = () => {
   const [studyContextLayerErrors, setStudyContextLayerErrors] =
     useState<StudyContextLayerState<string | null>>(EMPTY_STUDY_CONTEXT_ERRORS)
   const studyContextLayerFittedRef = useRef(false)
+  const mangroveLayerFittedRef = useRef(false)
 
   useEffect(() => {
     externalLayersRef.current = externalLayers
@@ -1028,7 +1088,7 @@ const Dashboard = () => {
         setCropSuitabilityVisibility(map, true)
       }
 
-      ;(['heatRefugiaGaps', 'riparianGaps', 'streams', 'trees'] as StudyContextLayerId[]).forEach(layerId => {
+      ;(['heatRefugiaGaps', 'riparianGaps', 'streams', 'trees', 'mangroveRecommendedSites'] as StudyContextLayerId[]).forEach(layerId => {
         const layerData = studyContextLayerDataRef.current[layerId]
         if (!layerData || !studyContextLayerVisibilityRef.current[layerId]) return
 
@@ -1190,6 +1250,11 @@ const Dashboard = () => {
     if (layerId === 'villagesArea' && !studyContextLayerFittedRef.current) {
       fitMapToFeatureCollection(map, layerData)
       studyContextLayerFittedRef.current = true
+    }
+
+    if (layerId === 'mangroveRecommendedSites' && !mangroveLayerFittedRef.current) {
+      fitMapToFeatureCollection(map, layerData)
+      mangroveLayerFittedRef.current = true
     }
   }
 
@@ -1382,6 +1447,61 @@ const Dashboard = () => {
 
               <div className="mt-2 space-y-2">
                 {GREEN_SPACE_LAYER_ORDER.map(layerId => {
+                  const config = STUDY_CONTEXT_LAYER_CONFIGS[layerId]
+                  const isVisible = studyContextLayerVisibility[layerId]
+                  const isLoading = studyContextLayerLoading[layerId]
+                  const error = studyContextLayerErrors[layerId]
+                  const featureCount = studyContextLayerData[layerId]?.features.length
+
+                  return (
+                    <div key={layerId}>
+                      <button
+                        onClick={() => toggleStudyContextLayer(layerId)}
+                        disabled={isLoading}
+                        className={`w-full rounded-xl border p-3 text-left transition ${
+                          isVisible
+                            ? 'border-white/20 bg-white/10 text-white'
+                            : 'border-white/10 bg-white/5 text-white/80 hover:bg-white/10'
+                        } ${isLoading ? 'cursor-not-allowed opacity-60' : ''}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="block text-xs font-medium">
+                              {isLoading ? `Loading ${config.label}...` : config.label}
+                            </span>
+                            <span className="mt-1 block text-[10px] leading-relaxed text-white/50">
+                              {config.description}
+                            </span>
+                            {featureCount ? (
+                              <span className="mt-2 block text-[10px] font-medium text-white/35">
+                                {featureCount.toLocaleString()} features loaded
+                              </span>
+                            ) : null}
+                          </div>
+                          <span
+                            className={`mt-1 inline-block h-2.5 w-2.5 rounded-full ${
+                              isVisible ? 'bg-[#32de84]' : 'bg-white/20'
+                            }`}
+                          />
+                        </div>
+                      </button>
+                      {error && <p className="mt-2 px-1 text-[11px] text-red-300">{error}</p>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {!isCollapsed && (
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="flex items-center gap-2 px-1 text-[11px] uppercase tracking-[0.18em] text-white/60">
+                <Layers size={13} />
+                <span>Mangroves</span>
+              </div>
+
+              <div className="mt-2 space-y-2">
+                {MANGROVE_LAYER_ORDER.map(layerId => {
                   const config = STUDY_CONTEXT_LAYER_CONFIGS[layerId]
                   const isVisible = studyContextLayerVisibility[layerId]
                   const isLoading = studyContextLayerLoading[layerId]
