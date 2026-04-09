@@ -40,7 +40,7 @@ interface BaseStyle {
 
 type CropFeatureProperties = Record<string, string | number | boolean | null | undefined>
 type CropFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, CropFeatureProperties>
-type StudyContextLayerId = 'villagesArea' | 'trees' | 'streams'
+type StudyContextLayerId = 'villagesArea' | 'trees' | 'streams' | 'heatRefugiaGaps' | 'riparianGaps'
 type StudyContextFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>
 type StudyContextLayerState<T> = Record<StudyContextLayerId, T>
 
@@ -138,8 +138,22 @@ const TREES_SOURCE_ID = 'trees-source'
 const TREES_LAYER_ID = 'trees-layer'
 const STREAMS_SOURCE_ID = 'streams-source'
 const STREAMS_LAYER_ID = 'streams-layer'
+const HEAT_REFUGIA_GAPS_SOURCE_ID = 'heat-refugia-gaps-source'
+const HEAT_REFUGIA_GAPS_FILL_LAYER_ID = 'heat-refugia-gaps-fill'
+const HEAT_REFUGIA_GAPS_OUTLINE_LAYER_ID = 'heat-refugia-gaps-outline'
+const RIPARIAN_GAPS_SOURCE_ID = 'riparian-gaps-source'
+const RIPARIAN_GAPS_FILL_LAYER_ID = 'riparian-gaps-fill'
+const RIPARIAN_GAPS_OUTLINE_LAYER_ID = 'riparian-gaps-outline'
 
 const STUDY_CONTEXT_LAYER_ORDER: StudyContextLayerId[] = ['villagesArea', 'trees', 'streams']
+const GREEN_SPACE_LAYER_ORDER: StudyContextLayerId[] = ['heatRefugiaGaps', 'riparianGaps']
+const LOCAL_ANALYSIS_LAYER_RENDER_ORDER: StudyContextLayerId[] = [
+  'villagesArea',
+  'heatRefugiaGaps',
+  'riparianGaps',
+  'streams',
+  'trees'
+]
 
 const STUDY_CONTEXT_LAYER_CONFIGS: StudyContextLayerState<StudyContextLayerConfig> = {
   villagesArea: {
@@ -159,31 +173,51 @@ const STUDY_CONTEXT_LAYER_CONFIGS: StudyContextLayerState<StudyContextLayerConfi
     description: 'Line layer showing stream corridors and drainage paths.',
     filePath: '/data-portal/stream.geojson',
     defaultVisible: false
+  },
+  heatRefugiaGaps: {
+    label: 'Heat Refugia Gaps',
+    description: 'Plantation gap polygons where added green cover can strengthen heat refuge.',
+    filePath: '/data-portal/heat-refugia-gaps.geojson',
+    defaultVisible: false
+  },
+  riparianGaps: {
+    label: 'Riparian Gaps',
+    description: 'Plantation gap polygons for riparian restoration and corridor continuity.',
+    filePath: '/data-portal/riparian-gaps.geojson',
+    defaultVisible: false
   }
 }
 
 const DEFAULT_STUDY_CONTEXT_VISIBILITY: StudyContextLayerState<boolean> = {
   villagesArea: true,
   trees: false,
-  streams: false
+  streams: false,
+  heatRefugiaGaps: false,
+  riparianGaps: false
 }
 
 const EMPTY_STUDY_CONTEXT_DATA: StudyContextLayerState<StudyContextFeatureCollection | null> = {
   villagesArea: null,
   trees: null,
-  streams: null
+  streams: null,
+  heatRefugiaGaps: null,
+  riparianGaps: null
 }
 
 const EMPTY_STUDY_CONTEXT_LOADING: StudyContextLayerState<boolean> = {
   villagesArea: false,
   trees: false,
-  streams: false
+  streams: false,
+  heatRefugiaGaps: false,
+  riparianGaps: false
 }
 
 const EMPTY_STUDY_CONTEXT_ERRORS: StudyContextLayerState<string | null> = {
   villagesArea: null,
   trees: null,
-  streams: null
+  streams: null,
+  heatRefugiaGaps: null,
+  riparianGaps: null
 }
 
 const CROP_COLOR_OVERRIDES: Record<string, string> = {
@@ -330,32 +364,44 @@ const ensureCropSuitabilityLayer = (map: mapboxgl.Map, data: CropFeatureCollecti
   }
 
   const fillColorExpression = buildCropColorExpression(data)
+  const beforeId =
+    (map.getLayer(HEAT_REFUGIA_GAPS_FILL_LAYER_ID) && HEAT_REFUGIA_GAPS_FILL_LAYER_ID) ||
+    (map.getLayer(RIPARIAN_GAPS_FILL_LAYER_ID) && RIPARIAN_GAPS_FILL_LAYER_ID) ||
+    (map.getLayer(STREAMS_LAYER_ID) && STREAMS_LAYER_ID) ||
+    (map.getLayer(TREES_LAYER_ID) && TREES_LAYER_ID) ||
+    undefined
 
   if (!map.getLayer(CROP_FILL_LAYER_ID)) {
-    map.addLayer({
-      id: CROP_FILL_LAYER_ID,
-      type: 'fill',
-      source: CROP_SOURCE_ID,
-      paint: {
-        'fill-color': fillColorExpression as never,
-        'fill-opacity': 0.42
-      }
-    })
+    map.addLayer(
+      {
+        id: CROP_FILL_LAYER_ID,
+        type: 'fill',
+        source: CROP_SOURCE_ID,
+        paint: {
+          'fill-color': fillColorExpression as never,
+          'fill-opacity': 0.42
+        }
+      },
+      beforeId
+    )
   } else {
     map.setPaintProperty(CROP_FILL_LAYER_ID, 'fill-color', fillColorExpression as never)
   }
 
   if (!map.getLayer(CROP_OUTLINE_LAYER_ID)) {
-    map.addLayer({
-      id: CROP_OUTLINE_LAYER_ID,
-      type: 'line',
-      source: CROP_SOURCE_ID,
-      paint: {
-        'line-color': '#f8fafc',
-        'line-width': 1.15,
-        'line-opacity': 0.85
-      }
-    })
+    map.addLayer(
+      {
+        id: CROP_OUTLINE_LAYER_ID,
+        type: 'line',
+        source: CROP_SOURCE_ID,
+        paint: {
+          'line-color': '#f8fafc',
+          'line-width': 1.15,
+          'line-opacity': 0.85
+        }
+      },
+      beforeId
+    )
   }
 }
 
@@ -371,6 +417,14 @@ const setCropSuitabilityVisibility = (map: mapboxgl.Map, visible: boolean) => {
 
 const getStudyContextInsertBeforeId = (map: mapboxgl.Map) => {
   if (map.getLayer(CROP_FILL_LAYER_ID)) return CROP_FILL_LAYER_ID
+  if (map.getLayer(HEAT_REFUGIA_GAPS_FILL_LAYER_ID)) return HEAT_REFUGIA_GAPS_FILL_LAYER_ID
+  if (map.getLayer(RIPARIAN_GAPS_FILL_LAYER_ID)) return RIPARIAN_GAPS_FILL_LAYER_ID
+  if (map.getLayer(STREAMS_LAYER_ID)) return STREAMS_LAYER_ID
+  if (map.getLayer(TREES_LAYER_ID)) return TREES_LAYER_ID
+  return undefined
+}
+
+const getGreenSpaceInsertBeforeId = (map: mapboxgl.Map) => {
   if (map.getLayer(STREAMS_LAYER_ID)) return STREAMS_LAYER_ID
   if (map.getLayer(TREES_LAYER_ID)) return TREES_LAYER_ID
   return undefined
@@ -458,6 +512,100 @@ const ensureStudyContextLayer = (
     return
   }
 
+  if (layerId === 'heatRefugiaGaps') {
+    const existingSource = map.getSource(HEAT_REFUGIA_GAPS_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+    if (existingSource) {
+      existingSource.setData(data)
+    } else {
+      map.addSource(HEAT_REFUGIA_GAPS_SOURCE_ID, {
+        type: 'geojson',
+        data
+      })
+    }
+
+    const beforeId = getGreenSpaceInsertBeforeId(map)
+
+    if (!map.getLayer(HEAT_REFUGIA_GAPS_FILL_LAYER_ID)) {
+      map.addLayer(
+        {
+          id: HEAT_REFUGIA_GAPS_FILL_LAYER_ID,
+          type: 'fill',
+          source: HEAT_REFUGIA_GAPS_SOURCE_ID,
+          paint: {
+            'fill-color': '#f97316',
+            'fill-opacity': 0.22
+          }
+        },
+        beforeId
+      )
+    }
+
+    if (!map.getLayer(HEAT_REFUGIA_GAPS_OUTLINE_LAYER_ID)) {
+      map.addLayer(
+        {
+          id: HEAT_REFUGIA_GAPS_OUTLINE_LAYER_ID,
+          type: 'line',
+          source: HEAT_REFUGIA_GAPS_SOURCE_ID,
+          paint: {
+            'line-color': '#fdba74',
+            'line-width': 1.3,
+            'line-opacity': 0.95
+          }
+        },
+        beforeId
+      )
+    }
+
+    return
+  }
+
+  if (layerId === 'riparianGaps') {
+    const existingSource = map.getSource(RIPARIAN_GAPS_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+    if (existingSource) {
+      existingSource.setData(data)
+    } else {
+      map.addSource(RIPARIAN_GAPS_SOURCE_ID, {
+        type: 'geojson',
+        data
+      })
+    }
+
+    const beforeId = getGreenSpaceInsertBeforeId(map)
+
+    if (!map.getLayer(RIPARIAN_GAPS_FILL_LAYER_ID)) {
+      map.addLayer(
+        {
+          id: RIPARIAN_GAPS_FILL_LAYER_ID,
+          type: 'fill',
+          source: RIPARIAN_GAPS_SOURCE_ID,
+          paint: {
+            'fill-color': '#0f766e',
+            'fill-opacity': 0.2
+          }
+        },
+        beforeId
+      )
+    }
+
+    if (!map.getLayer(RIPARIAN_GAPS_OUTLINE_LAYER_ID)) {
+      map.addLayer(
+        {
+          id: RIPARIAN_GAPS_OUTLINE_LAYER_ID,
+          type: 'line',
+          source: RIPARIAN_GAPS_SOURCE_ID,
+          paint: {
+            'line-color': '#5eead4',
+            'line-width': 1.3,
+            'line-opacity': 0.95
+          }
+        },
+        beforeId
+      )
+    }
+
+    return
+  }
+
   const existingSource = map.getSource(STREAMS_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
   if (existingSource) {
     existingSource.setData(data)
@@ -507,6 +655,26 @@ const setStudyContextMapVisibility = (map: mapboxgl.Map, layerId: StudyContextLa
   if (layerId === 'trees') {
     if (map.getLayer(TREES_LAYER_ID)) {
       map.setLayoutProperty(TREES_LAYER_ID, 'visibility', visibility)
+    }
+    return
+  }
+
+  if (layerId === 'heatRefugiaGaps') {
+    if (map.getLayer(HEAT_REFUGIA_GAPS_FILL_LAYER_ID)) {
+      map.setLayoutProperty(HEAT_REFUGIA_GAPS_FILL_LAYER_ID, 'visibility', visibility)
+    }
+    if (map.getLayer(HEAT_REFUGIA_GAPS_OUTLINE_LAYER_ID)) {
+      map.setLayoutProperty(HEAT_REFUGIA_GAPS_OUTLINE_LAYER_ID, 'visibility', visibility)
+    }
+    return
+  }
+
+  if (layerId === 'riparianGaps') {
+    if (map.getLayer(RIPARIAN_GAPS_FILL_LAYER_ID)) {
+      map.setLayoutProperty(RIPARIAN_GAPS_FILL_LAYER_ID, 'visibility', visibility)
+    }
+    if (map.getLayer(RIPARIAN_GAPS_OUTLINE_LAYER_ID)) {
+      map.setLayoutProperty(RIPARIAN_GAPS_OUTLINE_LAYER_ID, 'visibility', visibility)
     }
     return
   }
@@ -860,15 +1028,13 @@ const Dashboard = () => {
         setCropSuitabilityVisibility(map, true)
       }
 
-      if (studyContextLayerDataRef.current.streams && studyContextLayerVisibilityRef.current.streams) {
-        ensureStudyContextLayer(map, 'streams', studyContextLayerDataRef.current.streams)
-        setStudyContextMapVisibility(map, 'streams', true)
-      }
+      ;(['heatRefugiaGaps', 'riparianGaps', 'streams', 'trees'] as StudyContextLayerId[]).forEach(layerId => {
+        const layerData = studyContextLayerDataRef.current[layerId]
+        if (!layerData || !studyContextLayerVisibilityRef.current[layerId]) return
 
-      if (studyContextLayerDataRef.current.trees && studyContextLayerVisibilityRef.current.trees) {
-        ensureStudyContextLayer(map, 'trees', studyContextLayerDataRef.current.trees)
-        setStudyContextMapVisibility(map, 'trees', true)
-      }
+        ensureStudyContextLayer(map, layerId, layerData)
+        setStudyContextMapVisibility(map, layerId, true)
+      })
 
       setMapLoaded(true)
     })
@@ -913,7 +1079,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!mapLoaded || !mapRef.current) return
 
-    STUDY_CONTEXT_LAYER_ORDER.forEach(layerId => {
+    LOCAL_ANALYSIS_LAYER_RENDER_ORDER.forEach(layerId => {
       const layerData = studyContextLayerData[layerId]
       if (!layerData || !studyContextLayerVisibility[layerId]) return
 
@@ -1183,6 +1349,61 @@ const Dashboard = () => {
                                 </span>
                               )}
                             </div>
+                            <span className="mt-1 block text-[10px] leading-relaxed text-white/50">
+                              {config.description}
+                            </span>
+                            {featureCount ? (
+                              <span className="mt-2 block text-[10px] font-medium text-white/35">
+                                {featureCount.toLocaleString()} features loaded
+                              </span>
+                            ) : null}
+                          </div>
+                          <span
+                            className={`mt-1 inline-block h-2.5 w-2.5 rounded-full ${
+                              isVisible ? 'bg-[#32de84]' : 'bg-white/20'
+                            }`}
+                          />
+                        </div>
+                      </button>
+                      {error && <p className="mt-2 px-1 text-[11px] text-red-300">{error}</p>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {!isCollapsed && (
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="flex items-center gap-2 px-1 text-[11px] uppercase tracking-[0.18em] text-white/60">
+                <Layers size={13} />
+                <span>Green Space Analysis</span>
+              </div>
+
+              <div className="mt-2 space-y-2">
+                {GREEN_SPACE_LAYER_ORDER.map(layerId => {
+                  const config = STUDY_CONTEXT_LAYER_CONFIGS[layerId]
+                  const isVisible = studyContextLayerVisibility[layerId]
+                  const isLoading = studyContextLayerLoading[layerId]
+                  const error = studyContextLayerErrors[layerId]
+                  const featureCount = studyContextLayerData[layerId]?.features.length
+
+                  return (
+                    <div key={layerId}>
+                      <button
+                        onClick={() => toggleStudyContextLayer(layerId)}
+                        disabled={isLoading}
+                        className={`w-full rounded-xl border p-3 text-left transition ${
+                          isVisible
+                            ? 'border-white/20 bg-white/10 text-white'
+                            : 'border-white/10 bg-white/5 text-white/80 hover:bg-white/10'
+                        } ${isLoading ? 'cursor-not-allowed opacity-60' : ''}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="block text-xs font-medium">
+                              {isLoading ? `Loading ${config.label}...` : config.label}
+                            </span>
                             <span className="mt-1 block text-[10px] leading-relaxed text-white/50">
                               {config.description}
                             </span>
