@@ -3,7 +3,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { getLeaders, getTechTeamMembers, getOperationsTeamMembers, TeamMember } from '@/data/teams'
+import { getLeaders, getTechTeamMembers, getOperationsTeamMembers, getRelationsTeamMembers, TeamMember } from '@/data/teams'
 import Footer from '@/components/Footer'
 
 const TeamCard: React.FC<{ member: TeamMember; isLeader?: boolean }> = ({ member, isLeader = false }) => {
@@ -121,6 +121,7 @@ const Teams: React.FC = () => {
   const leaders = getLeaders()
   const techTeamMembers = getTechTeamMembers()
   const operationsTeamMembers = getOperationsTeamMembers()
+  const relationsTeamMembers = getRelationsTeamMembers()
 
   return (
     <div className="min-h-screen">
@@ -185,6 +186,37 @@ const Teams: React.FC = () => {
               A carefully assembled team of specialists driving innovation across technology and operations.
             </p>
           </motion.div>
+
+          {/* Regional Relations Subsection */}
+          {relationsTeamMembers.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true }}
+              className="mb-16"
+            >
+              <div className="text-center mb-12">
+                <h3 className="text-2xl md:text-3xl font-light text-[#021400] mb-3 leading-tight tracking-tight">
+                  Regional Relations
+                </h3>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
+                {relationsTeamMembers.map((member: TeamMember, index: number) => (
+                  <motion.div
+                    key={member.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <TeamCard member={member} isLeader={false} />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Tech Team Subsection */}
           <motion.div

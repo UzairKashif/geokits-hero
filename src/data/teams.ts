@@ -8,7 +8,7 @@ export interface TeamMember {
   linkedIn?: string
   
   category: 'leader' | 'team'
-  team?: 'tech' | 'operations'
+  team?: 'tech' | 'operations' | 'relations'
 }
 
 export const teamMembers: TeamMember[] = [
@@ -53,6 +53,18 @@ export const teamMembers: TeamMember[] = [
     category: "leader"
   },
   
+  // Regional Relations
+  {
+    id: 19,
+    name: "Carmen Martin",
+    role: "Relations Manager South America",
+    description: "Driving client relationships and regional partnerships across South America.",
+    imageUrl: "/team/carmen.jpg",
+    imagePosition: "center top",
+    category: "team",
+    team: "relations"
+  },
+
   // Team Members
   {
     id: 3,
@@ -193,6 +205,10 @@ export const getTechTeamMembers = () => teamMembers.filter(member =>
   member.category === 'team' && member.team === 'tech'
 )
 
-export const getOperationsTeamMembers = () => teamMembers.filter(member => 
+export const getOperationsTeamMembers = () => teamMembers.filter(member =>
   member.category === 'team' && member.team === 'operations'
+)
+
+export const getRelationsTeamMembers = () => teamMembers.filter(member =>
+  member.category === 'team' && member.team === 'relations'
 )
